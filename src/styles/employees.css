@@ -1,0 +1,60 @@
+.employees-list { margin: 12px; }
+.emp-card {
+  background: var(--surface); border-radius: var(--radius);
+  margin-bottom: 8px; padding: 14px 16px;
+  box-shadow: var(--shadow-sm); border: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 12px;
+  transition: all var(--transition);
+  animation: slideUp 0.3s ease-out both;
+}
+.emp-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.emp-card.signed-card { border-left: 3px solid var(--green); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.emp-num {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+  color: white; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(15,23,42,0.2);
+}
+.emp-info { flex: 1; min-width: 0; }
+.emp-name {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.emp-detail { font-size: 11px; color: var(--text3); margin-top: 2px; font-weight: 500; }
+.emp-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; padding: 3px 8px;
+  border-radius: 6px; letter-spacing: 0.2px;
+}
+.badge-machine { background: #dbeafe; color: #1e40af; }
+.badge-cat { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+.badge-cat-portatif { background: #dcfce7; color: #166534; }
+.badge-cat-atelier { background: #e0e7ff; color: #3730a3; }
+.badge-cat-transport { background: #fef3c7; color: #92400e; }
+.badge-acc { background: #fef3c7; color: #92400e; }
+.badge svg { width: 11px; height: 11px; }
+.emp-sign-area { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.emp-time { font-size: 10px; color: var(--green-dark); font-weight: 700; }
+.sign-btn {
+  width: 76px; height: 40px; border-radius: var(--radius-xs);
+  border: 2px dashed var(--border); background: var(--surface2);
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 12px; color: var(--text3);
+  overflow: hidden; transition: all var(--transition); font-weight: 600;
+  font-family: inherit;
+}
+.sign-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
+.sign-btn:active { transform: scale(0.95); }
+.sign-btn.signed {
+  border: 2px solid var(--green); background: #ecfdf5;
+  box-shadow: 0 2px 4px rgba(16,185,129,0.15);
+}
+.sign-btn.signed img { width: 100%; height: 100%; object-fit: contain; }
+.badge-warning { background: #fef2f2; color: var(--red); }

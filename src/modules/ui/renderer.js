@@ -1,0 +1,134 @@
+import { getState, setState } from '../state.js';
+import { getActiveTeam } from '../domains/team.js';
+import { getMachineName } from '../domains/machines.js';
+import { isMatinLocked, isSoirLocked } from './visa.js';
+
+let _callbacks = {};
+export function bindRendererCallbacks(callbacks) {
+  _callbacks = callbacks;
+}
+
+export function renderEmployees() {
+  const { team, currentPeriod, presentToday, dayData, lockedMatinPresents, lockedSoirPresents } = getState();
+  const c = document.getElementById('employeesList');
+
+  if (team.every((t) => !t.nom)) {
+    c.innerHTML = '<div class="empty-state"><p>Aucun salarié configuré</p><button id="emptyConfigBtn">Configurer</button></div>';
+    const btn = document.getElementById('emptyConfigBtn');
+    if (btn) btn.addEventListener('click', () => { if (_callbacks.openConfig) _callbacks.openConfig(); });
+    return;
+  }
+  c.innerHTML = '';
+  const activeTeam = getActiveTeam();
+  if (presentToday.length === 0 && activeTeam.length > 0) {
+    c.innerHTML = `<div class="select-presence-prompt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" style="width:32px;height:32px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      <p>Sélectionnez d'abord les salariés présents aujourd'hui pour afficher la feuille d'émargement.</p>
+      <button id="selectPresenceBtn">Choisir les présents</button>
+    </div>`;
+    const btn = document.getElementById('selectPresenceBtn');
+    if (btn) btn.addEventListener('click', () => { if (_callbacks.openPresenceSelector) _callbacks.openPresenceSelector(); });
+    return;
+  }
+
+  const periodLocked = (currentPeriod === 'matin' && isMatinLocked()) || (currentPeriod === 'soir' && isSoirLocked());
+  const lockedList = currentPeriod === 'matin' ? lockedMatinPresents : lockedSoirPresents;
+  const banner = document.getElementById('lockedBanner');
+  if (periodLocked) {
+    banner.style.display = 'flex';
+    document.getElementById('lockedText').textContent = currentPeriod === 'matin'
+      ? 'Sortie verrouillée \u2014 Le responsable a validé les sorties de machines'
+      : 'Retour verrouillé \u2014 Le responsable a validé les retours de machines';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  let cardIdx = 0;
+  for (let i = 0; i < team.length; i++) {
+    const t = team[i];
+    if (!t.nom) continue;
+    if (!presentToday.includes(i)) continue;
+    const d = dayData[i];
+    const sig = d ? d[currentPeriod] : { signature: null, heure: null };
+    const isSigned = !!sig.signature;
+    const empLocked = periodLocked && lockedList.includes(i);
+    const mList = d ? (d.matin.machines || []) : [];
+    const totalAcc = mList.reduce((s, m) => s + m.acc, 0);
+    const totalRet = d && d.soir.returns ? mList.reduce((s, m) => s + (d.soir.returns[m.machineIdx] ? d.soir.returns[m.machineIdx].accRetour : 0), 0) : 0;
+    const showInfo = mList.length > 0 && d && d.matin.signature && (currentPeriod === 'matin' ? isSigned : true);
+    const hasEcart = d && d.soir.returns && mList.some((m) => { const r = d.soir.returns[m.machineIdx]; return r && r.motif; });
+
+    let machBadges = '';
+    if (showInfo) {
+      if (mList.length <= 2) {
+        machBadges = mList.map((m) => `<span class="badge badge-machine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="1"/></svg>${getMachineName(m.machineIdx)}</span>`).join('');
+      } else {
+        machBadges = `<span class="badge badge-machine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="1"/></svg>${getMachineName(mList[0].machineIdx)} + ${mList.length - 1} autre${mList.length - 1 > 1 ? 's' : ''}</span>`;
+      }
+    }
+
+    const card = document.createElement('div');
+    card.className = 'emp-card' + (isSigned ? ' signed-card' : '') + (empLocked ? ' locked' : '');
+    card.style.animationDelay = (cardIdx * 0.04) + 's';
+    cardIdx++;
+    card.innerHTML = `
+      <div class="emp-num">${i + 1}</div>
+      <div class="emp-info">
+        <div class="emp-name">${t.nom}</div>
+        <div class="emp-detail">${t.matricule ? 'Mat. ' + t.matricule : ''}${isSigned ? ' \u2713 Signé' : ''}${empLocked && isSigned ? ' \uD83D\uDD12' : ''}</div>
+        ${showInfo ? `<div class="emp-badges">
+          ${machBadges}
+          ${totalAcc > 0 ? `<span class="badge badge-acc">${currentPeriod === 'matin' ? totalAcc + ' sorti' + (totalAcc > 1 ? 's' : '') : totalRet + ' rentr' + (totalRet > 1 ? 'és' : 'é')}</span>` : ''}
+          ${currentPeriod === 'soir' && hasEcart ? '<span class="badge badge-warning">\u26A0 Écart</span>' : ''}
+        </div>` : ''}
+      </div>
+      <div class="emp-sign-area">
+        ${sig.heure ? `<span class="emp-time">${sig.heure}</span>` : ''}
+        <div class="sign-btn ${isSigned ? 'signed' : ''} ${empLocked ? 'locked-btn' : ''}">
+          ${isSigned ? `<img src="${sig.signature}" alt="s">` : (empLocked ? '\uD83D\uDD12' : (currentPeriod === 'soir' ? 'Rendre' : 'Choisir'))}
+        </div>
+      </div>`;
+
+    if (!empLocked) {
+      const signBtn = card.querySelector('.sign-btn');
+      const empIdx = i;
+      const period = currentPeriod;
+      signBtn.addEventListener('click', () => {
+        if (_callbacks.openSignModal) _callbacks.openSignModal(empIdx, period);
+      });
+    }
+    c.appendChild(card);
+  }
+}
+
+export function switchPeriod(p) {
+  if (p === 'soir' && !isMatinLocked()) {
+    alert("Le responsable doit d'abord signer le visa de sortie des machines avant de passer aux retours.");
+    return;
+  }
+  setState('currentPeriod', p);
+  document.querySelectorAll('.period-tab').forEach((t) => t.classList.remove('active'));
+  document.querySelectorAll('.period-tab')[p === 'matin' ? 0 : 1].classList.add('active');
+  renderEmployees();
+  updateSoirTabState();
+}
+
+export function updateCounts() {
+  const { team, presentToday, dayData } = getState();
+  const a = presentToday.filter((i) => team[i] && team[i].nom).length;
+  const mc = dayData.filter((d, i) => team[i] && team[i].nom && presentToday.includes(i) && d.matin.signature).length;
+  const sc = dayData.filter((d, i) => team[i] && team[i].nom && presentToday.includes(i) && d.soir.signature).length;
+  document.getElementById('countMatin').textContent = `${mc} / ${a} signés`;
+  document.getElementById('countSoir').textContent = `${sc} / ${a} signés`;
+}
+
+export function updateSoirTabState() {
+  const soirTab = document.querySelectorAll('.period-tab')[1];
+  if (!isMatinLocked()) {
+    soirTab.style.opacity = '0.4';
+    soirTab.style.cursor = 'not-allowed';
+  } else {
+    soirTab.style.opacity = '1';
+    soirTab.style.cursor = 'pointer';
+  }
+}
