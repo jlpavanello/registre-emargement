@@ -1,7 +1,8 @@
 /* ===== VOCAL REPORT PANEL ===== */
 .vocal-overlay {
   position: fixed; inset: 0;
-  background: var(--bg);
+  background: #f1f5f9;
+  background: var(--bg, #f1f5f9);
   z-index: 1100;
   overflow-y: auto;
   transform: translateX(100%);
