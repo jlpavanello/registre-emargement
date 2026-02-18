@@ -10,6 +10,7 @@ import { loadDayData, syncDayData } from './day-data.js';
 import { loadInfoFields, saveInfoFields } from './info-fields.js';
 import { loadPageNumber, updatePageNumberDisplay } from './page-number.js';
 import { updatePresenceBadge } from './presence.js';
+import { loadVocalReports } from './vocal-data.js';
 
 let _callbacks = {};
 export function bindInitCallbacks(callbacks) {
@@ -25,6 +26,7 @@ export function init() {
   loadDayData();
   loadInfoFields();
   loadPageNumber();
+  loadVocalReports();
   populateVisaSignerSelect();
 
   const { team } = getState();

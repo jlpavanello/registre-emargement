@@ -16,6 +16,7 @@ import './styles/config.css';
 import './styles/presence.css';
 import './styles/bottom-bar.css';
 import './styles/utilities.css';
+import './styles/vocal-report.css';
 
 // --- Module Imports ---
 // Domains
@@ -35,6 +36,10 @@ import { openVisaSign, updateVisaButtonState, bindVisaCallbacks } from './module
 import { resetSignatures, fullReset, bindResetCallbacks } from './modules/actions/reset.js';
 import { generatePDF } from './modules/actions/pdf.js';
 import { exportConfig, importConfig, bindExportImportCallbacks } from './modules/actions/export-import.js';
+
+// Vocal report
+import { openVocalPanel, closeVocalPanel, startRecording, clearForm as clearVocalForm, saveCurrentReport, updateSaveButton, bindVocalCallbacks } from './modules/ui/vocal-panel.js';
+import { generateVocalPDF } from './modules/actions/vocal-pdf.js';
 
 // =============================================
 // Late-binding callbacks to avoid circular deps
@@ -89,6 +94,10 @@ bindExportImportCallbacks({
   renderConfig,
   renderEmployees,
   updateCounts,
+});
+
+bindVocalCallbacks({
+  generateVocalPDF,
 });
 
 // =============================================
@@ -150,6 +159,14 @@ document.getElementById('importFileInput').addEventListener('change', importConf
 
 // Full reset (inside config panel)
 document.getElementById('btnFullReset').addEventListener('click', fullReset);
+
+// Vocal report panel
+document.getElementById('btnOpenVocal').addEventListener('click', openVocalPanel);
+document.getElementById('btnCloseVocal').addEventListener('click', closeVocalPanel);
+document.getElementById('btnMic').addEventListener('click', startRecording);
+document.getElementById('btnVocalClear').addEventListener('click', clearVocalForm);
+document.getElementById('btnVocalSave').addEventListener('click', saveCurrentReport);
+document.getElementById('vocalContenu').addEventListener('input', updateSaveButton);
 
 // =============================================
 // PWA: Service Worker Registration

@@ -27,6 +27,8 @@ const state = {
   presentToday: [],
   tempPresenceSelection: [],
   pageNumber: 1,
+  // Vocal reports
+  vocalReports: [],
   // Canvas state
   isDrawing: false,
   sigCtx: null,
