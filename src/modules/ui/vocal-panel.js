@@ -11,9 +11,13 @@ export function bindVocalCallbacks(callbacks) {
 let recognition = null;
 let isRecording = false;
 let speechSupported = false;
+let lastProcessedIndex = 0; // Track which results we've already processed
 
 // Check browser support
 function initSpeechRecognition() {
+  // Already initialized
+  if (recognition) return;
+
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     speechSupported = false;
@@ -30,26 +34,28 @@ function initSpeechRecognition() {
     const interimEl = document.getElementById('vocalInterim');
     if (!textarea) return;
 
-    let finalText = '';
+    let newFinalText = '';
     let interimText = '';
 
-    for (let i = 0; i < event.results.length; i++) {
+    // Only process results from where we left off to avoid duplication
+    for (let i = lastProcessedIndex; i < event.results.length; i++) {
       const result = event.results[i];
       if (result.isFinal) {
-        finalText += result[0].transcript + ' ';
+        newFinalText += result[0].transcript + ' ';
+        lastProcessedIndex = i + 1;
       } else {
         interimText += result[0].transcript;
       }
     }
 
-    // Append final text to existing content
-    if (finalText) {
-      const currentVal = textarea.dataset.baseText || '';
-      textarea.value = currentVal + finalText;
+    // Append only NEW final text to existing content
+    if (newFinalText) {
+      textarea.value = textarea.value + newFinalText;
       textarea.dataset.baseText = textarea.value;
+      updateSaveButton();
     }
 
-    // Show interim text
+    // Show interim text (preview of what's being said)
     if (interimEl) {
       interimEl.textContent = interimText ? '🎤 ' + interimText : '';
     }
@@ -58,7 +64,12 @@ function initSpeechRecognition() {
   recognition.onerror = (event) => {
     console.log('Speech recognition error:', event.error);
     if (event.error === 'not-allowed') {
-      alert("L'accès au microphone a été refusé. Veuillez l'autoriser dans les paramètres de votre navigateur.");
+      alert("L'accès au microphone a été refusé.\n\nPour l'autoriser :\n1. Ouvrez les Réglages du navigateur\n2. Allez dans Autorisations > Microphone\n3. Autorisez ce site");
+    } else if (event.error === 'network') {
+      alert("Erreur réseau. La reconnaissance vocale nécessite une connexion internet.");
+    } else if (event.error === 'no-speech') {
+      // Don't alert, this is normal — just restart
+      return;
     }
     stopRecording();
   };
@@ -91,16 +102,27 @@ export function closeVocalPanel() {
 
 function updateMicButton() {
   const btn = document.getElementById('btnMic');
+  const status = document.getElementById('vocalMicStatus');
   if (!speechSupported) {
     btn.classList.add('unavailable');
-    document.getElementById('vocalMicStatus').textContent = 'Saisie manuelle uniquement';
+    if (status) {
+      status.textContent = 'Saisie manuelle uniquement (votre navigateur ne supporte pas la dictée)';
+      status.style.color = '#ef4444';
+    }
   } else {
     btn.classList.remove('unavailable');
+    if (status) {
+      status.textContent = 'Appuyez pour dicter';
+      status.style.color = '';
+    }
   }
 }
 
 export function startRecording() {
-  if (!speechSupported || !recognition) return;
+  if (!speechSupported || !recognition) {
+    alert("La reconnaissance vocale n'est pas supportée par votre navigateur.\n\nNavigateurs compatibles :\n✅ Chrome (Android et Desktop)\n✅ Edge\n❌ Safari (support limité)\n❌ Firefox\n\nVous pouvez taper votre rapport manuellement dans la zone de texte.");
+    return;
+  }
   if (isRecording) {
     stopRecording();
     return;
@@ -108,25 +130,28 @@ export function startRecording() {
 
   const textarea = document.getElementById('vocalContenu');
   textarea.dataset.baseText = textarea.value;
+  lastProcessedIndex = 0; // Reset the result index for a new session
 
   try {
     recognition.start();
     isRecording = true;
     document.getElementById('btnMic').classList.add('recording');
     document.getElementById('vocalMicStatus').classList.add('recording');
-    document.getElementById('vocalMicStatus').textContent = 'Parlez maintenant...';
+    document.getElementById('vocalMicStatus').textContent = 'Parlez maintenant... (appuyez à nouveau pour arrêter)';
   } catch (e) {
     console.log('Cannot start recognition:', e);
+    alert("Impossible de démarrer la reconnaissance vocale.\n\nVérifiez que :\n1. Vous avez autorisé le microphone\n2. Vous êtes connecté à Internet\n3. Vous utilisez Chrome");
   }
 }
 
 export function stopRecording() {
+  isRecording = false;
   if (recognition) {
     try {
       recognition.stop();
     } catch (e) {}
   }
-  isRecording = false;
+  lastProcessedIndex = 0; // Reset for next recording session
   const btn = document.getElementById('btnMic');
   const status = document.getElementById('vocalMicStatus');
   if (btn) btn.classList.remove('recording');
@@ -136,6 +161,7 @@ export function stopRecording() {
   }
   const interim = document.getElementById('vocalInterim');
   if (interim) interim.textContent = '';
+  updateSaveButton();
 }
 
 export function clearForm() {
