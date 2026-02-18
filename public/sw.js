@@ -1,11 +1,10 @@
-const CACHE_NAME = 'emargement-v2';
+const CACHE_NAME = 'emargement-v3';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
 ];
 
 // Installation : mise en cache des ressources
@@ -28,28 +27,26 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch : stratégie Cache-First avec fallback réseau
+// Fetch : stratégie Network-First avec fallback cache
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((response) => {
-          if (!response || response.status !== 200 || response.type === 'opaque') {
-            return response;
-          }
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, clone);
           });
-          return response;
-        })
-        .catch(() => {
-          // Fallback hors-ligne pour la page principale
+        }
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cached) => {
+          if (cached) return cached;
           if (event.request.mode === 'navigate') {
             return caches.match('/index.html');
           }
         });
-    })
+      })
   );
 });
