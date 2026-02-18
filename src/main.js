@@ -41,6 +41,18 @@ import { exportConfig, importConfig, bindExportImportCallbacks } from './modules
 import { openVocalPanel, closeVocalPanel, startRecording, clearForm as clearVocalForm, saveCurrentReport, updateSaveButton, bindVocalCallbacks } from './modules/ui/vocal-panel.js';
 import { generateVocalPDF } from './modules/actions/vocal-pdf.js';
 
+// Phase 4: Sync engine
+import { initSyncEngine } from './modules/supabase/sync-engine.js';
+import { initSyncStatusUI } from './modules/supabase/sync-status.js';
+
+// Phase 5: Auth
+import { initAuth, onAuthStateChange } from './modules/auth/auth-state.js';
+import { applyRoleGuards } from './modules/auth/auth-guard.js';
+import { createLoginScreen } from './modules/auth/login-screen.js';
+
+// Phase 6: Accessibility
+import { initAccessibility } from './modules/a11y/accessibility.js';
+
 // =============================================
 // Late-binding callbacks to avoid circular deps
 // =============================================
@@ -232,5 +244,25 @@ window.addEventListener('appinstalled', () => {
 // =============================================
 // Initialize the application
 // =============================================
-// Phase 2: init() is now async (awaits IndexedDB initialization)
-init().catch((err) => console.error('Init error:', err));
+
+async function bootstrap() {
+  // Phase 6: Accessibility enhancements
+  initAccessibility();
+
+  // Phase 5: Create login screen (only if Supabase is configured)
+  createLoginScreen();
+
+  // Phase 2+: init() is async (awaits IndexedDB initialization)
+  await init();
+
+  // Phase 5: Initialize auth and apply role guards
+  await initAuth();
+  onAuthStateChange(() => applyRoleGuards());
+  applyRoleGuards();
+
+  // Phase 4: Start sync engine
+  initSyncEngine();
+  initSyncStatusUI();
+}
+
+bootstrap().catch((err) => console.error('Init error:', err));
