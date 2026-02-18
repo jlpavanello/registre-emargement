@@ -322,6 +322,33 @@ CREATE POLICY "vocal_delete_own" ON vocal_reports
 -- DELETE: chef/admin only
 
 -- ============================================================
+-- SHARED DATA (key-value store for simple multi-device sync)
+-- Used by data-sync.js: each storage key is synced as a row
+-- ============================================================
+CREATE TABLE shared_data (
+  key         TEXT PRIMARY KEY,
+  value       TEXT NOT NULL DEFAULT '{}',
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE shared_data ENABLE ROW LEVEL SECURITY;
+
+-- All authenticated users can read/write shared data
+-- (In production, scope by organization_id if needed)
+CREATE POLICY "shared_data_select" ON shared_data
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "shared_data_insert" ON shared_data
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "shared_data_update" ON shared_data
+  FOR UPDATE USING (auth.role() = 'authenticated');
+
+-- Enable realtime for shared_data (needed for subscribeToChanges)
+ALTER PUBLICATION supabase_realtime ADD TABLE shared_data;
+
+-- ============================================================
 -- HELPER FUNCTIONS
 -- ============================================================
 
@@ -348,4 +375,8 @@ CREATE TRIGGER trg_registers_updated
 
 CREATE TRIGGER trg_vocal_updated
   BEFORE UPDATE ON vocal_reports
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER trg_shared_data_updated
+  BEFORE UPDATE ON shared_data
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
