@@ -2,6 +2,7 @@
 // Loads all data, sets up the initial UI state
 import { getState, setState } from '../state.js';
 import { todayStr } from '../utils/date.js';
+import { initStorage } from '../storage/storage-interface.js';
 import { loadTeam, saveTeam } from './team.js';
 import { loadMachines, saveMachines } from './machines.js';
 import { loadCategories } from './categories.js';
@@ -17,7 +18,9 @@ export function bindInitCallbacks(callbacks) {
   _callbacks = callbacks;
 }
 
-export function init() {
+export async function init() {
+  // Phase 2: Initialize IndexedDB storage (migrates from localStorage on first run)
+  await initStorage();
   document.getElementById('dateJour').value = todayStr();
   loadTeam();
   loadMachines();

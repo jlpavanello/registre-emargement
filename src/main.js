@@ -232,4 +232,5 @@ window.addEventListener('appinstalled', () => {
 // =============================================
 // Initialize the application
 // =============================================
-init();
+// Phase 2: init() is now async (awaits IndexedDB initialization)
+init().catch((err) => console.error('Init error:', err));
