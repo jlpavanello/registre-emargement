@@ -1,6 +1,8 @@
-// Domain module: Orders and quotes management
+// Domain module: Orders and quote requests management
 // localStorage key: 'reg_commandes'
 // Array of { id, type, numero, date, fournisseurId, fournisseurNom, lignes[], totalHT, tva, totalTTC, statut, notes }
+// type: 'demande_devis' = Demande de devis (envoyé au fournisseur pour obtenir une offre de prix)
+//       'commande'      = Bon de commande (après acceptation d'un devis)
 
 import { getState, setState } from '../state.js';
 import { storage } from '../storage/storage-interface.js';
@@ -23,7 +25,7 @@ export function saveCommandes() {
  */
 export function generateNumero(type) {
   const { commandes } = getState();
-  const prefix = type === 'devis' ? 'DEV' : 'CMD';
+  const prefix = type === 'demande_devis' ? 'DDD' : 'CMD';
   const year = new Date().getFullYear();
   const sameTypeYear = commandes.filter(c => c.type === type && c.numero && c.numero.includes(`${year}`));
   const num = sameTypeYear.length + 1;
