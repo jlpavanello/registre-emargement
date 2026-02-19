@@ -22,14 +22,14 @@ import './styles/crew.css';
 // --- Module Imports ---
 // Domains
 import { init, bindInitCallbacks } from './modules/domains/init.js';
-import { addCategory, removeCategory } from './modules/domains/categories.js';
+import { addCategory } from './modules/domains/categories.js';
 import { onArmurierSelectChange, onVisaSignerChange } from './modules/domains/responsables.js';
 import { openPresenceSelector, closePresenceSelector, selectAllPresence, selectNonePresence, savePresence, removeFromPresent, bindPresenceCallbacks } from './modules/domains/presence.js';
 import { openCrewSelector, closeCrewSelector, saveCrewAssignments, updateCrewBadge, bindCrewCallbacks } from './modules/domains/crew-assignment.js';
 
 // UI
 import { renderEmployees, switchPeriod, updateCounts, updateSoirTabState, bindRendererCallbacks } from './modules/ui/renderer.js';
-import { openConfig, closeConfig, renderConfig, addItem, removeItem, saveConfig, bindConfigCallbacks } from './modules/ui/config-panel.js';
+import { openConfig, closeConfig, renderConfig, addItem, saveConfig, bindConfigCallbacks } from './modules/ui/config-panel.js';
 import { openSignModal, closeModal, confirmSignature, onCatChange, onMachineChange, changeQty, onQtyInput, addMachineToList, goToAddAnotherMachine, goToSignStep, bindSignModalCallbacks } from './modules/ui/sign-modal.js';
 import { clearCanvas } from './modules/ui/canvas.js';
 import { openVisaSign, updateVisaButtonState, bindVisaCallbacks } from './modules/ui/visa.js';
@@ -156,11 +156,8 @@ document.getElementById('btnGoToSign').addEventListener('click', goToSignStep);
 document.getElementById('btnCloseConfig').addEventListener('click', closeConfig);
 document.getElementById('btnSaveConfig').addEventListener('click', saveConfig);
 document.getElementById('btnAddEmp').addEventListener('click', () => addItem('emp'));
-document.getElementById('btnRemEmp').addEventListener('click', () => removeItem('emp'));
 document.getElementById('btnAddCat').addEventListener('click', addCategory);
-document.getElementById('btnRemCat').addEventListener('click', removeCategory);
 document.getElementById('btnAddMach').addEventListener('click', () => addItem('mach'));
-document.getElementById('btnRemMach').addEventListener('click', () => removeItem('mach'));
 document.getElementById('configArmurierSelect').addEventListener('change', onArmurierSelectChange);
 
 // Full reset (inside config panel)
@@ -181,7 +178,6 @@ document.getElementById('btnSaveCrew').addEventListener('click', saveCrewAssignm
 
 // Config: Vehicles
 document.getElementById('btnAddVeh').addEventListener('click', () => addItem('veh'));
-document.getElementById('btnRemVeh').addEventListener('click', () => removeItem('veh'));
 
 // =============================================
 // PWA: Service Worker Registration
