@@ -23,7 +23,7 @@ import './styles/vocal-report.css';
 import { init, bindInitCallbacks } from './modules/domains/init.js';
 import { addCategory, removeCategory } from './modules/domains/categories.js';
 import { onArmurierSelectChange, onVisaSignerChange } from './modules/domains/responsables.js';
-import { openPresenceSelector, closePresenceSelector, selectAllPresence, selectNonePresence, savePresence, bindPresenceCallbacks } from './modules/domains/presence.js';
+import { openPresenceSelector, closePresenceSelector, selectAllPresence, selectNonePresence, savePresence, removeFromPresent, bindPresenceCallbacks } from './modules/domains/presence.js';
 
 // UI
 import { renderEmployees, switchPeriod, updateCounts, updateSoirTabState, bindRendererCallbacks } from './modules/ui/renderer.js';
@@ -70,6 +70,7 @@ bindRendererCallbacks({
   openSignModal,
   openConfig,
   openPresenceSelector,
+  removeFromPresent,
 });
 
 bindSignModalCallbacks({

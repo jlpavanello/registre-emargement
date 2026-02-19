@@ -85,6 +85,29 @@ export function savePresence() {
   if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
 }
 
+export function removeFromPresent(idx) {
+  const { team, presentToday, dayData } = getState();
+  const nom = team[idx] ? team[idx].nom : `Salarié ${idx + 1}`;
+  if (!confirm(`Retirer ${nom} de la liste des présents ?`)) return;
+
+  // Retirer de presentToday
+  const updated = presentToday.filter((i) => i !== idx);
+  setState('presentToday', updated);
+
+  // Nettoyer les données du jour pour ce salarié
+  dayData[idx] = {
+    matin: { signature: null, heure: null, machines: [] },
+    soir: { signature: null, heure: null, returns: {} },
+  };
+  setState('dayData', dayData);
+
+  saveDayData();
+  if (_callbacks.renderEmployees) _callbacks.renderEmployees();
+  if (_callbacks.updateCounts) _callbacks.updateCounts();
+  updatePresenceBadge();
+  if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
+}
+
 export function updatePresenceBadge() {
   const { presentToday } = getState();
   const area = document.getElementById('presenceBadgeArea');

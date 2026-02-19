@@ -72,6 +72,7 @@ export function renderEmployees() {
     card.style.animationDelay = (cardIdx * 0.04) + 's';
     cardIdx++;
     card.innerHTML = `
+      ${!empLocked ? '<button class="btn-remove-present" title="Retirer des présents">✕</button>' : ''}
       <div class="emp-num">${i + 1}</div>
       <div class="emp-info">
         <div class="emp-name">${t.nom}</div>
@@ -96,6 +97,13 @@ export function renderEmployees() {
       signBtn.addEventListener('click', () => {
         if (_callbacks.openSignModal) _callbacks.openSignModal(empIdx, period);
       });
+      const removeBtn = card.querySelector('.btn-remove-present');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (_callbacks.removeFromPresent) _callbacks.removeFromPresent(empIdx);
+        });
+      }
     }
     c.appendChild(card);
   }
