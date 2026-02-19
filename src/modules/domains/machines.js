@@ -64,6 +64,12 @@ export function getMachineName(idx) {
   return m.nom + (m.ref ? ` (${m.ref})` : '');
 }
 
+export function getMachineRawData(idx) {
+  const { machines } = getState();
+  if (idx === null || idx === undefined || !machines[idx]) return { nom: '', ref: '', cat: '' };
+  return { nom: machines[idx].nom || '', ref: machines[idx].ref || '', cat: machines[idx].cat || '' };
+}
+
 export function getMachineCat(idx) {
   const { machines } = getState();
   if (idx === null || idx === undefined || !machines[idx]) return '';

@@ -2,8 +2,7 @@
 import { jsPDF } from 'jspdf';
 import { getState } from '../state.js';
 import { hasUncoveredSignatures } from '../ui/visa.js';
-import { getMachineName, getMachineCat } from '../domains/machines.js';
-import { getCatEmoji } from '../domains/categories.js';
+import { getMachineName, getMachineRawData } from '../domains/machines.js';
 import { getActiveVehicles, getVehicleLabel } from '../domains/crews.js';
 
 export function generatePDF() {
@@ -44,12 +43,12 @@ export function generatePDF() {
   const ml = 10;
   const uw = pw - 2 * ml;
 
-  const ent = document.getElementById('entreprise').value || '—';
+  const ent = document.getElementById('entreprise').value || '';
   const dv = document.getElementById('dateJour').value;
-  const ds = dv ? new Date(dv + 'T00:00:00').toLocaleDateString('fr-FR') : '—';
-  const rc = document.getElementById('refChantier').value || '—';
-  const rp = document.getElementById('responsable').value || '—';
-  const ad = document.getElementById('adresseChantier').value || '—';
+  const ds = dv ? new Date(dv + 'T00:00:00').toLocaleDateString('fr-FR') : '';
+  const rc = document.getElementById('refChantier').value || '';
+  const rp = document.getElementById('responsable').value || '';
+  const ad = document.getElementById('adresseChantier').value || '';
   const N = at.length;
 
   // --- Title bar ---
@@ -58,9 +57,9 @@ export function generatePDF() {
   doc.setTextColor(255);
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text("REGISTRE D'ÉMARGEMENT QUOTIDIEN", pw / 2, 13, { align: 'center' });
+  doc.text("REGISTRE D'EMARGEMENT QUOTIDIEN", pw / 2, 13, { align: 'center' });
   doc.setFontSize(8);
-  doc.text('Page n° ' + pageNumber, pw - ml - 1, 13, { align: 'right' });
+  doc.text('Page n\u00b0 ' + pageNumber, pw - ml - 1, 13, { align: 'right' });
 
   // --- Info block ---
   let y = 20;
@@ -82,7 +81,7 @@ export function generatePDF() {
   doc.setFont('helvetica', 'normal');
   doc.text(rp, ml + uw * 0.62 + 25, y + 5);
   doc.setFont('helvetica', 'bold');
-  doc.text('Réf. chantier :', ml + 2, y + 11);
+  doc.text('Ref. chantier :', ml + 2, y + 11);
   doc.setFont('helvetica', 'normal');
   doc.text(rc, ml + 26, y + 11);
   doc.setFont('helvetica', 'bold');
@@ -92,15 +91,37 @@ export function generatePDF() {
 
   // --- Table layout ---
   y = 40;
-  const cW = [7, 14, 36, 26, 12, 11, 26, 12, 11, 26];
-  cW.push(uw - cW.reduce((a, b) => a + b, 0));
+  // Nouvelles largeurs: N° | Mat. | Nom | Arme | MunS | HeS | EmS | MunR | HeR | EmR | Obs
+  const cW = [7, 14, 42, 42, 10, 10, 26, 10, 10, 26];
+  cW.push(uw - cW.reduce((a, b) => a + b, 0)); // Obs = 80mm
   const cX = [ml];
   for (let i = 0; i < cW.length; i++) cX.push(cX[i] + cW[i]);
   const hH = 8;
   const sH = 8;
-  const rH = Math.min(11, Math.max(7, (ph - y - 28 - hH - sH) / N));
-  const tH = hH + sH + N * rH;
   const mid = (a, b) => (a + b) / 2;
+
+  // --- Dynamic row heights based on weapon count ---
+  const baseRowH = 9;
+  const perWeaponH = 6;
+  const maxRowH = 24;
+
+  const rowHeights = at.map((t) => {
+    const d = dayData[t.idx];
+    const wc = d ? (d.matin.machines || []).length : 0;
+    const needed = baseRowH + Math.max(0, wc - 1) * perWeaponH;
+    return Math.min(maxRowH, needed);
+  });
+
+  const totalDataH = rowHeights.reduce((s, h) => s + h, 0);
+  const availableH = ph - y - 28 - hH - sH;
+  const scaleFactor = totalDataH > availableH ? availableH / totalDataH : 1;
+  const finalRowHeights = rowHeights.map((h) => Math.max(7, h * scaleFactor));
+
+  const rowYOffsets = [0];
+  for (let i = 0; i < finalRowHeights.length; i++) {
+    rowYOffsets.push(rowYOffsets[i] + finalRowHeights[i]);
+  }
+  const tH = hH + sH + rowYOffsets[N];
 
   // --- Header row backgrounds ---
   doc.setFillColor(26, 58, 92);
@@ -114,16 +135,16 @@ export function generatePDF() {
 
   // --- Header text ---
   doc.setTextColor(255);
-  doc.setFontSize(6);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   const hYc = y + (hH + sH) / 2 + 1;
-  doc.text('N°', mid(cX[0], cX[1]), hYc, { align: 'center' });
+  doc.text('N\u00b0', mid(cX[0], cX[1]), hYc, { align: 'center' });
   doc.text('Mat.', mid(cX[1], cX[2]), hYc, { align: 'center' });
-  doc.text('Nom et Prénom', mid(cX[2], cX[3]), hYc, { align: 'center' });
+  doc.text('Nom et Prenom', mid(cX[2], cX[3]), hYc, { align: 'center' });
   doc.text('Arme', mid(cX[3], cX[4]), hYc, { align: 'center' });
   doc.text('Obs.', mid(cX[10], cX[11]), hYc, { align: 'center' });
 
-  doc.setFontSize(8);
+  doc.setFontSize(9);
   doc.text('SORTIE', mid(cX[4], cX[7]), y + hH / 2 + 1.5, { align: 'center' });
   doc.text('RETOUR', mid(cX[7], cX[10]), y + hH / 2 + 1.5, { align: 'center' });
 
@@ -134,7 +155,7 @@ export function generatePDF() {
   doc.setFillColor(219, 234, 254);
   doc.rect(cX[7], y2, cW[7] + cW[8] + cW[9], sH, 'F');
 
-  doc.setFontSize(5);
+  doc.setFontSize(6);
   doc.setFont('helvetica', 'bold');
   const sYc = y2 + sH / 2;
   doc.setTextColor(146, 64, 14);
@@ -142,115 +163,181 @@ export function generatePDF() {
   doc.text('sortie', mid(cX[4], cX[5]), sYc + 2.5, { align: 'center' });
   doc.text('Heure', mid(cX[5], cX[6]), sYc - 0.5, { align: 'center' });
   doc.text('arr.', mid(cX[5], cX[6]), sYc + 2.5, { align: 'center' });
-  doc.text('Émargement', mid(cX[6], cX[7]), sYc + 1, { align: 'center' });
+  doc.text('Emargement', mid(cX[6], cX[7]), sYc + 1, { align: 'center' });
   doc.setTextColor(30, 64, 175);
   doc.text('Mun.', mid(cX[7], cX[8]), sYc - 0.5, { align: 'center' });
-  doc.text('rentrée', mid(cX[7], cX[8]), sYc + 2.5, { align: 'center' });
+  doc.text('rentree', mid(cX[7], cX[8]), sYc + 2.5, { align: 'center' });
   doc.text('Heure', mid(cX[8], cX[9]), sYc - 0.5, { align: 'center' });
-  doc.text('dép.', mid(cX[8], cX[9]), sYc + 2.5, { align: 'center' });
-  doc.text('Émargement', mid(cX[9], cX[10]), sYc + 1, { align: 'center' });
+  doc.text('dep.', mid(cX[8], cX[9]), sYc + 2.5, { align: 'center' });
+  doc.text('Emargement', mid(cX[9], cX[10]), sYc + 1, { align: 'center' });
 
   // --- Data rows ---
   const dY = y2 + sH;
   at.forEach((t, row) => {
-    const ry = dY + row * rH;
+    const ry = dY + rowYOffsets[row];
+    const rH = finalRowHeights[row];
+
+    // Alternating row backgrounds
     if (row % 2 === 0) {
-      doc.setFillColor(237, 242, 247);
-      doc.rect(cX[0], ry, uw, rH, 'F');
-    }
-    doc.setFillColor(255, 251, 235);
-    doc.rect(cX[4], ry, cW[4] + cW[5] + cW[6], rH, 'F');
-    doc.setFillColor(239, 246, 255);
-    doc.rect(cX[7], ry, cW[7] + cW[8] + cW[9], rH, 'F');
-    if (row % 2 === 0) {
-      doc.setFillColor(248, 245, 230);
+      doc.setFillColor(245, 247, 250);
+      doc.rect(cX[0], ry, cW[0] + cW[1] + cW[2] + cW[3], rH, 'F');
+      doc.setFillColor(253, 249, 237);
       doc.rect(cX[4], ry, cW[4] + cW[5] + cW[6], rH, 'F');
-      doc.setFillColor(235, 241, 250);
+      doc.setFillColor(241, 245, 252);
+      doc.rect(cX[7], ry, cW[7] + cW[8] + cW[9], rH, 'F');
+      doc.setFillColor(248, 249, 250);
+      doc.rect(cX[10], ry, cW[10], rH, 'F');
+    } else {
+      doc.setFillColor(255, 251, 240);
+      doc.rect(cX[4], ry, cW[4] + cW[5] + cW[6], rH, 'F');
+      doc.setFillColor(243, 247, 253);
       doc.rect(cX[7], ry, cW[7] + cW[8] + cW[9], rH, 'F');
     }
 
+    // N° (numéro de ligne)
     doc.setTextColor(26, 58, 92);
-    doc.setFontSize(7);
+    doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
     doc.text(String(row + 1), mid(cX[0], cX[1]), ry + rH / 2 + 1, { align: 'center' });
+
+    // Matricule
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(0);
-    doc.setFontSize(6);
-    if (t.matricule) doc.text(t.matricule, mid(cX[1], cX[2]), ry + rH / 2 + 1, { align: 'center' });
     doc.setFontSize(6.5);
-    doc.text(t.nom, cX[2] + 1, ry + rH / 2 + 1);
+    if (t.matricule) doc.text(t.matricule, mid(cX[1], cX[2]), ry + rH / 2 + 1, { align: 'center' });
+
+    // Nom et Prénom — bold navy, 7.5pt
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(26, 58, 92);
+    doc.text(t.nom, cX[2] + 1.5, ry + rH / 2 + 1, { maxWidth: cW[2] - 2 });
 
     const d = dayData[t.idx];
     if (d) {
-      // Multi-machines empilées
       const mList = d.matin.machines || [];
+
+      // ── Colonne ARME : nom gras + ref italique ──
       if (mList.length > 0) {
-        const lineH = Math.min(3.5, (rH - 1) / mList.length);
-        const startY = ry + (rH - mList.length * lineH) / 2 + lineH * 0.7;
+        const weaponBlockH = 5.5;
+        const totalWeaponsH = mList.length * weaponBlockH;
+        const weaponStartY = ry + (rH - totalWeaponsH) / 2 + 2.5;
+
         mList.forEach((m, mi) => {
-          const name = getMachineName(m.machineIdx);
-          const catE = getCatEmoji(getMachineCat(m.machineIdx));
-          doc.setFontSize(Math.min(5, 4.5));
-          doc.setTextColor(30, 64, 175);
-          const label = (catE ? catE + ' ' : '') + name + (m.acc > 0 ? ' (' + m.acc + ' mun)' : '');
-          doc.text(label, cX[3] + 0.5, startY + mi * lineH, { maxWidth: cW[3] - 1 });
+          const raw = getMachineRawData(m.machineIdx);
+          const blockY = weaponStartY + mi * weaponBlockH;
+
+          // Séparateur entre armes multiples
+          if (mi > 0) {
+            doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(0.1);
+            doc.line(cX[3] + 1, blockY - 1, cX[4] - 1, blockY - 1);
+          }
+
+          // Nom de l'arme — bold navy 6.5pt
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(6.5);
+          doc.setTextColor(26, 58, 92);
+          doc.text(raw.nom, cX[3] + 1, blockY, { maxWidth: cW[3] - 2 });
+
+          // Référence — italic gris 5pt
+          if (raw.ref) {
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(5);
+            doc.setTextColor(120, 120, 120);
+            doc.text('Ref: ' + raw.ref, cX[3] + 1, blockY + 2.8);
+          }
         });
-        doc.setTextColor(0);
+
+        // ── Munitions SORTIE (colonne 4) ──
+        if (mList.length === 1) {
+          const totalAcc = mList[0].acc;
+          if (totalAcc > 0) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.setTextColor(146, 64, 14);
+            doc.text(String(totalAcc), mid(cX[4], cX[5]), ry + rH / 2 + 1, { align: 'center' });
+          }
+        } else {
+          mList.forEach((m, mi) => {
+            if (m.acc > 0) {
+              const blockY = weaponStartY + mi * weaponBlockH;
+              doc.setFont('helvetica', 'bold');
+              doc.setFontSize(6);
+              doc.setTextColor(146, 64, 14);
+              doc.text(String(m.acc), mid(cX[4], cX[5]), blockY, { align: 'center' });
+            }
+          });
+        }
+
+        // ── Munitions RETOUR (colonne 7) ──
+        if (mList.length === 1) {
+          const r = d.soir.returns ? d.soir.returns[mList[0].machineIdx] : null;
+          const totalRet = r ? r.accRetour : 0;
+          if (totalRet > 0) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.setTextColor(30, 64, 175);
+            doc.text(String(totalRet), mid(cX[7], cX[8]), ry + rH / 2 + 1, { align: 'center' });
+          }
+        } else {
+          mList.forEach((m, mi) => {
+            const r = d.soir.returns ? d.soir.returns[m.machineIdx] : null;
+            const retVal = r ? r.accRetour : 0;
+            if (retVal > 0) {
+              const blockY = weaponStartY + mi * weaponBlockH;
+              doc.setFont('helvetica', 'bold');
+              doc.setFontSize(6);
+              doc.setTextColor(30, 64, 175);
+              doc.text(String(retVal), mid(cX[7], cX[8]), blockY, { align: 'center' });
+            }
+          });
+        }
       }
 
-      // Total accessoires matin
-      const totalAcc = mList.reduce((s, m) => s + m.acc, 0);
-      if (totalAcc > 0) {
-        doc.setFontSize(6);
-        doc.setTextColor(146, 64, 14);
-        doc.text(String(totalAcc), mid(cX[4], cX[5]), ry + rH / 2 + 1, { align: 'center' });
-        doc.setTextColor(0);
-      }
-      doc.setFontSize(5.5);
+      // ── Heure sortie (colonne 5) ──
+      doc.setFontSize(6.5);
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(0);
       if (d.matin.heure) doc.text(d.matin.heure, mid(cX[5], cX[6]), ry + rH / 2 + 1, { align: 'center' });
+
+      // ── Signature sortie (colonne 6) ──
       if (d.matin.signature)
         try {
           doc.addImage(d.matin.signature, 'PNG', cX[6] + 0.3, ry + 0.3, cW[6] - 0.6, rH - 0.6);
-        } catch (e) {}
+        } catch (e) { /* ignore */ }
 
-      // Total accessoires retour
-      const totalRet = mList.reduce((s, m) => {
-        const r = d.soir.returns ? d.soir.returns[m.machineIdx] : null;
-        return s + (r ? r.accRetour : 0);
-      }, 0);
-      if (totalRet > 0) {
-        doc.setFontSize(6);
-        doc.setTextColor(30, 64, 175);
-        doc.text(String(totalRet), mid(cX[7], cX[8]), ry + rH / 2 + 1, { align: 'center' });
-        doc.setTextColor(0);
-      }
-      doc.setFontSize(5.5);
+      // ── Heure retour (colonne 8) ──
+      doc.setFontSize(6.5);
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(0);
       if (d.soir.heure) doc.text(d.soir.heure, mid(cX[8], cX[9]), ry + rH / 2 + 1, { align: 'center' });
+
+      // ── Signature retour (colonne 9) ──
       if (d.soir.signature)
         try {
           doc.addImage(d.soir.signature, 'PNG', cX[9] + 0.3, ry + 0.3, cW[9] - 0.6, rH - 0.6);
-        } catch (e) {}
+        } catch (e) { /* ignore */ }
 
-      // Observations (motifs d'écart concaténés)
+      // ── Observations — motifs d'écart (colonne 10) ──
       const allMotifs = mList
         .map((m) => {
           const r = d.soir.returns ? d.soir.returns[m.machineIdx] : null;
-          return r && r.motif ? getMachineName(m.machineIdx).split(' ')[0] + ': ' + r.motif : '';
+          if (!r || !r.motif) return '';
+          const raw = getMachineRawData(m.machineIdx);
+          return raw.nom.split(' ')[0] + ': ' + r.motif;
         })
         .filter(Boolean)
         .join(' | ');
       if (allMotifs) {
-        doc.setFontSize(4);
-        doc.setTextColor(220, 38, 38);
+        doc.setFontSize(5.5);
+        doc.setTextColor(180, 30, 30);
         doc.setFont('helvetica', 'bold');
-        const obsLines = doc.splitTextToSize(allMotifs, cW[10] - 2);
-        const maxLines = Math.floor(rH / 2.5);
+        const obsLines = doc.splitTextToSize(allMotifs, cW[10] - 3);
+        const maxLines = Math.floor(rH / 3.2);
         const lines = obsLines.slice(0, maxLines);
-        const obsY = ry + (rH - lines.length * 2.5) / 2 + 2;
+        const obsY = ry + (rH - lines.length * 3.2) / 2 + 2.5;
         lines.forEach((line, li) => {
-          doc.text(line, cX[10] + 1, obsY + li * 2.5);
+          doc.text(line, cX[10] + 1.5, obsY + li * 3.2);
         });
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(0);
@@ -259,27 +346,49 @@ export function generatePDF() {
   });
 
   // --- Table border and grid ---
+  // Outer border
   doc.setDrawColor(26, 58, 92);
-  doc.setLineWidth(0.3);
+  doc.setLineWidth(0.5);
   doc.rect(cX[0], y, uw, tH);
+
+  // Header separator
+  doc.setLineWidth(0.3);
   doc.line(cX[4], y + hH, cX[10], y + hH);
+
+  // Data start separator (thick)
   doc.setLineWidth(0.5);
   doc.line(cX[0], dY, cX[11], dY);
-  doc.setLineWidth(0.15);
-  for (let i = 1; i < N; i++) doc.line(cX[0], dY + i * rH, cX[11], dY + i * rH);
+
+  // Internal row lines — light blue-grey
+  doc.setLineWidth(0.2);
+  doc.setDrawColor(180, 190, 200);
+  for (let i = 1; i < N; i++) {
+    const rowLine = dY + rowYOffsets[i];
+    doc.line(cX[0], rowLine, cX[11], rowLine);
+  }
+
+  // Vertical column separators — main columns
+  doc.setDrawColor(26, 58, 92);
   doc.setLineWidth(0.3);
   [1, 2, 3, 4, 10].forEach((i) => doc.line(cX[i], y, cX[i], y + tH));
-  doc.setLineWidth(1.0);
+
+  // SORTIE / RETOUR divider — thick
+  doc.setLineWidth(0.8);
   doc.setDrawColor(26, 58, 92);
   doc.line(cX[7], y, cX[7], y + tH);
-  doc.setLineWidth(0.2);
-  doc.setDrawColor(180, 160, 120);
+
+  // Internal SORTIE sub-columns — light amber
+  doc.setLineWidth(0.15);
+  doc.setDrawColor(210, 180, 130);
   [5, 6].forEach((i) => doc.line(cX[i], y + hH, cX[i], y + tH));
-  doc.setDrawColor(120, 160, 200);
+
+  // Internal RETOUR sub-columns — light blue
+  doc.setDrawColor(150, 180, 220);
   [8, 9].forEach((i) => doc.line(cX[i], y + hH, cX[i], y + tH));
+
   doc.setDrawColor(26, 58, 92);
 
-  // --- Équipages section ---
+  // --- Equipages section ---
   const { crewAssignments } = getState();
   const vehicles = getActiveVehicles();
   const activeCrews = vehicles.filter((v) => {
@@ -328,8 +437,8 @@ export function generatePDF() {
       doc.setTextColor(0);
       members.forEach((empIdx, mi) => {
         const emp = team.find((t, i) => i === empIdx);
-        const empName = emp ? emp.nom : `Agent ${empIdx + 1}`;
-        doc.text('• ' + empName, cx + 4, cy + 9 + mi * 3, { maxWidth: crewColW - 6 });
+        const empName = emp ? emp.nom : 'Agent ' + (empIdx + 1);
+        doc.text('- ' + empName, cx + 4, cy + 9 + mi * 3, { maxWidth: crewColW - 6 });
       });
     });
 
@@ -340,10 +449,10 @@ export function generatePDF() {
   doc.setFontSize(5);
   doc.setTextColor(136);
   doc.setFont('helvetica', 'italic');
-  doc.text('Ce registre doit être conservé pendant 5 ans minimum.', ml, fY);
+  doc.text('Ce registre doit etre conserve pendant 5 ans minimum.', ml, fY);
 
   // --- Visa matin ---
-  const vmLabel = visaMatinSigner ? visaMatinSigner.label + ' — ' + visaMatinSigner.nom : 'Visa Matin';
+  const vmLabel = visaMatinSigner ? visaMatinSigner.label + ' - ' + visaMatinSigner.nom : 'Visa Matin';
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(6.5);
   doc.setTextColor(194, 120, 35);
@@ -356,10 +465,10 @@ export function generatePDF() {
   if (visaMatin)
     try {
       doc.addImage(visaMatin, 'PNG', ml + 38.3, fY + 1.3, 49.4, 11.4);
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
 
   // --- Visa soir ---
-  const vsLabel = visaSoirSigner ? visaSoirSigner.label + ' — ' + visaSoirSigner.nom : 'Visa Soir';
+  const vsLabel = visaSoirSigner ? visaSoirSigner.label + ' - ' + visaSoirSigner.nom : 'Visa Soir';
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(6.5);
   doc.setTextColor(37, 99, 235);
@@ -372,7 +481,7 @@ export function generatePDF() {
   if (visaSoir)
     try {
       doc.addImage(visaSoir, 'PNG', pw / 2 + 46.3, fY + 1.3, 49.4, 11.4);
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
 
   // --- Page footer ---
   doc.setDrawColor(26, 58, 92);
@@ -381,8 +490,8 @@ export function generatePDF() {
   doc.setFontSize(4.5);
   doc.setTextColor(170);
   doc.setFont('helvetica', 'normal');
-  doc.text("Registre d'émargement quotidien", ml, ph - 4);
-  doc.text('Page n° ' + pageNumber + ' — ' + ds, pw - ml, ph - 4, { align: 'right' });
+  doc.text("Registre d'emargement quotidien", ml, ph - 4);
+  doc.text('Page n\u00b0 ' + pageNumber + ' - ' + ds, pw - ml, ph - 4, { align: 'right' });
 
-  doc.save(`registre_${dv || 'jour'}.pdf`);
+  doc.save('registre_' + (dv || 'jour') + '.pdf');
 }
