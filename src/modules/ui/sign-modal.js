@@ -298,9 +298,12 @@ export function openSignModal(index, period) {
     } else {
       sub.textContent = 'Retour des armes';
       const d = dayData[index];
-      if (d && d.matin.machines && d.matin.machines.length > 0) {
-        renderSoirReturnArea(index);
+      if (!d || !d.matin.machines || d.matin.machines.length === 0) {
+        alert('Cet agent n\'a pas de sortie d\'arme.');
+        closeModal();
+        return;
       }
+      renderSoirReturnArea(index);
       sigArea.style.display = 'block';
       document.getElementById('btnClear').style.display = '';
       document.querySelector('.modal-btn.confirm').style.display = '';

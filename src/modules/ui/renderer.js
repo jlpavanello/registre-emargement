@@ -59,6 +59,7 @@ export function renderEmployees() {
     const totalRet = d && d.soir.returns ? mList.reduce((s, m) => s + (d.soir.returns[m.machineIdx] ? d.soir.returns[m.machineIdx].accRetour : 0), 0) : 0;
     const showInfo = mList.length > 0 && d && d.matin.signature && (currentPeriod === 'matin' ? isSigned : true);
     const hasEcart = d && d.soir.returns && mList.some((m) => { const r = d.soir.returns[m.machineIdx]; return r && r.motif; });
+    const hasCheckout = mList.length > 0 && d && !!d.matin.signature;
 
     let machBadges = '';
     if (showInfo) {
@@ -92,8 +93,8 @@ export function renderEmployees() {
       </div>
       <div class="emp-sign-area">
         ${sig.heure ? `<span class="emp-time">${sig.heure}</span>` : ''}
-        <div class="sign-btn ${isSigned ? 'signed' : ''} ${empLocked ? 'locked-btn' : ''}">
-          ${isSigned ? `<img src="${sig.signature}" alt="s">` : (empLocked ? '\uD83D\uDD12' : (currentPeriod === 'soir' ? 'Rendre' : 'Choisir'))}
+        <div class="sign-btn ${isSigned ? 'signed' : ''} ${empLocked ? 'locked-btn' : ''} ${currentPeriod === 'soir' && !hasCheckout && !isSigned ? 'no-checkout' : ''}">
+          ${isSigned ? `<img src="${sig.signature}" alt="s">` : (empLocked ? '\uD83D\uDD12' : (currentPeriod === 'soir' ? (hasCheckout ? 'Rendre' : '—') : 'Choisir'))}
         </div>
       </div>`;
 
@@ -101,9 +102,11 @@ export function renderEmployees() {
       const signBtn = card.querySelector('.sign-btn');
       const empIdx = i;
       const period = currentPeriod;
-      signBtn.addEventListener('click', () => {
-        if (_callbacks.openSignModal) _callbacks.openSignModal(empIdx, period);
-      });
+      if (!(period === 'soir' && !hasCheckout)) {
+        signBtn.addEventListener('click', () => {
+          if (_callbacks.openSignModal) _callbacks.openSignModal(empIdx, period);
+        });
+      }
       const removeBtn = card.querySelector('.btn-remove-present');
       if (removeBtn) {
         removeBtn.addEventListener('click', (e) => {

@@ -53,6 +53,13 @@
 }
 .sign-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
 .sign-btn:active { transform: scale(0.95); }
+.sign-btn.no-checkout {
+  background: #e2e8f0; color: #94a3b8;
+  cursor: not-allowed; border-color: #e2e8f0;
+  font-size: 11px;
+}
+.sign-btn.no-checkout:hover { border-color: #e2e8f0; color: #94a3b8; background: #e2e8f0; transform: none; }
+.sign-btn.no-checkout:active { transform: none; }
 .sign-btn.signed {
   border: 2px solid var(--green); background: #ecfdf5;
   box-shadow: 0 2px 4px rgba(16,185,129,0.15);
