@@ -4,6 +4,8 @@ import { getMachineName, getMachineCat, getMachineCatLabel, getAvailableMachines
 import { getCatEmoji } from '../domains/categories.js';
 import { getSignerInfo } from '../domains/responsables.js';
 import { saveDayData } from '../domains/day-data.js';
+import { logMouvement } from '../domains/stock-mouvements.js';
+import { ensureStockForWeapon } from '../domains/stock-munitions.js';
 import { initCanvas, clearCanvas } from './canvas.js';
 import { isMatinLocked, isSoirLocked, hasUncoveredSignatures } from './visa.js';
 
@@ -371,6 +373,34 @@ export function confirmSignature() {
   setState('dayData', dayData);
   closeModal();
   saveDayData();
+
+  // Stock: log mouvements automatiques
+  if (index !== -1 && period === 'matin' && selectedMachines.length > 0) {
+    selectedMachines.forEach(m => {
+      if (m.acc > 0) {
+        ensureStockForWeapon(m.machineIdx);
+        logMouvement({ type: 'sortie', armeIdx: m.machineIdx, quantite: m.acc, agentIdx: index, source: 'emargement' });
+      }
+    });
+  } else if (index !== -1 && period === 'soir') {
+    const d = dayData[index];
+    const mList = d.matin.machines || [];
+    mList.forEach(m => {
+      const ret = d.soir.returns[m.machineIdx];
+      if (!ret) return;
+      const accRetour = ret.accRetour || 0;
+      if (accRetour > 0) {
+        ensureStockForWeapon(m.machineIdx);
+        logMouvement({ type: 'retour', armeIdx: m.machineIdx, quantite: accRetour, agentIdx: index, source: 'emargement' });
+      }
+      // Log perte si écart
+      const ecart = m.acc - accRetour;
+      if (ecart > 0) {
+        logMouvement({ type: 'perte', armeIdx: m.machineIdx, quantite: ecart, agentIdx: index, motif: ret.motif || 'Écart non justifié', source: 'emargement' });
+      }
+    });
+  }
+
   if (_afterConfirm.renderEmployees) _afterConfirm.renderEmployees();
   if (_afterConfirm.updateCounts) _afterConfirm.updateCounts();
   if (_afterConfirm.updateSoirTabState) _afterConfirm.updateSoirTabState();

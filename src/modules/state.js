@@ -33,6 +33,13 @@ const state = {
   pageNumber: 1,
   // Vocal reports
   vocalReports: [],
+  // Stock & Logistique
+  stockMunitions: {},
+  stockArmes: {},
+  stockMouvements: [],
+  previsionsTir: [],
+  fournisseurs: [],
+  commandes: [],
   // Canvas state
   isDrawing: false,
   sigCtx: null,

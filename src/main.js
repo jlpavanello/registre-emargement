@@ -18,6 +18,7 @@ import './styles/bottom-bar.css';
 import './styles/utilities.css';
 import './styles/vocal-report.css';
 import './styles/crew.css';
+import './styles/stock.css';
 
 // --- Module Imports ---
 // Domains
@@ -40,6 +41,8 @@ import { generatePDF } from './modules/actions/pdf.js';
 // Vocal report
 import { openVocalPanel, closeVocalPanel, startRecording, clearForm as clearVocalForm, saveCurrentReport, updateSaveButton, bindVocalCallbacks } from './modules/ui/vocal-panel.js';
 import { generateVocalPDF } from './modules/actions/vocal-pdf.js';
+// Stock & Logistique
+import { openStock, closeStock, switchStockTab } from './modules/ui/stock-panel.js';
 
 // Phase 4: Sync engine
 import { initSyncEngine } from './modules/supabase/sync-engine.js';
@@ -181,6 +184,13 @@ document.getElementById('btnSaveCrew').addEventListener('click', saveCrewAssignm
 
 // Config: Vehicles
 document.getElementById('btnAddVeh').addEventListener('click', () => addItem('veh'));
+
+// Stock & Logistique panel
+document.getElementById('btnOpenStock').addEventListener('click', openStock);
+document.getElementById('btnCloseStock').addEventListener('click', closeStock);
+document.querySelectorAll('#stockPanel .stock-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchStockTab(tab.dataset.tab));
+});
 
 // =============================================
 // PWA: Service Worker Registration

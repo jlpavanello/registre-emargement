@@ -16,6 +16,12 @@ import { updatePresenceBadge } from './presence.js';
 import { loadVehicles } from './crews.js';
 import { updateCrewBadge } from './crew-assignment.js';
 import { loadVocalReports } from './vocal-data.js';
+import { loadStockMunitions } from './stock-munitions.js';
+import { loadStockArmes } from './stock-armes.js';
+import { loadStockMouvements } from './stock-mouvements.js';
+import { loadPrevisionsTir } from './previsions-tir.js';
+import { loadFournisseurs } from './fournisseurs.js';
+import { loadCommandes } from './commandes.js';
 
 let _callbacks = {};
 export function bindInitCallbacks(callbacks) {
@@ -54,6 +60,12 @@ export async function init() {
   loadInfoFields();
   loadPageNumber();
   loadVocalReports();
+  loadStockMunitions();
+  loadStockArmes();
+  loadStockMouvements();
+  loadPrevisionsTir();
+  loadFournisseurs();
+  loadCommandes();
   populateVisaSignerSelect();
 
   const { team } = getState();
@@ -141,6 +153,24 @@ function _reloadFromStorage(key) {
       break;
     case 'reg_vocal':
       loadVocalReports();
+      break;
+    case 'reg_stock_munitions':
+      loadStockMunitions();
+      break;
+    case 'reg_stock_armes':
+      loadStockArmes();
+      break;
+    case 'reg_stock_mouvements':
+      loadStockMouvements();
+      break;
+    case 'reg_previsions_tir':
+      loadPrevisionsTir();
+      break;
+    case 'reg_fournisseurs':
+      loadFournisseurs();
+      break;
+    case 'reg_commandes':
+      loadCommandes();
       break;
     default:
       return; // Unknown key, skip UI refresh

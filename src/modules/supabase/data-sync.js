@@ -118,6 +118,8 @@ export async function syncPushAll(storageAdapter) {
   const keys = [
     'reg_team', 'reg_machines', 'reg_categories', 'reg_resp',
     'reg_info', 'reg_page', 'reg_day', 'reg_vocal',
+    'reg_stock_munitions', 'reg_stock_armes', 'reg_stock_mouvements',
+    'reg_previsions_tir', 'reg_fournisseurs', 'reg_commandes',
   ];
 
   const rows = [];

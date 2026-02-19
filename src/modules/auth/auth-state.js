@@ -194,4 +194,5 @@ export const ACCESS = {
   canCreateVocalReport: () => true, // All roles
   canDeleteVocalReport: () => hasMinRole('chef'),
   canViewAllReports: () => hasMinRole('armurier'),
+  canViewStock: () => hasMinRole('chef'),
 };

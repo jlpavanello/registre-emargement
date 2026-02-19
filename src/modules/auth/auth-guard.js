@@ -41,6 +41,9 @@ export function applyRoleGuards() {
   toggleElement('visaSoirBtn', ACCESS.canSignVisa());
   toggleElement('visaSignerSelect', ACCESS.canSignVisa());
 
+  // Stock & Logistique: chef+ only (= responsable en mode local)
+  toggleElement('btnOpenStock', ACCESS.canViewStock());
+
   // Vocal reports: all can create, chef+ can delete others
   // (deletion guard is in vocal-panel.js)
 }
