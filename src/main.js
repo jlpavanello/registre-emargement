@@ -17,6 +17,7 @@ import './styles/presence.css';
 import './styles/bottom-bar.css';
 import './styles/utilities.css';
 import './styles/vocal-report.css';
+import './styles/crew.css';
 
 // --- Module Imports ---
 // Domains
@@ -24,6 +25,7 @@ import { init, bindInitCallbacks } from './modules/domains/init.js';
 import { addCategory, removeCategory } from './modules/domains/categories.js';
 import { onArmurierSelectChange, onVisaSignerChange } from './modules/domains/responsables.js';
 import { openPresenceSelector, closePresenceSelector, selectAllPresence, selectNonePresence, savePresence, removeFromPresent, bindPresenceCallbacks } from './modules/domains/presence.js';
+import { openCrewSelector, closeCrewSelector, saveCrewAssignments, updateCrewBadge, bindCrewCallbacks } from './modules/domains/crew-assignment.js';
 
 // UI
 import { renderEmployees, switchPeriod, updateCounts, updateSoirTabState, bindRendererCallbacks } from './modules/ui/renderer.js';
@@ -113,6 +115,11 @@ bindVocalCallbacks({
   generateVocalPDF,
 });
 
+bindCrewCallbacks({
+  renderEmployees,
+  updateCounts,
+});
+
 // =============================================
 // Event Bindings (replacing inline onclick)
 // =============================================
@@ -180,6 +187,15 @@ document.getElementById('btnMic').addEventListener('click', startRecording);
 document.getElementById('btnVocalClear').addEventListener('click', clearVocalForm);
 document.getElementById('btnVocalSave').addEventListener('click', saveCurrentReport);
 document.getElementById('vocalContenu').addEventListener('input', updateSaveButton);
+
+// Crew (Équipages) panel
+document.getElementById('btnEditCrew').addEventListener('click', openCrewSelector);
+document.getElementById('btnCloseCrew').addEventListener('click', closeCrewSelector);
+document.getElementById('btnSaveCrew').addEventListener('click', saveCrewAssignments);
+
+// Config: Vehicles
+document.getElementById('btnAddVeh').addEventListener('click', () => addItem('veh'));
+document.getElementById('btnRemVeh').addEventListener('click', () => removeItem('veh'));
 
 // =============================================
 // PWA: Service Worker Registration

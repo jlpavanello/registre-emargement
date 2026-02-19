@@ -4,6 +4,7 @@ import { getState } from '../state.js';
 import { hasUncoveredSignatures } from '../ui/visa.js';
 import { getMachineName, getMachineCat } from '../domains/machines.js';
 import { getCatEmoji } from '../domains/categories.js';
+import { getActiveVehicles, getVehicleLabel } from '../domains/crews.js';
 
 export function generatePDF() {
   const {
@@ -278,8 +279,64 @@ export function generatePDF() {
   [8, 9].forEach((i) => doc.line(cX[i], y + hH, cX[i], y + tH));
   doc.setDrawColor(26, 58, 92);
 
-  // --- Footer ---
-  const fY = y + tH + 3;
+  // --- Équipages section ---
+  const { crewAssignments } = getState();
+  const vehicles = getActiveVehicles();
+  const activeCrews = vehicles.filter((v) => {
+    const members = crewAssignments[v.idx] || [];
+    return members.length > 0;
+  });
+
+  let fY = y + tH + 3;
+
+  if (activeCrews.length > 0) {
+    // Crew header
+    doc.setFillColor(139, 92, 246);
+    doc.rect(ml, fY, uw, 6, 'F');
+    doc.setTextColor(255);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.text('EQUIPAGES', pw / 2, fY + 4, { align: 'center' });
+    fY += 7;
+
+    // Render each crew
+    const crewColW = uw / Math.min(activeCrews.length, 3);
+    activeCrews.forEach((v, ci) => {
+      const col = ci % 3;
+      const row = Math.floor(ci / 3);
+      const cx = ml + col * crewColW;
+      const cy = fY + row * 18;
+
+      // Vehicle name
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(109, 40, 217);
+      const vLabel = getVehicleLabel(v.idx);
+      doc.text(vLabel, cx + 2, cy + 3);
+
+      if (v.equipement) {
+        doc.setFontSize(4.5);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(120);
+        doc.text(v.equipement, cx + 2, cy + 6, { maxWidth: crewColW - 4 });
+      }
+
+      // Crew members
+      const members = crewAssignments[v.idx] || [];
+      doc.setFontSize(5.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0);
+      members.forEach((empIdx, mi) => {
+        const emp = team.find((t, i) => i === empIdx);
+        const empName = emp ? emp.nom : `Salarié ${empIdx + 1}`;
+        doc.text('• ' + empName, cx + 4, cy + 9 + mi * 3, { maxWidth: crewColW - 6 });
+      });
+    });
+
+    const crewRows = Math.ceil(activeCrews.length / 3);
+    fY += crewRows * 18 + 1;
+  }
+
   doc.setFontSize(5);
   doc.setTextColor(136);
   doc.setFont('helvetica', 'italic');

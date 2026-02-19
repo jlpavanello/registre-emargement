@@ -26,6 +26,10 @@ const state = {
   lockedSoirPresents: [],
   presentToday: [],
   tempPresenceSelection: [],
+  // Vehicles / Crews
+  vehicles: [],
+  crewAssignments: {},       // {vehicleIdx: [empIdx, ...]}
+  tempCrewAssignments: {},   // Temp copy during selection
   pageNumber: 1,
   // Vocal reports
   vocalReports: [],

@@ -13,6 +13,8 @@ import { loadDayData, syncDayData } from './day-data.js';
 import { loadInfoFields, saveInfoFields } from './info-fields.js';
 import { loadPageNumber, updatePageNumberDisplay } from './page-number.js';
 import { updatePresenceBadge } from './presence.js';
+import { loadVehicles } from './crews.js';
+import { updateCrewBadge } from './crew-assignment.js';
 import { loadVocalReports } from './vocal-data.js';
 
 let _callbacks = {};
@@ -47,6 +49,7 @@ export async function init() {
   loadMachines();
   loadCategories();
   loadResponsables();
+  loadVehicles();
   loadDayData();
   loadInfoFields();
   loadPageNumber();
@@ -74,6 +77,7 @@ export async function init() {
   if (_callbacks.renderEmployees) _callbacks.renderEmployees();
   if (_callbacks.updateCounts) _callbacks.updateCounts();
   updatePresenceBadge();
+  updateCrewBadge();
   updatePageNumberDisplay();
   if (_callbacks.updateSoirTabState) _callbacks.updateSoirTabState();
   if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
@@ -132,6 +136,9 @@ function _reloadFromStorage(key) {
       loadPageNumber();
       updatePageNumberDisplay();
       break;
+    case 'reg_vehicles':
+      loadVehicles();
+      break;
     case 'reg_vocal':
       loadVocalReports();
       break;
@@ -142,6 +149,7 @@ function _reloadFromStorage(key) {
   if (_callbacks.renderEmployees) _callbacks.renderEmployees();
   if (_callbacks.updateCounts) _callbacks.updateCounts();
   updatePresenceBadge();
+  updateCrewBadge();
   if (_callbacks.updateSoirTabState) _callbacks.updateSoirTabState();
   if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
 }

@@ -1,6 +1,7 @@
 import { getState, setState } from '../state.js';
 import { getActiveTeam } from './team.js';
 import { saveDayData } from './day-data.js';
+import { removeCrewAssignment } from './crew-assignment.js';
 
 // Late-binding callbacks to avoid circular dependencies
 let _callbacks = {};
@@ -93,6 +94,9 @@ export function removeFromPresent(idx) {
   // Retirer de presentToday
   const updated = presentToday.filter((i) => i !== idx);
   setState('presentToday', updated);
+
+  // Nettoyer les affectations d'équipage pour ce salarié
+  removeCrewAssignment(idx);
 
   // Nettoyer les données du jour pour ce salarié
   dayData[idx] = {

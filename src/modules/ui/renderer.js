@@ -1,6 +1,8 @@
 import { getState, setState } from '../state.js';
 import { getActiveTeam } from '../domains/team.js';
 import { getMachineName } from '../domains/machines.js';
+import { getVehicleLabel } from '../domains/crews.js';
+import { getCrewForEmployee } from '../domains/crew-assignment.js';
 import { isMatinLocked, isSoirLocked } from './visa.js';
 
 let _callbacks = {};
@@ -67,6 +69,10 @@ export function renderEmployees() {
       }
     }
 
+    // Crew badge
+    const crewVehicle = getCrewForEmployee(i);
+    const crewBadgeHtml = crewVehicle !== null ? `<span class="badge badge-crew">🚗 ${getVehicleLabel(crewVehicle)}</span>` : '';
+
     const card = document.createElement('div');
     card.className = 'emp-card' + (isSigned ? ' signed-card' : '') + (empLocked ? ' locked' : '');
     card.style.animationDelay = (cardIdx * 0.04) + 's';
@@ -77,7 +83,8 @@ export function renderEmployees() {
       <div class="emp-info">
         <div class="emp-name">${t.nom}</div>
         <div class="emp-detail">${t.matricule ? 'Mat. ' + t.matricule : ''}${isSigned ? ' \u2713 Signé' : ''}${empLocked && isSigned ? ' \uD83D\uDD12' : ''}</div>
-        ${showInfo ? `<div class="emp-badges">
+        ${crewBadgeHtml || showInfo ? `<div class="emp-badges">
+          ${crewBadgeHtml}
           ${machBadges}
           ${totalAcc > 0 ? `<span class="badge badge-acc">${currentPeriod === 'matin' ? totalAcc + ' sorti' + (totalAcc > 1 ? 's' : '') : totalRet + ' rentr' + (totalRet > 1 ? 'és' : 'é')}</span>` : ''}
           ${currentPeriod === 'soir' && hasEcart ? '<span class="badge badge-warning">\u26A0 Écart</span>' : ''}
