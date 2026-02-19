@@ -37,8 +37,6 @@ import { openVisaSign, updateVisaButtonState, bindVisaCallbacks } from './module
 // Actions
 import { resetSignatures, fullReset, bindResetCallbacks } from './modules/actions/reset.js';
 import { generatePDF } from './modules/actions/pdf.js';
-import { exportConfig, importConfig, bindExportImportCallbacks } from './modules/actions/export-import.js';
-
 // Vocal report
 import { openVocalPanel, closeVocalPanel, startRecording, clearForm as clearVocalForm, saveCurrentReport, updateSaveButton, bindVocalCallbacks } from './modules/ui/vocal-panel.js';
 import { generateVocalPDF } from './modules/actions/vocal-pdf.js';
@@ -104,13 +102,6 @@ bindResetCallbacks({
   closeConfig,
 });
 
-bindExportImportCallbacks({
-  saveConfig,
-  renderConfig,
-  renderEmployees,
-  updateCounts,
-});
-
 bindVocalCallbacks({
   generateVocalPDF,
 });
@@ -171,11 +162,6 @@ document.getElementById('btnRemCat').addEventListener('click', removeCategory);
 document.getElementById('btnAddMach').addEventListener('click', () => addItem('mach'));
 document.getElementById('btnRemMach').addEventListener('click', () => removeItem('mach'));
 document.getElementById('configArmurierSelect').addEventListener('change', onArmurierSelectChange);
-
-// Export/Import
-document.getElementById('btnExportConfig').addEventListener('click', exportConfig);
-document.getElementById('btnImportConfig').addEventListener('click', () => document.getElementById('importFileInput').click());
-document.getElementById('importFileInput').addEventListener('change', importConfig);
 
 // Full reset (inside config panel)
 document.getElementById('btnFullReset').addEventListener('click', fullReset);

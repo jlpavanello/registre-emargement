@@ -29,7 +29,7 @@ export function renderPresenceList() {
   const active = getActiveTeam();
   const { tempPresenceSelection } = getState();
   if (!active.length) {
-    c.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">Aucun salarié configuré. Allez dans Config.</div>';
+    c.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">Aucun agent configuré. Allez dans Config.</div>';
     return;
   }
   active.forEach((t) => {
@@ -70,13 +70,13 @@ export function selectNonePresence() {
 
 export function updatePresenceCount() {
   const n = getState().tempPresenceSelection.length;
-  document.getElementById('presenceCount').innerHTML = `<span>${n}</span> salarié${n > 1 ? 's' : ''} sélectionné${n > 1 ? 's' : ''}`;
+  document.getElementById('presenceCount').innerHTML = `<span>${n}</span> agent${n > 1 ? 's' : ''} sélectionné${n > 1 ? 's' : ''}`;
   document.getElementById('btnPresenceSave').disabled = n === 0;
 }
 
 export function savePresence() {
   const { tempPresenceSelection } = getState();
-  if (tempPresenceSelection.length === 0) { alert('Sélectionnez au moins un salarié.'); return; }
+  if (tempPresenceSelection.length === 0) { alert('Sélectionnez au moins un agent.'); return; }
   setState('presentToday', [...tempPresenceSelection].sort((a, b) => a - b));
   saveDayData();
   closePresenceSelector();
@@ -88,17 +88,17 @@ export function savePresence() {
 
 export function removeFromPresent(idx) {
   const { team, presentToday, dayData } = getState();
-  const nom = team[idx] ? team[idx].nom : `Salarié ${idx + 1}`;
+  const nom = team[idx] ? team[idx].nom : `Agent ${idx + 1}`;
   if (!confirm(`Retirer ${nom} de la liste des présents ?`)) return;
 
   // Retirer de presentToday
   const updated = presentToday.filter((i) => i !== idx);
   setState('presentToday', updated);
 
-  // Nettoyer les affectations d'équipage pour ce salarié
+  // Nettoyer les affectations d'équipage pour cet agent
   removeCrewAssignment(idx);
 
-  // Nettoyer les données du jour pour ce salarié
+  // Nettoyer les données du jour pour cet agent
   dayData[idx] = {
     matin: { signature: null, heure: null, machines: [] },
     soir: { signature: null, heure: null, returns: {} },

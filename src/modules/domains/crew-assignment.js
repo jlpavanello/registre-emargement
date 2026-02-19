@@ -52,7 +52,7 @@ export function renderCrewAssignmentList() {
   }
 
   if (presentTeam.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">Aucun salarié présent. Sélectionnez d\'abord les présents du jour.</div>';
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">Aucun agent présent. Sélectionnez d\'abord les présents du jour.</div>';
     return;
   }
 
@@ -153,7 +153,7 @@ function updateCrewCount() {
   }
   const el = document.getElementById('crewCount');
   if (el) {
-    el.innerHTML = `<span>${totalAssigned}</span> salarié${totalAssigned > 1 ? 's' : ''} affecté${totalAssigned > 1 ? 's' : ''}`;
+    el.innerHTML = `<span>${totalAssigned}</span> agent${totalAssigned > 1 ? 's' : ''} affecté${totalAssigned > 1 ? 's' : ''}`;
   }
 }
 

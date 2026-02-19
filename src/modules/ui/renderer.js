@@ -15,7 +15,7 @@ export function renderEmployees() {
   const c = document.getElementById('employeesList');
 
   if (team.every((t) => !t.nom)) {
-    c.innerHTML = '<div class="empty-state"><p>Aucun salarié configuré</p><button id="emptyConfigBtn">Configurer</button></div>';
+    c.innerHTML = '<div class="empty-state"><p>Aucun agent configuré</p><button id="emptyConfigBtn">Configurer</button></div>';
     const btn = document.getElementById('emptyConfigBtn');
     if (btn) btn.addEventListener('click', () => { if (_callbacks.openConfig) _callbacks.openConfig(); });
     return;
@@ -25,7 +25,7 @@ export function renderEmployees() {
   if (presentToday.length === 0 && activeTeam.length > 0) {
     c.innerHTML = `<div class="select-presence-prompt">
       <svg viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" style="width:32px;height:32px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-      <p>Sélectionnez d'abord les salariés présents aujourd'hui pour afficher la feuille d'émargement.</p>
+      <p>Sélectionnez d'abord les agents présents aujourd'hui pour afficher la feuille d'émargement.</p>
       <button id="selectPresenceBtn">Choisir les présents</button>
     </div>`;
     const btn = document.getElementById('selectPresenceBtn');
@@ -39,8 +39,8 @@ export function renderEmployees() {
   if (periodLocked) {
     banner.style.display = 'flex';
     document.getElementById('lockedText').textContent = currentPeriod === 'matin'
-      ? 'Sortie verrouillée \u2014 Le responsable a validé les sorties de machines'
-      : 'Retour verrouillé \u2014 Le responsable a validé les retours de machines';
+      ? 'Sortie verrouillée \u2014 Le responsable a validé les sorties d\'armes'
+      : 'Retour verrouillé \u2014 Le responsable a validé les retours d\'armes';
   } else {
     banner.style.display = 'none';
   }
@@ -86,7 +86,7 @@ export function renderEmployees() {
         ${crewBadgeHtml || showInfo ? `<div class="emp-badges">
           ${crewBadgeHtml}
           ${machBadges}
-          ${totalAcc > 0 ? `<span class="badge badge-acc">${currentPeriod === 'matin' ? totalAcc + ' sorti' + (totalAcc > 1 ? 's' : '') : totalRet + ' rentr' + (totalRet > 1 ? 'és' : 'é')}</span>` : ''}
+          ${totalAcc > 0 ? `<span class="badge badge-acc">${currentPeriod === 'matin' ? totalAcc + ' sortie' + (totalAcc > 1 ? 's' : '') : totalRet + ' rentrée' + (totalRet > 1 ? 's' : '')}</span>` : ''}
           ${currentPeriod === 'soir' && hasEcart ? '<span class="badge badge-warning">\u26A0 Écart</span>' : ''}
         </div>` : ''}
       </div>
@@ -118,7 +118,7 @@ export function renderEmployees() {
 
 export function switchPeriod(p) {
   if (p === 'soir' && !isMatinLocked()) {
-    alert("Le responsable doit d'abord signer le visa de sortie des machines avant de passer aux retours.");
+    alert("Le responsable doit d'abord signer le visa de sortie des armes avant de passer aux retours.");
     return;
   }
   setState('currentPeriod', p);

@@ -54,7 +54,7 @@ export function onCatChange() {
   const avail = getAvailableMachines(empIdx).filter((m) => cat === '__none__' ? !(m.cat) : (m.cat || '') === cat);
   machSel.innerHTML = '<option value="">— Choisir —</option>';
   if (avail.length === 0) {
-    machSel.innerHTML = '<option value="" disabled>Aucune machine disponible dans cette catégorie</option>';
+    machSel.innerHTML = '<option value="" disabled>Aucune arme disponible dans cette catégorie</option>';
     machSub.style.display = 'block';
     document.getElementById('btnAddMachine').disabled = true;
     return;
@@ -83,10 +83,10 @@ export function onQtyInput(el) {
 
 export function addMachineToList() {
   const sel = document.getElementById('machineSelect');
-  if (!sel.value) { alert('Veuillez choisir une machine.'); return; }
+  if (!sel.value) { alert('Veuillez choisir une arme.'); return; }
   const machIdx = parseInt(sel.value);
   const { selectedMachines, accQty } = getState();
-  if (selectedMachines.some((m) => m.machineIdx === machIdx)) { alert('Cette machine est déjà ajoutée.'); return; }
+  if (selectedMachines.some((m) => m.machineIdx === machIdx)) { alert('Cette arme est déjà ajoutée.'); return; }
   selectedMachines.push({ machineIdx: machIdx, acc: accQty });
   setState('selectedMachines', selectedMachines);
   document.getElementById('machSelectArea').style.display = 'none';
@@ -110,7 +110,7 @@ export function renderMachineList() {
     const catLabel = getMachineCatLabel(getMachineCat(m.machineIdx));
     const item = document.createElement('div');
     item.className = 'machine-list-item';
-    item.innerHTML = `<div class="mli-info"><div class="mli-name">${name}</div><div class="mli-detail">${catLabel ? catLabel + ' \u2014 ' : ''}${m.acc} accessoire${m.acc > 1 ? 's' : ''}</div></div>`;
+    item.innerHTML = `<div class="mli-info"><div class="mli-name">${name}</div><div class="mli-detail">${catLabel ? catLabel + ' \u2014 ' : ''}${m.acc} munition${m.acc > 1 ? 's' : ''}</div></div>`;
     const removeBtn = document.createElement('button');
     removeBtn.className = 'mli-remove';
     removeBtn.textContent = '\u2715';
@@ -129,7 +129,7 @@ export function goToAddAnotherMachine() {
 }
 
 export function goToSignStep() {
-  if (getState().selectedMachines.length === 0) { alert('Ajoutez au moins une machine.'); return; }
+  if (getState().selectedMachines.length === 0) { alert('Ajoutez au moins une arme.'); return; }
   document.getElementById('machineListArea').style.display = 'none';
   document.getElementById('sigCanvasArea').style.display = 'block';
   document.getElementById('btnClear').style.display = '';
@@ -140,8 +140,8 @@ export function goToSignStep() {
 
 export function getEcartText(sorti, rentre) {
   const diff = sorti - rentre;
-  if (diff > 0) return `\u26A0\uFE0F ${diff} accessoire${diff > 1 ? 's' : ''} manquant${diff > 1 ? 's' : ''}`;
-  return `\u26A0\uFE0F ${Math.abs(diff)} accessoire${Math.abs(diff) > 1 ? 's' : ''} en plus`;
+  if (diff > 0) return `\u26A0\uFE0F ${diff} munition${diff > 1 ? 's' : ''} manquante${diff > 1 ? 's' : ''}`;
+  return `\u26A0\uFE0F ${Math.abs(diff)} munition${Math.abs(diff) > 1 ? 's' : ''} en plus`;
 }
 
 export function changeSoirQty(machIdx, delta) {
@@ -181,7 +181,7 @@ export function renderSoirReturnArea(empIdx) {
   const area = document.getElementById('soirReturnArea');
   if (mList.length === 0) { area.style.display = 'none'; return; }
   area.style.display = 'block';
-  let html = '<label>Machines \u00E0 rendre</label>';
+  let html = '<label>Armes \u00E0 rendre</label>';
   mList.forEach((m) => {
     const name = getMachineName(m.machineIdx);
     const catLabel = getMachineCatLabel(getMachineCat(m.machineIdx));
@@ -191,7 +191,7 @@ export function renderSoirReturnArea(empIdx) {
     const hasEcart = m.acc > 0 && retQty !== m.acc;
     html += `<div class="soir-machine-card" data-midx="${m.machineIdx}">
       <div class="smc-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="1"/></svg>${name}${catLabel ? ' \u2014 ' + catLabel : ''}</div>
-      ${m.acc > 0 ? `<div class="smc-acc-info">${m.acc} accessoire${m.acc > 1 ? 's' : ''} sorti${m.acc > 1 ? 's' : ''} ce matin</div>
+      ${m.acc > 0 ? `<div class="smc-acc-info">${m.acc} munition${m.acc > 1 ? 's' : ''} sortie${m.acc > 1 ? 's' : ''} ce matin</div>
       <div class="qty-selector" style="margin-bottom:4px;">
         <button class="qty-minus" data-machidx="${m.machineIdx}" data-delta="-1">\u2212</button>
         <input type="number" class="qty-value" id="soirQty_${m.machineIdx}" value="${retQty}" min="0" inputmode="numeric">
@@ -200,7 +200,7 @@ export function renderSoirReturnArea(empIdx) {
       <div class="smc-alert" id="soirAlert_${m.machineIdx}" style="${hasEcart ? '' : 'display:none;'}">
         <div>${hasEcart ? getEcartText(m.acc, retQty) : ''}</div>
         <textarea id="soirMotif_${m.machineIdx}" placeholder="Raison de l'\u00E9cart (obligatoire)...">${motif}</textarea>
-      </div>` : '<div class="smc-acc-info" style="color:#10b981;">Aucun accessoire \u2014 restitution simple</div>'}
+      </div>` : '<div class="smc-acc-info" style="color:#10b981;">Aucune munition \u2014 restitution simple</div>'}
     </div>`;
   });
   area.innerHTML = html;
@@ -247,33 +247,33 @@ export function openSignModal(index, period) {
     const signerName = signer ? signer.nom : 'Responsable';
     const signerLabel = signer ? signer.label : '';
     if (period === 'visaMatin') {
-      if (isMatinLocked() && !hasUncoveredSignatures('matin')) { alert('La sortie est déjà verrouillée par le responsable. Tous les salariés sont couverts.'); closeModal(); return; }
+      if (isMatinLocked() && !hasUncoveredSignatures('matin')) { alert('La sortie est déjà verrouillée par le responsable. Tous les agents sont couverts.'); closeModal(); return; }
       if (hasUncoveredSignatures('matin')) {
         title.textContent = '\u26A0\uFE0F Re-Visa ' + signerLabel + ' \u2014 SORTIE';
-        sub.textContent = signerName + ' \u2014 Nouveaux salariés \u00E0 couvrir';
+        sub.textContent = signerName + ' \u2014 Nouveaux agents \u00E0 couvrir';
       } else {
         title.textContent = 'Visa ' + signerLabel + ' \u2014 SORTIE';
-        sub.textContent = signerName + ' \u2014 Validation des sorties de machines';
+        sub.textContent = signerName + ' \u2014 Validation des sorties d\'armes';
       }
     } else {
-      if (isSoirLocked() && !hasUncoveredSignatures('soir')) { alert('Le retour est déjà verrouillé par le responsable. Tous les salariés sont couverts.'); closeModal(); return; }
+      if (isSoirLocked() && !hasUncoveredSignatures('soir')) { alert('Le retour est déjà verrouillé par le responsable. Tous les agents sont couverts.'); closeModal(); return; }
       if (hasUncoveredSignatures('soir')) {
         title.textContent = '\u26A0\uFE0F Re-Visa ' + signerLabel + ' \u2014 RETOUR';
-        sub.textContent = signerName + ' \u2014 Nouveaux salariés \u00E0 couvrir';
+        sub.textContent = signerName + ' \u2014 Nouveaux agents \u00E0 couvrir';
       } else {
         title.textContent = 'Visa ' + signerLabel + ' \u2014 RETOUR';
-        sub.textContent = signerName + ' \u2014 Validation des retours de machines';
+        sub.textContent = signerName + ' \u2014 Validation des retours d\'armes';
       }
     }
     sigArea.style.display = 'block';
     document.getElementById('btnClear').style.display = '';
     document.querySelector('.modal-btn.confirm').style.display = '';
   } else {
-    if (period === 'matin' && isMatinLocked() && lockedMatinPresents.includes(index)) { alert('La sortie est verrouillée pour ce salarié.'); return; }
-    if (period === 'soir' && isSoirLocked() && lockedSoirPresents.includes(index)) { alert('Le retour est verrouillé pour ce salarié.'); return; }
-    title.textContent = team[index].nom || `Salarié n\u00B0${index + 1}`;
+    if (period === 'matin' && isMatinLocked() && lockedMatinPresents.includes(index)) { alert('La sortie est verrouillée pour cet agent.'); return; }
+    if (period === 'soir' && isSoirLocked() && lockedSoirPresents.includes(index)) { alert('Le retour est verrouillé pour cet agent.'); return; }
+    title.textContent = team[index].nom || `Agent n\u00B0${index + 1}`;
     if (period === 'matin') {
-      sub.textContent = 'Sortie des machines';
+      sub.textContent = 'Sortie des armes';
       const avail = getAvailableMachines(index);
       if (avail.length > 0 || (dayData[index] && dayData[index].matin.machines.length > 0)) {
         hasMachineStep = true;
@@ -296,7 +296,7 @@ export function openSignModal(index, period) {
         document.querySelector('.modal-btn.confirm').style.display = '';
       }
     } else {
-      sub.textContent = 'Retour des machines';
+      sub.textContent = 'Retour des armes';
       const d = dayData[index];
       if (d && d.matin.machines && d.matin.machines.length > 0) {
         renderSoirReturnArea(index);

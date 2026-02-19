@@ -62,7 +62,7 @@ export function importConfig(event) {
         !confirm(
           'Importer cette configuration ?\n\nCela remplacera :\n• ' +
             (config.team ? config.team.filter((t) => t.nom).length : 0) +
-            ' salariés\n• ' +
+            ' agents\n• ' +
             (config.machines ? config.machines.filter((m) => m.nom).length : 0) +
             ' machines\n• ' +
             (config.categories ? config.categories.length : 0) +
@@ -107,7 +107,7 @@ export function importConfig(event) {
       alert(
         'Configuration importée avec succès !\n\n' +
           getState().team.filter((t) => t.nom).length +
-          ' salariés, ' +
+          ' agents, ' +
           getState().machines.filter((m) => m.nom).length +
           ' machines, ' +
           getState().categories.length +

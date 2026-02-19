@@ -22,11 +22,11 @@ export function generatePDF() {
     return;
   }
 
-  // Vérifier que tous les salariés signés sont couverts par le visa
+  // Vérifier que tous les agents signés sont couverts par le visa
   if (hasUncoveredSignatures('matin') || hasUncoveredSignatures('soir')) {
     let msg = 'Impossible de générer le PDF :\n';
-    if (hasUncoveredSignatures('matin')) msg += '• Des salariés ont signé après le visa SORTIE. Le responsable doit re-signer.\n';
-    if (hasUncoveredSignatures('soir')) msg += '• Des salariés ont signé après le visa RETOUR. Le responsable doit re-signer.\n';
+    if (hasUncoveredSignatures('matin')) msg += '• Des agents ont signé après le visa SORTIE. Le responsable doit re-signer.\n';
+    if (hasUncoveredSignatures('soir')) msg += '• Des agents ont signé après le visa RETOUR. Le responsable doit re-signer.\n';
     alert(msg);
     return;
   }
@@ -34,7 +34,7 @@ export function generatePDF() {
   // Ne garder que les présents du jour
   const at = team.map((t, i) => ({ ...t, idx: i })).filter((t) => t.nom && presentToday.includes(t.idx));
   if (!at.length) {
-    alert('Aucun salarié présent sélectionné.');
+    alert('Aucun agent présent sélectionné.');
     return;
   }
 
@@ -120,7 +120,7 @@ export function generatePDF() {
   doc.text('N°', mid(cX[0], cX[1]), hYc, { align: 'center' });
   doc.text('Mat.', mid(cX[1], cX[2]), hYc, { align: 'center' });
   doc.text('Nom et Prénom', mid(cX[2], cX[3]), hYc, { align: 'center' });
-  doc.text('Machine', mid(cX[3], cX[4]), hYc, { align: 'center' });
+  doc.text('Arme', mid(cX[3], cX[4]), hYc, { align: 'center' });
   doc.text('Obs.', mid(cX[10], cX[11]), hYc, { align: 'center' });
 
   doc.setFontSize(8);
@@ -138,14 +138,14 @@ export function generatePDF() {
   doc.setFont('helvetica', 'bold');
   const sYc = y2 + sH / 2;
   doc.setTextColor(146, 64, 14);
-  doc.text('Acc.', mid(cX[4], cX[5]), sYc - 0.5, { align: 'center' });
-  doc.text('sorti', mid(cX[4], cX[5]), sYc + 2.5, { align: 'center' });
+  doc.text('Mun.', mid(cX[4], cX[5]), sYc - 0.5, { align: 'center' });
+  doc.text('sortie', mid(cX[4], cX[5]), sYc + 2.5, { align: 'center' });
   doc.text('Heure', mid(cX[5], cX[6]), sYc - 0.5, { align: 'center' });
   doc.text('arr.', mid(cX[5], cX[6]), sYc + 2.5, { align: 'center' });
   doc.text('Émargement', mid(cX[6], cX[7]), sYc + 1, { align: 'center' });
   doc.setTextColor(30, 64, 175);
-  doc.text('Acc.', mid(cX[7], cX[8]), sYc - 0.5, { align: 'center' });
-  doc.text('rentré', mid(cX[7], cX[8]), sYc + 2.5, { align: 'center' });
+  doc.text('Mun.', mid(cX[7], cX[8]), sYc - 0.5, { align: 'center' });
+  doc.text('rentrée', mid(cX[7], cX[8]), sYc + 2.5, { align: 'center' });
   doc.text('Heure', mid(cX[8], cX[9]), sYc - 0.5, { align: 'center' });
   doc.text('dép.', mid(cX[8], cX[9]), sYc + 2.5, { align: 'center' });
   doc.text('Émargement', mid(cX[9], cX[10]), sYc + 1, { align: 'center' });
@@ -192,7 +192,7 @@ export function generatePDF() {
           const catE = getCatEmoji(getMachineCat(m.machineIdx));
           doc.setFontSize(Math.min(5, 4.5));
           doc.setTextColor(30, 64, 175);
-          const label = (catE ? catE + ' ' : '') + name + (m.acc > 0 ? ' (' + m.acc + ' acc)' : '');
+          const label = (catE ? catE + ' ' : '') + name + (m.acc > 0 ? ' (' + m.acc + ' mun)' : '');
           doc.text(label, cX[3] + 0.5, startY + mi * lineH, { maxWidth: cW[3] - 1 });
         });
         doc.setTextColor(0);
@@ -328,7 +328,7 @@ export function generatePDF() {
       doc.setTextColor(0);
       members.forEach((empIdx, mi) => {
         const emp = team.find((t, i) => i === empIdx);
-        const empName = emp ? emp.nom : `Salarié ${empIdx + 1}`;
+        const empName = emp ? emp.nom : `Agent ${empIdx + 1}`;
         doc.text('• ' + empName, cx + 4, cy + 9 + mi * 3, { maxWidth: crewColW - 6 });
       });
     });

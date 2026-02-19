@@ -38,7 +38,7 @@ export function populateArmurierSelect() {
   const { team, responsables } = getState();
   const sel = document.getElementById('configArmurierSelect');
   const info = document.getElementById('configArmurierInfo');
-  sel.innerHTML = '<option value="">— Choisir l\'Armurier parmi les salariés —</option>';
+  sel.innerHTML = '<option value="">— Choisir l\'Armurier parmi les agents —</option>';
   const active = team.map((t, i) => ({ ...t, idx: i })).filter(t => t.nom);
   active.forEach(t => {
     sel.innerHTML += `<option value="${t.idx}">${t.nom}${t.matricule ? ' — Mat. ' + t.matricule : ''}</option>`;

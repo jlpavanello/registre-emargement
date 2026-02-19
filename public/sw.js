@@ -1,4 +1,4 @@
-const CACHE_NAME = 'emargement-v8';
+const CACHE_NAME = 'emargement-v9';
 const ASSETS = [
   '/',
   '/index.html',

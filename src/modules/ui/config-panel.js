@@ -51,7 +51,7 @@ export function renderConfig() {
       categories.map((c) => `<option value="${c.id}" ${(m.cat || '') === c.id ? 'selected' : ''}>${c.emoji} ${c.nom || '(sans nom)'}</option>`)
     ).join('');
     mc.innerHTML += `<div class="config-card"><div class="cnum mach-bg">${i + 1}</div><div class="fields">
-    <input class="name-input" type="text" placeholder="Nom de la machine" value="${m.nom}" data-t="mach" data-i="${i}" data-f="nom">
+    <input class="name-input" type="text" placeholder="Nom de l'arme" value="${m.nom}" data-t="mach" data-i="${i}" data-f="nom">
     <input class="sub-input" type="text" placeholder="Réf. / N° série" value="${m.ref}" data-t="mach" data-i="${i}" data-f="ref">
     <select class="cat-select" data-t="mach" data-i="${i}" data-f="cat">${catOpts}</select>
   </div></div>`;
@@ -102,11 +102,11 @@ export function addItem(t) {
 export function removeItem(t) {
   const { team, machines, vehicles } = getState();
   if (t === 'emp' && team.length > 1) {
-    if (confirm('Retirer le dernier salarié ?')) team.pop();
+    if (confirm('Retirer le dernier agent ?')) team.pop();
   } else if (t === 'veh' && vehicles.length > 0) {
     if (confirm('Retirer le dernier véhicule ?')) vehicles.pop();
   } else if (t === 'mach' && machines.length > 1) {
-    if (confirm('Retirer la dernière machine ?')) machines.pop();
+    if (confirm('Retirer la dernière arme ?')) machines.pop();
   }
   renderConfig();
 }
