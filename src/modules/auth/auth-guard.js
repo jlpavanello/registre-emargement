@@ -1,38 +1,40 @@
 // Phase 5: Route/feature guards based on user role
 // Applies visibility and interaction restrictions per role
 
-import { getCurrentProfile, hasMinRole, ACCESS } from './auth-state.js';
-import { isSupabaseEnabled } from '../supabase/client.js';
+import { getCurrentProfile, ACCESS, getDeviceRole } from './auth-state.js';
 
 /**
  * Apply role-based UI restrictions
  * Called after auth init and on auth state changes
  */
 export function applyRoleGuards() {
-  // In offline mode (no Supabase), grant full access
-  if (!isSupabaseEnabled()) return;
+  const deviceRole = getDeviceRole();
+
+  // Pas de rôle défini → l'écran de sélection s'affichera
+  if (!deviceRole) {
+    hideApp();
+    return;
+  }
 
   const profile = getCurrentProfile();
   if (!profile) {
-    // Not logged in — hide everything except login
     hideApp();
     return;
   }
 
   showApp();
 
-  // Config button: armurier+ only
+  // Config button: armurier+ only (= responsable en mode local)
   toggleElement('btnOpenConfig', ACCESS.canViewConfig());
 
   // Reset button: chef+ only
   toggleElement('btnReset', ACCESS.canResetDay());
 
+  // PDF generation: chef+ only
+  toggleElement('btnPDF', ACCESS.canResetDay());
+
   // Full reset button: responsable+ only
   toggleElement('btnFullReset', ACCESS.canFullReset());
-
-  // Export/Import buttons: chef+ only
-  toggleElement('btnExportConfig', ACCESS.canExportImport());
-  toggleElement('btnImportConfig', ACCESS.canExportImport());
 
   // Visa signing: armurier+ only
   toggleElement('visaMatinBtn', ACCESS.canSignVisa());
@@ -59,25 +61,25 @@ function toggleElement(id, visible) {
 }
 
 /**
- * Hide the main app (show login screen)
+ * Hide the main app (show role selection screen)
  */
 function hideApp() {
-  const loginScreen = document.getElementById('loginScreen');
-  if (loginScreen) loginScreen.style.display = 'flex';
+  const roleScreen = document.getElementById('roleSelectScreen');
+  if (roleScreen) roleScreen.style.display = 'flex';
 
   // Hide main content sections
-  const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #lockedBanner, #pageNumberBadge');
+  const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #crewBadgeArea, #lockedBanner, #pageNumberBadge');
   mainSections.forEach(el => {
     el.style.display = 'none';
   });
 }
 
 /**
- * Show the main app (hide login screen)
+ * Show the main app (hide role selection screen)
  */
 function showApp() {
-  const loginScreen = document.getElementById('loginScreen');
-  if (loginScreen) loginScreen.style.display = 'none';
+  const roleScreen = document.getElementById('roleSelectScreen');
+  if (roleScreen) roleScreen.style.display = 'none';
 
   // Show main content sections
   const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #pageNumberBadge');

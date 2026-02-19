@@ -30,18 +30,34 @@ function emitAuthChange() {
   if (_onAuthChange) _onAuthChange(_currentUser, _currentProfile);
 }
 
+const DEVICE_ROLE_KEY = 'reg_device_role';
+
 /**
- * Initialize auth: check existing session
+ * Get device role from localStorage
+ * @returns {'responsable'|'agent'|null}
+ */
+export function getDeviceRole() {
+  return localStorage.getItem(DEVICE_ROLE_KEY);
+}
+
+/**
+ * Set device role in localStorage and reinit auth
+ */
+export function setDeviceRole(role) {
+  localStorage.setItem(DEVICE_ROLE_KEY, role);
+  initAuth();
+}
+
+/**
+ * Initialize auth: read local device role
  */
 export async function initAuth() {
-  // Auth désactivé pour le moment — toujours mode admin local
-  // Permet la sync Supabase sans nécessiter de connexion
-  // Réactiver le bloc ci-dessous quand l'auth sera mise en place
+  const deviceRole = getDeviceRole();
   _currentUser = { id: 'local', email: 'local' };
   _currentProfile = {
     id: 'local',
-    nom: 'Utilisateur local',
-    role: 'admin', // Full access — pas d'auth requise
+    nom: deviceRole === 'responsable' ? 'Responsable' : 'Agent',
+    role: deviceRole === 'responsable' ? 'admin' : 'agent',
     matricule: '',
     is_asvp: false,
   };

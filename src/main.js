@@ -48,7 +48,7 @@ import { initSyncStatusUI } from './modules/supabase/sync-status.js';
 // Phase 5: Auth
 import { initAuth, onAuthStateChange } from './modules/auth/auth-state.js';
 import { applyRoleGuards } from './modules/auth/auth-guard.js';
-import { createLoginScreen } from './modules/auth/login-screen.js';
+import { createLoginScreen, showRoleScreen } from './modules/auth/login-screen.js';
 
 // Phase 6: Accessibility
 import { initAccessibility } from './modules/a11y/accessibility.js';
@@ -117,6 +117,9 @@ bindCrewCallbacks({
 
 // Header
 document.getElementById('btnOpenConfig').addEventListener('click', openConfig);
+document.getElementById('btnChangeRole').addEventListener('click', () => {
+  if (confirm('Changer le profil de cet appareil ?')) showRoleScreen();
+});
 
 // Period tabs
 document.getElementById('tabMatin').addEventListener('click', () => switchPeriod('matin'));
@@ -248,7 +251,7 @@ async function bootstrap() {
   // Phase 6: Accessibility enhancements
   initAccessibility();
 
-  // Phase 5: Create login screen (only if Supabase is configured)
+  // Phase 5: Create role selection screen (shown on first launch)
   createLoginScreen();
 
   // Phase 2+: init() is async (awaits IndexedDB initialization)
