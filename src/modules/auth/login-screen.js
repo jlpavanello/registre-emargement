@@ -12,7 +12,9 @@ let _loginMode = 'email'; // 'email' or 'pin'
  * Only active when Supabase is configured
  */
 export function createLoginScreen() {
-  if (!isSupabaseEnabled()) return;
+  // Auth désactivé pour le moment — sync sans authentification
+  // Réactiver quand l'auth sera mise en place
+  return;
 
   const screen = document.createElement('div');
   screen.id = 'loginScreen';

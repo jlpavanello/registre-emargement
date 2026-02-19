@@ -34,42 +34,17 @@ function emitAuthChange() {
  * Initialize auth: check existing session
  */
 export async function initAuth() {
-  if (!isSupabaseEnabled()) {
-    // Offline mode — use a default local profile
-    _currentUser = { id: 'local', email: 'local' };
-    _currentProfile = {
-      id: 'local',
-      nom: 'Utilisateur local',
-      role: 'admin', // Full access in offline mode
-      matricule: '',
-      is_asvp: false,
-    };
-    emitAuthChange();
-    return;
-  }
-
-  const supabase = getSupabase();
-  if (!supabase) return;
-
-  // Check existing session
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    _currentUser = session.user;
-    await loadProfile(session.user.id);
-  }
-
-  // Listen for auth changes (login/logout)
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session?.user) {
-      _currentUser = session.user;
-      await loadProfile(session.user.id);
-    } else if (event === 'SIGNED_OUT') {
-      _currentUser = null;
-      _currentProfile = null;
-      emitAuthChange();
-    }
-  });
-
+  // Auth désactivé pour le moment — toujours mode admin local
+  // Permet la sync Supabase sans nécessiter de connexion
+  // Réactiver le bloc ci-dessous quand l'auth sera mise en place
+  _currentUser = { id: 'local', email: 'local' };
+  _currentProfile = {
+    id: 'local',
+    nom: 'Utilisateur local',
+    role: 'admin', // Full access — pas d'auth requise
+    matricule: '',
+    is_asvp: false,
+  };
   emitAuthChange();
 }
 
