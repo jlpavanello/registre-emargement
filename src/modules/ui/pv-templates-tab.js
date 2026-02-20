@@ -25,7 +25,7 @@ export function renderTemplatesTab(container) {
   html += `<div class="pv-chips">
     <button class="pv-chip ${!_selectedFamille ? 'active' : ''}" data-famille="">Tous</button>`;
   familles.forEach(f => {
-    const icons = { 1: '\uD83C\uDD7F\uFE0F', 2: '\uD83D\uDE97', 3: '\uD83D\uDD07', 4: '\uD83E\uDDF9', 5: '\uD83D\uDC15', 6: '\uD83C\uDFD7\uFE0F', 7: '\uD83C\uDFEA' };
+    const icons = { 1: '\uD83C\uDD7F\uFE0F', 2: '\uD83D\uDE97', 3: '\uD83D\uDD07', 4: '\uD83E\uDDF9', 5: '\uD83D\uDC15', 6: '\uD83C\uDFD7\uFE0F', 7: '\uD83C\uDFEA', 8: '\uD83C\uDFDB\uFE0F' };
     html += `<button class="pv-chip ${_selectedFamille === f.nom ? 'active' : ''}" data-famille="${f.nom}">${icons[f.num] || '\uD83D\uDCCB'} ${f.nom}</button>`;
   });
   html += `</div>`;

@@ -208,7 +208,7 @@ document.querySelectorAll('#stockPanel .stock-tab').forEach(tab => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js?v=16')
+      .register('/sw.js?v=17')
       .then((reg) => console.log('SW enregistré:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });
