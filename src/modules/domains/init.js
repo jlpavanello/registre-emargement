@@ -25,6 +25,8 @@ import { loadCommandes } from './commandes.js';
 import { loadPvTemplates, initBuiltinTemplates } from './pv-templates.js';
 import { loadPvDocuments } from './pv-documents.js';
 import { BUILTIN_TEMPLATES } from './pv-templates-builtin.js';
+import { loadChatMessages } from './chat-data.js';
+import { onChatDataUpdated } from '../ui/chat-widget.js';
 
 let _callbacks = {};
 export function bindInitCallbacks(callbacks) {
@@ -72,6 +74,7 @@ export async function init() {
   loadPvTemplates();
   initBuiltinTemplates(BUILTIN_TEMPLATES);
   loadPvDocuments();
+  loadChatMessages();
   populateVisaSignerSelect();
 
   const { team } = getState();
@@ -183,6 +186,10 @@ function _reloadFromStorage(key) {
       break;
     case 'reg_pv_documents':
       loadPvDocuments();
+      break;
+    case 'reg_chat_messages':
+      loadChatMessages();
+      onChatDataUpdated();
       break;
     default:
       return; // Unknown key, skip UI refresh

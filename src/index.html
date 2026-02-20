@@ -359,6 +359,26 @@
   <div style="height:20px;"></div>
 </div>
 
+<!-- CHAT D'ÉQUIPE (Widget flottant) -->
+<button class="chat-fab" id="chatFab" title="Chat d'équipe">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="chat-fab-badge" id="chatBadge" style="display:none;">0</span>
+</button>
+
+<div class="chat-overlay" id="chatPanel">
+  <div class="chat-widget">
+    <div class="chat-header">
+      <span class="chat-header-title">💬 Chat d'équipe</span>
+      <button class="chat-header-btn" id="btnCloseChat" title="Fermer">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-bar">
+      <input type="text" id="chatInput" placeholder="Message..." maxlength="500">
+      <button id="btnSendChat">Envoyer</button>
+    </div>
+  </div>
+</div>
+
 <script type="module" src="/main.js"></script>
 </body>
 </html>

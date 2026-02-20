@@ -43,6 +43,8 @@ const state = {
   // PV (Procès-Verbaux)
   pvTemplates: [],
   pvDocuments: [],
+  // Chat d'équipe
+  chatMessages: [],
   // Canvas state
   isDrawing: false,
   sigCtx: null,

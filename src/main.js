@@ -20,6 +20,7 @@ import './styles/vocal-report.css';
 import './styles/crew.css';
 import './styles/stock.css';
 import './styles/pv.css';
+import './styles/chat.css';
 
 // --- Module Imports ---
 // Domains
@@ -46,6 +47,8 @@ import { generateVocalPDF } from './modules/actions/vocal-pdf.js';
 import { openStock, closeStock, switchStockTab } from './modules/ui/stock-panel.js';
 // PV (Procès-Verbaux)
 import { openPV, closePV, switchPvTab } from './modules/ui/pv-panel.js';
+// Chat d'équipe
+import { openChat, closeChat, sendChatMessage, initChatKeyboard, onChatDataUpdated } from './modules/ui/chat-widget.js';
 
 // Phase 4: Sync engine
 import { initSyncEngine } from './modules/supabase/sync-engine.js';
@@ -202,13 +205,19 @@ document.querySelectorAll('#stockPanel .stock-tab').forEach(tab => {
   tab.addEventListener('click', () => switchStockTab(tab.dataset.tab));
 });
 
+// Chat d'équipe
+document.getElementById('chatFab').addEventListener('click', openChat);
+document.getElementById('btnCloseChat').addEventListener('click', closeChat);
+document.getElementById('btnSendChat').addEventListener('click', sendChatMessage);
+initChatKeyboard();
+
 // =============================================
 // PWA: Service Worker Registration
 // =============================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js?v=17')
+      .register('/sw.js?v=18')
       .then((reg) => console.log('SW enregistré:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });
