@@ -44,6 +44,9 @@ export function applyRoleGuards() {
   // Stock & Logistique: chef+ only (= responsable en mode local)
   toggleElement('btnOpenStock', ACCESS.canViewStock());
 
+  // PV (Procès-Verbaux): chef+ only (= responsable en mode local)
+  toggleElement('btnOpenPV', ACCESS.canViewPV());
+
   // Vocal reports: all can create, chef+ can delete others
   // (deletion guard is in vocal-panel.js)
 }

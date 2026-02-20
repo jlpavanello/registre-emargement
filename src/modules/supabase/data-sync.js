@@ -120,6 +120,7 @@ export async function syncPushAll(storageAdapter) {
     'reg_info', 'reg_page', 'reg_day', 'reg_vocal',
     'reg_stock_munitions', 'reg_stock_armes', 'reg_stock_mouvements',
     'reg_previsions_tir', 'reg_fournisseurs', 'reg_commandes',
+    'reg_pv_templates', 'reg_pv_documents',
   ];
 
   const rows = [];

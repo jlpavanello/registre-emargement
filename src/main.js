@@ -19,6 +19,7 @@ import './styles/utilities.css';
 import './styles/vocal-report.css';
 import './styles/crew.css';
 import './styles/stock.css';
+import './styles/pv.css';
 
 // --- Module Imports ---
 // Domains
@@ -43,6 +44,8 @@ import { openVocalPanel, closeVocalPanel, startRecording, clearForm as clearVoca
 import { generateVocalPDF } from './modules/actions/vocal-pdf.js';
 // Stock & Logistique
 import { openStock, closeStock, switchStockTab } from './modules/ui/stock-panel.js';
+// PV (Procès-Verbaux)
+import { openPV, closePV, switchPvTab } from './modules/ui/pv-panel.js';
 
 // Phase 4: Sync engine
 import { initSyncEngine } from './modules/supabase/sync-engine.js';
@@ -185,6 +188,13 @@ document.getElementById('btnSaveCrew').addEventListener('click', saveCrewAssignm
 // Config: Vehicles
 document.getElementById('btnAddVeh').addEventListener('click', () => addItem('veh'));
 
+// PV (Procès-Verbaux) panel
+document.getElementById('btnOpenPV').addEventListener('click', openPV);
+document.getElementById('btnClosePV').addEventListener('click', closePV);
+document.querySelectorAll('#pvPanel .pv-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchPvTab(tab.dataset.tab));
+});
+
 // Stock & Logistique panel
 document.getElementById('btnOpenStock').addEventListener('click', openStock);
 document.getElementById('btnCloseStock').addEventListener('click', closeStock);
@@ -198,7 +208,7 @@ document.querySelectorAll('#stockPanel .stock-tab').forEach(tab => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js?v=15')
+      .register('/sw.js?v=16')
       .then((reg) => console.log('SW enregistré:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });

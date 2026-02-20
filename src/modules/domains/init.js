@@ -22,6 +22,9 @@ import { loadStockMouvements } from './stock-mouvements.js';
 import { loadPrevisionsTir } from './previsions-tir.js';
 import { loadFournisseurs } from './fournisseurs.js';
 import { loadCommandes } from './commandes.js';
+import { loadPvTemplates, initBuiltinTemplates } from './pv-templates.js';
+import { loadPvDocuments } from './pv-documents.js';
+import { BUILTIN_TEMPLATES } from './pv-templates-builtin.js';
 
 let _callbacks = {};
 export function bindInitCallbacks(callbacks) {
@@ -66,6 +69,9 @@ export async function init() {
   loadPrevisionsTir();
   loadFournisseurs();
   loadCommandes();
+  loadPvTemplates();
+  initBuiltinTemplates(BUILTIN_TEMPLATES);
+  loadPvDocuments();
   populateVisaSignerSelect();
 
   const { team } = getState();
@@ -171,6 +177,12 @@ function _reloadFromStorage(key) {
       break;
     case 'reg_commandes':
       loadCommandes();
+      break;
+    case 'reg_pv_templates':
+      loadPvTemplates();
+      break;
+    case 'reg_pv_documents':
+      loadPvDocuments();
       break;
     default:
       return; // Unknown key, skip UI refresh

@@ -40,6 +40,9 @@ const state = {
   previsionsTir: [],
   fournisseurs: [],
   commandes: [],
+  // PV (Procès-Verbaux)
+  pvTemplates: [],
+  pvDocuments: [],
   // Canvas state
   isDrawing: false,
   sigCtx: null,

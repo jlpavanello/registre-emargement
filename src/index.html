@@ -28,6 +28,9 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
       Profil
     </button>
+    <button class="header-btn" id="btnOpenPV" title="Procès-Verbaux" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
+      📋 PV
+    </button>
     <button class="header-btn" id="btnOpenStock" title="Stock & Logistique" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
       📦 Stock
     </button>
@@ -321,6 +324,21 @@
   <div id="crewAssignmentList"></div>
   <div style="height:90px;"></div>
   <div class="crew-bottom"><button class="btn-crew-save" id="btnSaveCrew">Valider les équipages</button></div>
+</div>
+
+<!-- PV (PROCÈS-VERBAUX) -->
+<div class="pv-overlay" id="pvPanel">
+  <div class="pv-header">
+    <h2>📋 Procès-Verbaux</h2>
+    <button class="header-btn" id="btnClosePV" style="background:rgba(255,255,255,0.2);">Fermer</button>
+  </div>
+  <div class="pv-tabs">
+    <button class="pv-tab active" data-tab="templates">Modèles</button>
+    <button class="pv-tab" data-tab="mespv">Mes PV</button>
+    <button class="pv-tab" data-tab="editor" style="display:none;">Éditeur</button>
+  </div>
+  <div id="pvTabContent"></div>
+  <div style="height:20px;"></div>
 </div>
 
 <!-- STOCK & LOGISTIQUE -->
