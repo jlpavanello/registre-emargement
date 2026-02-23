@@ -69,9 +69,9 @@ async function saveCurrentReport() { (await getVocalModule()).saveCurrentReport(
 async function updateSaveButton() { (await getVocalModule()).updateSaveButton(); }
 
 let _vocalPdfModule = null;
-async function generateVocalPDF() {
+async function generateVocalPDF(report) {
   if (!_vocalPdfModule) _vocalPdfModule = await import('./modules/actions/vocal-pdf.js');
-  return _vocalPdfModule.generateVocalPDF();
+  return _vocalPdfModule.generateVocalPDF(report);
 }
 
 // Stock & Logistique — lazy
