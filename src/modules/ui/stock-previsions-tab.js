@@ -49,8 +49,9 @@ export function renderPrevisionsTab(container) {
             <div class="stock-impact-row"><span>Après exercice:</span><span${impact.stockApres < 0 ? ' class="stock-impact-deficit"' : ''}>${impact.stockApres}</span></div>
             ${impact.deficit > 0 ? `<div class="stock-impact-row stock-impact-deficit"><span>⚠️ Déficit:</span><span>-${impact.deficit}</span></div>` : ''}
           </div>
-          <div style="display:flex;gap:6px;margin-top:10px;">
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
             <button class="stock-btn stock-btn-primary stock-btn-sm btn-prev-realise" data-id="${p.id}">✅ Marquer réalisé</button>
+            <button class="stock-btn stock-btn-secondary stock-btn-sm btn-prev-edit" data-id="${p.id}">✏️ Modifier</button>
             <button class="stock-btn stock-btn-danger stock-btn-sm btn-prev-cancel" data-id="${p.id}">Annuler</button>
             <button class="stock-btn stock-btn-secondary stock-btn-sm btn-prev-delete" data-id="${p.id}">🗑️</button>
           </div>` : `
@@ -85,6 +86,11 @@ export function renderPrevisionsTab(container) {
       if (!confirm('Annuler cet exercice ?')) return;
       cancelPrevision(btn.dataset.id);
       renderPrevisionsTab(container);
+    });
+  });
+  container.querySelectorAll('.btn-prev-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      showEditPrevisionForm(container, btn.dataset.id);
     });
   });
   container.querySelectorAll('.btn-prev-delete').forEach(btn => {
@@ -180,4 +186,104 @@ function showPrevisionForm(container) {
   document.getElementById('prevCancel')?.addEventListener('click', () => {
     form.style.display = 'none';
   });
+}
+
+// --- Edit form ---
+
+function showEditPrevisionForm(container, prevId) {
+  const { previsionsTir, team, machines } = getState();
+  const prev = previsionsTir.find(p => p.id === prevId);
+  if (!prev) return;
+
+  const form = document.getElementById('previsionForm');
+  if (!form) return;
+
+  const machOpts = machines.map((m, i) => {
+    if (!m.nom) return '';
+    const sel = i === prev.armeIdx ? ' selected' : '';
+    return `<option value="${i}"${sel}>${m.nom}${m.ref ? ' (' + m.ref + ')' : ''}</option>`;
+  }).join('');
+
+  // All agents with names
+  const allAgents = team.map((t, i) => t.nom ? i : -1).filter(i => i >= 0);
+
+  const agentChips = allAgents.map(i => {
+    const isSelected = prev.participants.includes(i);
+    return `<div class="stock-chip${isSelected ? ' selected' : ''}" data-emp="${i}">${team[i].nom}</div>`;
+  }).join('');
+
+  form.style.display = 'block';
+  form.innerHTML = `
+    <div class="stock-card" style="border:2px solid var(--accent);">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">✏️ Modifier l'exercice</div>
+      <div class="stock-field"><label>Date</label><input type="date" id="prevDate" value="${prev.date}"></div>
+      <div class="stock-field"><label>Lieu</label><input type="text" id="prevLieu" value="${prev.lieu || ''}" placeholder="Ex: Stand de tir municipal"></div>
+      <div class="stock-field"><label>Arme</label><select id="prevArme"><option value="">— Choisir —</option>${machOpts}</select></div>
+      <div class="stock-field"><label>Munitions par agent</label><input type="number" id="prevMunParAgent" value="${prev.munitionsParAgent}" min="1" inputmode="numeric"></div>
+      <div class="stock-field"><label>Participants (cliquez pour dé/sélectionner)</label>
+        <div class="stock-chip-list" id="prevParticipants">${agentChips}</div>
+      </div>
+      <div id="prevImpact" style="margin-top:8px;"></div>
+      <div style="display:flex;gap:6px;margin-top:12px;">
+        <button class="stock-btn stock-btn-primary" id="prevConfirm">Enregistrer</button>
+        <button class="stock-btn stock-btn-secondary" id="prevCancel">Annuler</button>
+      </div>
+    </div>`;
+
+  // Chip toggle
+  form.querySelectorAll('.stock-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('selected');
+      updateEditImpact();
+    });
+  });
+
+  // Impact preview
+  const updateEditImpact = () => {
+    const armeIdx = parseInt(document.getElementById('prevArme').value);
+    const munParAgent = parseInt(document.getElementById('prevMunParAgent').value) || 0;
+    const selectedCount = form.querySelectorAll('.stock-chip.selected').length;
+    const total = selectedCount * munParAgent;
+
+    if (!isNaN(armeIdx) && armeIdx >= 0) {
+      const impact = checkStockImpact(armeIdx, total);
+      document.getElementById('prevImpact').innerHTML = `
+        <div class="stock-impact">
+          <div class="stock-impact-row"><span>Participants:</span><span>${selectedCount}</span></div>
+          <div class="stock-impact-row"><span>Total munitions:</span><span><strong>${total}</strong></span></div>
+          <div class="stock-impact-row"><span>Stock actuel:</span><span>${impact.stockActuel}</span></div>
+          <div class="stock-impact-row"><span>Stock après:</span><span${impact.stockApres < 0 ? ' class="stock-impact-deficit"' : ''}>${impact.stockApres}</span></div>
+          ${impact.deficit > 0 ? `<div class="stock-impact-row stock-impact-deficit"><span>⚠️ Déficit à combler:</span><span>${impact.deficit}</span></div>` : ''}
+        </div>`;
+    }
+  };
+
+  document.getElementById('prevArme')?.addEventListener('change', updateEditImpact);
+  document.getElementById('prevMunParAgent')?.addEventListener('input', updateEditImpact);
+
+  // Trigger initial impact preview
+  updateEditImpact();
+
+  document.getElementById('prevConfirm')?.addEventListener('click', () => {
+    const date = document.getElementById('prevDate').value;
+    const lieu = document.getElementById('prevLieu').value;
+    const armeIdx = parseInt(document.getElementById('prevArme').value);
+    const munParAgent = parseInt(document.getElementById('prevMunParAgent').value) || 0;
+    const participants = Array.from(form.querySelectorAll('.stock-chip.selected')).map(c => +c.dataset.emp);
+
+    if (!date) { alert('Veuillez saisir une date'); return; }
+    if (isNaN(armeIdx) || armeIdx < 0) { alert('Veuillez choisir une arme'); return; }
+    if (participants.length === 0) { alert('Veuillez sélectionner au moins un participant'); return; }
+    if (munParAgent <= 0) { alert('Veuillez saisir un nombre de munitions par agent'); return; }
+
+    updatePrevision(prevId, { date, lieu, participants, munitionsParAgent: munParAgent, armeIdx });
+    renderPrevisionsTab(container);
+  });
+
+  document.getElementById('prevCancel')?.addEventListener('click', () => {
+    form.style.display = 'none';
+  });
+
+  // Scroll to form
+  form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }

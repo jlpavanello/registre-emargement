@@ -22,6 +22,11 @@
   -webkit-overflow-scrolling: touch;
 }
 .stock-tabs::-webkit-scrollbar { display: none; }
+.stock-tabs-center {
+  justify-content: center;
+  border-bottom: none;
+  padding-top: 2px;
+}
 .stock-tab {
   padding: 8px 14px; border-radius: 8px; border: none;
   font-size: 11px; font-weight: 700; cursor: pointer;
@@ -108,6 +113,38 @@
   font-size: 12px; font-weight: 700; color: var(--text2);
   text-transform: uppercase; padding: 10px 0 6px; letter-spacing: 0.8px;
   display: flex; align-items: center; gap: 8px;
+}
+
+/* Category group headers in stock tabs */
+.stock-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 2px 6px;
+  margin-top: 10px;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+}
+.stock-cat-header:first-of-type {
+  margin-top: 4px;
+}
+.stock-cat-emoji {
+  font-size: 18px;
+}
+.stock-cat-name {
+  flex: 1;
+}
+.stock-cat-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  background: var(--accent);
+  border-radius: 10px;
+  padding: 1px 8px;
+  min-width: 18px;
+  text-align: center;
 }
 
 /* Boutons stock */
@@ -309,4 +346,57 @@
 /* Badge véhicule couleur pour stock */
 .cnum.veh-bg {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+/* Munition references — weapon chips */
+.mun-armes-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.mun-arme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* Munition references — weapon toggle (create/edit form) */
+.mun-armes-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 0;
+}
+.mun-arme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--text2);
+  transition: all 0.15s ease;
+}
+.mun-arme-toggle:has(input:checked) {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #166534;
+}
+.mun-arme-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: #16a34a;
 }

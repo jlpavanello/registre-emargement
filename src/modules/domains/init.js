@@ -16,7 +16,7 @@ import { updatePresenceBadge } from './presence.js';
 import { loadVehicles } from './crews.js';
 import { updateCrewBadge } from './crew-assignment.js';
 import { loadVocalReports } from './vocal-data.js';
-import { loadStockMunitions } from './stock-munitions.js';
+import { loadMunitionRefs } from './stock-munitions.js';
 import { loadStockArmes } from './stock-armes.js';
 import { loadStockMouvements } from './stock-mouvements.js';
 import { loadPrevisionsTir } from './previsions-tir.js';
@@ -67,7 +67,7 @@ export async function init() {
   loadInfoFields();
   loadPageNumber();
   loadVocalReports();
-  loadStockMunitions();
+  loadMunitionRefs();
   loadStockArmes();
   loadStockMouvements();
   loadPrevisionsTir();
@@ -168,7 +168,8 @@ function _reloadFromStorage(key) {
       loadVocalReports();
       break;
     case 'reg_stock_munitions':
-      loadStockMunitions();
+    case 'reg_munition_refs':
+      loadMunitionRefs();
       break;
     case 'reg_stock_armes':
       loadStockArmes();

@@ -36,7 +36,7 @@ const state = {
   // Vocal reports
   vocalReports: [],
   // Stock & Logistique
-  stockMunitions: {},
+  munitionRefs: [],
   stockArmes: {},
   stockMouvements: [],
   previsionsTir: [],

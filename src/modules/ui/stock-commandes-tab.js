@@ -2,7 +2,7 @@
 import { getState } from '../state.js';
 import { createCommande, updateCommande, addLigne, removeLigne, changeStatut, deleteCommande, getCommandeById } from '../domains/commandes.js';
 import { getActiveMachines, getMachineName } from '../domains/machines.js';
-import { getStockForWeapon } from '../domains/stock-munitions.js';
+import { findMunRefForWeapon } from '../domains/stock-munitions.js';
 import { generateOrderPDF } from '../actions/stock-pdf.js';
 
 let _filter = 'demande_devis';
@@ -147,7 +147,7 @@ function renderStatusButtons(c, isDemandeDevis) {
 }
 
 function showCommandeForm(container) {
-  const { fournisseurs, machines, stockMunitions } = getState();
+  const { fournisseurs, munitionRefs } = getState();
   const form = document.getElementById('commandeForm');
   if (!form) return;
 
@@ -174,8 +174,8 @@ function showCommandeForm(container) {
         <div class="stock-section-title" style="padding-top:4px;">Ajout rapide depuis les armes configurées</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;" id="quickAddArmes">
           ${activeMachines.map(m => {
-            const stock = stockMunitions[m.idx];
-            const stockInfo = stock ? ` (stock: ${stock.stockActuel})` : '';
+            const munRef = findMunRefForWeapon(m.idx);
+            const stockInfo = munRef ? ` (stock: ${munRef.stockActuel} ${munRef.unite}s)` : '';
             return `<button class="stock-chip" data-idx="${m.idx}" data-nom="${m.nom}" data-ref="${m.ref || ''}">${m.nom}${stockInfo}</button>`;
           }).join('')}
         </div>

@@ -1,150 +1,272 @@
-// Stock — Onglet Munitions
+// Stock — Onglet Munitions (références de munitions indépendantes)
 import { getState } from '../state.js';
-import { ensureStockForWeapon, saveStockMunitions, getAlertLevel, updateSeuils } from '../domains/stock-munitions.js';
+import {
+  addMunitionRef, updateMunitionRef, deleteMunitionRef,
+  getMunRefById, getAlertLevelForRef, updateSeuils, saveMunitionRefs,
+} from '../domains/stock-munitions.js';
 import { logMouvement } from '../domains/stock-mouvements.js';
+import { getCatById } from '../domains/categories.js';
+import { escapeHtml } from '../utils/sanitize.js';
 
 export function renderMunitionsTab(container) {
-  const { machines, stockMunitions } = getState();
+  const { munitionRefs, machines } = getState();
 
-  let html = `<div class="stock-section-title">🔫 Stock de munitions par arme</div>`;
-  let hasArmes = false;
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div class="stock-section-title" style="margin:0;">🔫 Références de munitions</div>
+    <button class="stock-btn stock-btn-primary stock-btn-sm" id="btnAddMunRef">+ Nouvelle référence</button>
+  </div>`;
 
-  machines.forEach((m, idx) => {
-    if (!m.nom) return;
-    hasArmes = true;
-    const stock = stockMunitions[idx];
-    const s = stock || { stockActuel: 0, seuilAlerte: 100, seuilCritique: 30, unite: 'cartouche' };
-    const level = stock ? getAlertLevel(idx) : 'ok';
-    const pct = s.seuilAlerte > 0 ? Math.min(100, (s.stockActuel / (s.seuilAlerte * 2)) * 100) : (s.stockActuel > 0 ? 100 : 0);
+  html += `<div id="munRefCreateArea" style="display:none;"></div>`;
 
-    html += `<div class="stock-card" data-mun-idx="${idx}">
-      <div class="stock-card-header">
-        <div>
-          <div class="stock-card-title">${m.nom}</div>
-          <div class="stock-card-sub">${m.ref || 'Pas de référence'}</div>
-        </div>
-        <div class="stock-value ${level}">${s.stockActuel}<span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:4px;">${s.unite}s</span></div>
-      </div>
-      <div class="stock-bar-container"><div class="stock-bar ${level}" style="width:${pct}%;"></div></div>
-      <div class="stock-info-row">
-        <span>Alerte: ${s.seuilAlerte}</span>
-        <span>Critique: ${s.seuilCritique}</span>
-      </div>
-      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
-        <button class="stock-btn stock-btn-primary stock-btn-sm btn-mun-appro" data-idx="${idx}">+ Approvisionner</button>
-        <button class="stock-btn stock-btn-secondary stock-btn-sm btn-mun-adjust" data-idx="${idx}">🔧 Ajuster</button>
-        <button class="stock-btn stock-btn-secondary stock-btn-sm btn-mun-seuils" data-idx="${idx}">⚙️ Seuils</button>
-      </div>
-      <div id="munAction_${idx}" style="display:none;margin-top:10px;"></div>
-    </div>`;
-  });
-
-  if (!hasArmes) {
-    html = `<div class="stock-empty">
+  if (munitionRefs.length === 0) {
+    html += `<div class="stock-empty">
       <div class="stock-empty-icon">🔫</div>
-      <div>Aucune arme configurée.</div>
-      <div style="margin-top:8px;">Ajoutez des armes dans la <strong>Configuration</strong> d'abord.</div>
+      <div>Aucune référence de munition créée.</div>
+      <div style="margin-top:8px;">Créez une référence et affectez-la à une ou plusieurs armes.</div>
     </div>`;
   }
 
+  munitionRefs.forEach(ref => {
+    const level = getAlertLevelForRef(ref);
+    const pct = ref.seuilAlerte > 0 ? Math.min(100, (ref.stockActuel / (ref.seuilAlerte * 2)) * 100) : (ref.stockActuel > 0 ? 100 : 0);
+
+    // Build weapon chips
+    let armesHtml = '';
+    if (ref.armeIdxList.length === 0) {
+      armesHtml = '<span style="font-size:11px;color:var(--text3);font-style:italic;">Aucune arme associée</span>';
+    } else {
+      ref.armeIdxList.forEach(aIdx => {
+        const m = machines[aIdx];
+        if (!m || !m.nom) return;
+        const cat = m.cat ? getCatById(m.cat) : null;
+        const catLabel = cat ? cat.emoji + ' ' : '';
+        armesHtml += `<span class="mun-arme-chip">${catLabel}${escapeHtml(m.nom)}</span>`;
+      });
+    }
+
+    html += `<div class="stock-card" data-mun-ref-id="${ref.id}">
+      <div class="stock-card-header">
+        <div>
+          <div class="stock-card-title">${escapeHtml(ref.nom)}</div>
+          <div class="stock-card-sub">${ref.calibre ? escapeHtml(ref.calibre) : 'Pas de calibre'}</div>
+        </div>
+        <div class="stock-value ${level}" style="text-align:right;line-height:1.3;">
+          ${(ref.conditionnement || 1) > 1
+            ? `${ref.stockActuel} x ${ref.conditionnement} ${escapeHtml(ref.unite)}s<br><span style="font-size:13px;font-weight:800;">= ${ref.stockActuel * ref.conditionnement}</span>`
+            : `${ref.stockActuel}<span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:4px;">${escapeHtml(ref.unite)}s</span>`}
+        </div>
+      </div>
+      <div style="margin:6px 0;"><span style="font-size:11px;font-weight:600;color:var(--text2);">Armes associées :</span></div>
+      <div class="mun-armes-row">${armesHtml}</div>
+      <div class="stock-bar-container"><div class="stock-bar ${level}" style="width:${pct}%;"></div></div>
+      <div class="stock-info-row">
+        <span>Alerte: ${ref.seuilAlerte}</span>
+        <span>Critique: ${ref.seuilCritique}</span>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+        <button class="stock-btn stock-btn-primary stock-btn-sm btn-mref-appro" data-id="${ref.id}">+ Approvisionner</button>
+        <button class="stock-btn stock-btn-secondary stock-btn-sm btn-mref-adjust" data-id="${ref.id}">🔧 Ajuster</button>
+        <button class="stock-btn stock-btn-secondary stock-btn-sm btn-mref-edit" data-id="${ref.id}">✏️ Modifier</button>
+        <button class="stock-btn stock-btn-danger stock-btn-sm btn-mref-delete" data-id="${ref.id}">Supprimer</button>
+      </div>
+      <div id="mrefAction_${ref.id}" style="display:none;margin-top:10px;"></div>
+    </div>`;
+  });
+
   container.innerHTML = html;
 
-  // Bind buttons
-  container.querySelectorAll('.btn-mun-appro').forEach(btn => {
-    btn.addEventListener('click', () => showApproForm(container, +btn.dataset.idx));
+  // Bind create button
+  document.getElementById('btnAddMunRef').addEventListener('click', () => showCreateForm(container));
+
+  // Bind action buttons
+  container.querySelectorAll('.btn-mref-appro').forEach(btn => {
+    btn.addEventListener('click', () => showApproForm(container, btn.dataset.id));
   });
-  container.querySelectorAll('.btn-mun-adjust').forEach(btn => {
-    btn.addEventListener('click', () => showAdjustForm(container, +btn.dataset.idx));
+  container.querySelectorAll('.btn-mref-adjust').forEach(btn => {
+    btn.addEventListener('click', () => showAdjustForm(container, btn.dataset.id));
   });
-  container.querySelectorAll('.btn-mun-seuils').forEach(btn => {
-    btn.addEventListener('click', () => showSeuilsForm(container, +btn.dataset.idx));
+  container.querySelectorAll('.btn-mref-edit').forEach(btn => {
+    btn.addEventListener('click', () => showEditForm(container, btn.dataset.id));
+  });
+  container.querySelectorAll('.btn-mref-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ref = getMunRefById(btn.dataset.id);
+      if (!ref) return;
+      if (!confirm('Supprimer la référence « ' + ref.nom + ' » et son stock ?')) return;
+      deleteMunitionRef(btn.dataset.id);
+      renderMunitionsTab(container);
+    });
   });
 }
 
-function showApproForm(container, idx) {
-  const area = document.getElementById(`munAction_${idx}`);
+// --- Create form ---
+
+function showCreateForm(container) {
+  const area = document.getElementById('munRefCreateArea');
+  if (!area) return;
+  const { machines } = getState();
+  area.style.display = 'block';
+
+  let armesChips = '';
+  machines.forEach((m, idx) => {
+    if (!m.nom) return;
+    const cat = m.cat ? getCatById(m.cat) : null;
+    const catLabel = cat ? cat.emoji + ' ' : '';
+    armesChips += `<label class="mun-arme-toggle"><input type="checkbox" value="${idx}"> ${catLabel}${escapeHtml(m.nom)}</label>`;
+  });
+
+  area.innerHTML = `<div class="stock-card" style="border:2px dashed var(--accent);background:#f8fafc;">
+    <div class="stock-card-title" style="margin-bottom:8px;">Nouvelle référence de munition</div>
+    <div class="stock-field"><label>Nom *</label><input type="text" id="newMrefNom" placeholder="Ex: 9mm Parabellum" maxlength="80"></div>
+    <div class="stock-field"><label>Calibre</label><input type="text" id="newMrefCalibre" placeholder="Ex: 9x19mm" maxlength="40"></div>
+    <div class="stock-field"><label>Unité</label><input type="text" id="newMrefUnite" value="cartouche" maxlength="30"></div>
+    <div class="stock-field"><label>Conditionnement (unités par boîte)</label><input type="number" id="newMrefCondit" value="1" min="1" inputmode="numeric"></div>
+    <div class="stock-field"><label>Armes associées</label>
+      <div class="mun-armes-select" id="newMrefArmes">${armesChips || '<span style="color:var(--text3);font-size:11px;">Aucune arme configurée</span>'}</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <div class="stock-field" style="flex:1;"><label>Stock initial</label><input type="number" id="newMrefStock" value="0" min="0" inputmode="numeric"></div>
+      <div class="stock-field" style="flex:1;"><label>Seuil alerte</label><input type="number" id="newMrefAlerte" value="100" min="0" inputmode="numeric"></div>
+      <div class="stock-field" style="flex:1;"><label>Seuil critique</label><input type="number" id="newMrefCritique" value="30" min="0" inputmode="numeric"></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px;">
+      <button class="stock-btn stock-btn-primary stock-btn-sm" id="btnConfirmMref">Créer</button>
+      <button class="stock-btn stock-btn-secondary stock-btn-sm" id="btnCancelMref">Annuler</button>
+    </div>
+  </div>`;
+
+  document.getElementById('btnConfirmMref').addEventListener('click', () => {
+    const nom = document.getElementById('newMrefNom').value.trim();
+    if (!nom) { alert('Le nom est obligatoire.'); return; }
+    const calibre = document.getElementById('newMrefCalibre').value.trim();
+    const unite = document.getElementById('newMrefUnite').value.trim() || 'cartouche';
+    const conditionnement = parseInt(document.getElementById('newMrefCondit').value) || 1;
+    const stockActuel = parseInt(document.getElementById('newMrefStock').value) || 0;
+    const seuilAlerte = parseInt(document.getElementById('newMrefAlerte').value) || 100;
+    const seuilCritique = parseInt(document.getElementById('newMrefCritique').value) || 30;
+
+    const armeIdxList = [];
+    document.querySelectorAll('#newMrefArmes input:checked').forEach(cb => {
+      armeIdxList.push(+cb.value);
+    });
+
+    addMunitionRef({ nom, calibre, unite, conditionnement, armeIdxList, stockActuel, seuilAlerte, seuilCritique });
+    renderMunitionsTab(container);
+  });
+
+  document.getElementById('btnCancelMref').addEventListener('click', () => {
+    area.style.display = 'none';
+    area.innerHTML = '';
+  });
+}
+
+// --- Edit form ---
+
+function showEditForm(container, refId) {
+  const area = document.getElementById('mrefAction_' + refId);
+  if (!area) return;
+  const ref = getMunRefById(refId);
+  if (!ref) return;
+  const { machines } = getState();
+  area.style.display = 'block';
+
+  let armesChips = '';
+  machines.forEach((m, idx) => {
+    if (!m.nom) return;
+    const checked = ref.armeIdxList.includes(idx) ? 'checked' : '';
+    const cat = m.cat ? getCatById(m.cat) : null;
+    const catLabel = cat ? cat.emoji + ' ' : '';
+    armesChips += `<label class="mun-arme-toggle"><input type="checkbox" value="${idx}" ${checked}> ${catLabel}${escapeHtml(m.nom)}</label>`;
+  });
+
+  area.innerHTML = `
+    <div class="stock-field"><label>Nom</label><input type="text" id="editMrefNom_${refId}" value="${escapeHtml(ref.nom)}" maxlength="80"></div>
+    <div class="stock-field"><label>Calibre</label><input type="text" id="editMrefCalibre_${refId}" value="${escapeHtml(ref.calibre)}" maxlength="40"></div>
+    <div class="stock-field"><label>Unité</label><input type="text" id="editMrefUnite_${refId}" value="${escapeHtml(ref.unite)}" maxlength="30"></div>
+    <div class="stock-field"><label>Conditionnement (unités par boîte)</label><input type="number" id="editMrefCondit_${refId}" value="${ref.conditionnement || 1}" min="1" inputmode="numeric"></div>
+    <div class="stock-field"><label>Armes associées</label>
+      <div class="mun-armes-select" id="editMrefArmes_${refId}">${armesChips}</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <div class="stock-field" style="flex:1;"><label>Seuil alerte</label><input type="number" id="editMrefAlerte_${refId}" value="${ref.seuilAlerte}" min="0" inputmode="numeric"></div>
+      <div class="stock-field" style="flex:1;"><label>Seuil critique</label><input type="number" id="editMrefCritique_${refId}" value="${ref.seuilCritique}" min="0" inputmode="numeric"></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px;">
+      <button class="stock-btn stock-btn-primary stock-btn-sm" id="editMrefConfirm_${refId}">Enregistrer</button>
+      <button class="stock-btn stock-btn-secondary stock-btn-sm" id="editMrefCancel_${refId}">Annuler</button>
+    </div>`;
+
+  document.getElementById('editMrefConfirm_' + refId).addEventListener('click', () => {
+    const nom = document.getElementById('editMrefNom_' + refId).value.trim();
+    if (!nom) { alert('Le nom est obligatoire.'); return; }
+    const calibre = document.getElementById('editMrefCalibre_' + refId).value.trim();
+    const unite = document.getElementById('editMrefUnite_' + refId).value.trim() || 'cartouche';
+    const conditionnement = parseInt(document.getElementById('editMrefCondit_' + refId).value) || 1;
+    const seuilAlerte = parseInt(document.getElementById('editMrefAlerte_' + refId).value) || 100;
+    const seuilCritique = parseInt(document.getElementById('editMrefCritique_' + refId).value) || 30;
+
+    const armeIdxList = [];
+    document.querySelectorAll('#editMrefArmes_' + refId + ' input:checked').forEach(cb => {
+      armeIdxList.push(+cb.value);
+    });
+
+    updateMunitionRef(refId, { nom, calibre, unite, conditionnement, armeIdxList, seuilAlerte, seuilCritique });
+    renderMunitionsTab(container);
+  });
+
+  document.getElementById('editMrefCancel_' + refId).addEventListener('click', () => {
+    area.style.display = 'none';
+  });
+}
+
+// --- Approvisionner ---
+
+function showApproForm(container, refId) {
+  const area = document.getElementById('mrefAction_' + refId);
   if (!area) return;
   area.style.display = 'block';
   area.innerHTML = `
-    <div class="stock-field"><label>Quantité à ajouter</label>
-      <input type="number" id="approQty_${idx}" min="1" value="50" inputmode="numeric">
-    </div>
-    <div class="stock-field"><label>Motif (optionnel)</label>
-      <input type="text" id="approMotif_${idx}" placeholder="Ex: Livraison fournisseur">
-    </div>
+    <div class="stock-field"><label>Quantité à ajouter</label><input type="number" id="approQty_${refId}" min="1" value="50" inputmode="numeric"></div>
+    <div class="stock-field"><label>Motif (optionnel)</label><input type="text" id="approMotif_${refId}" placeholder="Ex: Livraison fournisseur"></div>
     <div style="display:flex;gap:6px;">
-      <button class="stock-btn stock-btn-primary stock-btn-sm" id="approConfirm_${idx}">Valider</button>
-      <button class="stock-btn stock-btn-secondary stock-btn-sm" id="approCancel_${idx}">Annuler</button>
+      <button class="stock-btn stock-btn-primary stock-btn-sm" id="approConfirm_${refId}">Valider</button>
+      <button class="stock-btn stock-btn-secondary stock-btn-sm" id="approCancel_${refId}">Annuler</button>
     </div>`;
-  document.getElementById(`approConfirm_${idx}`).addEventListener('click', () => {
-    const qty = parseInt(document.getElementById(`approQty_${idx}`).value) || 0;
+
+  document.getElementById('approConfirm_' + refId).addEventListener('click', () => {
+    const qty = parseInt(document.getElementById('approQty_' + refId).value) || 0;
     if (qty <= 0) { alert('Quantité invalide'); return; }
-    const motif = document.getElementById(`approMotif_${idx}`).value;
-    ensureStockForWeapon(idx);
-    logMouvement({ type: 'approvisionnement', armeIdx: idx, quantite: qty, motif, source: 'manuel' });
+    const motif = document.getElementById('approMotif_' + refId).value;
+    logMouvement({ type: 'approvisionnement', munRefId: refId, armeIdx: null, quantite: qty, motif, source: 'manuel' });
     renderMunitionsTab(container);
   });
-  document.getElementById(`approCancel_${idx}`).addEventListener('click', () => {
+  document.getElementById('approCancel_' + refId).addEventListener('click', () => {
     area.style.display = 'none';
   });
 }
 
-function showAdjustForm(container, idx) {
-  const area = document.getElementById(`munAction_${idx}`);
+// --- Ajuster ---
+
+function showAdjustForm(container, refId) {
+  const area = document.getElementById('mrefAction_' + refId);
   if (!area) return;
   area.style.display = 'block';
   area.innerHTML = `
-    <div class="stock-field"><label>Ajustement (+/-)</label>
-      <input type="number" id="adjustQty_${idx}" value="0" inputmode="numeric">
-    </div>
-    <div class="stock-field"><label>Motif</label>
-      <input type="text" id="adjustMotif_${idx}" placeholder="Ex: Inventaire, correction erreur">
-    </div>
+    <div class="stock-field"><label>Ajustement (+/-)</label><input type="number" id="adjustQty_${refId}" value="0" inputmode="numeric"></div>
+    <div class="stock-field"><label>Motif</label><input type="text" id="adjustMotif_${refId}" placeholder="Ex: Inventaire, correction erreur"></div>
     <div style="display:flex;gap:6px;">
-      <button class="stock-btn stock-btn-primary stock-btn-sm" id="adjustConfirm_${idx}">Valider</button>
-      <button class="stock-btn stock-btn-secondary stock-btn-sm" id="adjustCancel_${idx}">Annuler</button>
+      <button class="stock-btn stock-btn-primary stock-btn-sm" id="adjustConfirm_${refId}">Valider</button>
+      <button class="stock-btn stock-btn-secondary stock-btn-sm" id="adjustCancel_${refId}">Annuler</button>
     </div>`;
-  document.getElementById(`adjustConfirm_${idx}`).addEventListener('click', () => {
-    const qty = parseInt(document.getElementById(`adjustQty_${idx}`).value) || 0;
+
+  document.getElementById('adjustConfirm_' + refId).addEventListener('click', () => {
+    const qty = parseInt(document.getElementById('adjustQty_' + refId).value) || 0;
     if (qty === 0) { alert('Quantité invalide'); return; }
-    const motif = document.getElementById(`adjustMotif_${idx}`).value;
-    ensureStockForWeapon(idx);
-    logMouvement({ type: 'ajustement', armeIdx: idx, quantite: qty, motif, source: 'manuel' });
+    const motif = document.getElementById('adjustMotif_' + refId).value;
+    logMouvement({ type: 'ajustement', munRefId: refId, armeIdx: null, quantite: qty, motif, source: 'manuel' });
     renderMunitionsTab(container);
   });
-  document.getElementById(`adjustCancel_${idx}`).addEventListener('click', () => {
-    area.style.display = 'none';
-  });
-}
-
-function showSeuilsForm(container, idx) {
-  const area = document.getElementById(`munAction_${idx}`);
-  if (!area) return;
-  const stock = ensureStockForWeapon(idx);
-  area.style.display = 'block';
-  area.innerHTML = `
-    <div class="stock-field"><label>Seuil d'alerte</label>
-      <input type="number" id="seuilAlerte_${idx}" value="${stock.seuilAlerte}" min="0" inputmode="numeric">
-    </div>
-    <div class="stock-field"><label>Seuil critique</label>
-      <input type="number" id="seuilCritique_${idx}" value="${stock.seuilCritique}" min="0" inputmode="numeric">
-    </div>
-    <div class="stock-field"><label>Unité</label>
-      <input type="text" id="seuilUnite_${idx}" value="${stock.unite}">
-    </div>
-    <div style="display:flex;gap:6px;">
-      <button class="stock-btn stock-btn-primary stock-btn-sm" id="seuilConfirm_${idx}">Enregistrer</button>
-      <button class="stock-btn stock-btn-secondary stock-btn-sm" id="seuilCancel_${idx}">Annuler</button>
-    </div>`;
-  document.getElementById(`seuilConfirm_${idx}`).addEventListener('click', () => {
-    const alerte = parseInt(document.getElementById(`seuilAlerte_${idx}`).value) || 0;
-    const critique = parseInt(document.getElementById(`seuilCritique_${idx}`).value) || 0;
-    const unite = document.getElementById(`seuilUnite_${idx}`).value || 'cartouche';
-    stock.unite = unite;
-    updateSeuils(idx, alerte, critique);
-    renderMunitionsTab(container);
-  });
-  document.getElementById(`seuilCancel_${idx}`).addEventListener('click', () => {
+  document.getElementById('adjustCancel_' + refId).addEventListener('click', () => {
     area.style.display = 'none';
   });
 }

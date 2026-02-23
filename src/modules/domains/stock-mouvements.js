@@ -1,10 +1,10 @@
 // Domain module: Stock movements tracking
 // localStorage key: 'reg_stock_mouvements'
-// Array of { id, date, heure, type, armeIdx, quantite, agentIdx, motif, source }
+// Array of { id, date, heure, type, munRefId, armeIdx, quantite, agentIdx, motif, source }
 
 import { getState, setState } from '../state.js';
 import { storage } from '../storage/storage-interface.js';
-import { adjustStock, saveStockMunitions } from './stock-munitions.js';
+import { adjustMunRefStock, findMunRefForWeapon, saveMunitionRefs } from './stock-munitions.js';
 
 const STORAGE_KEY = 'reg_stock_mouvements';
 
@@ -27,18 +27,27 @@ export function saveStockMouvements() {
 }
 
 /**
- * Log a stock movement and auto-update stockMunitions
- * @param {object} params - { type, armeIdx, quantite, agentIdx?, motif?, source? }
+ * Log a stock movement and auto-update munition ref stock
+ * @param {object} params - { type, munRefId?, armeIdx, quantite, agentIdx?, motif?, source? }
  * @returns {object} The created mouvement
  */
-export function logMouvement({ type, armeIdx, quantite, agentIdx = null, motif = '', source = 'manuel' }) {
+export function logMouvement({ type, munRefId = null, armeIdx, quantite, agentIdx = null, motif = '', source = 'manuel' }) {
   const { stockMouvements } = getState();
   const now = new Date();
+
+  // Resolve munRefId if not provided (backward compat)
+  let resolvedMunRefId = munRefId;
+  if (!resolvedMunRefId && armeIdx !== undefined && armeIdx !== null) {
+    const ref = findMunRefForWeapon(armeIdx);
+    if (ref) resolvedMunRefId = ref.id;
+  }
+
   const mouvement = {
     id: Date.now() + '_' + Math.random().toString(36).substr(2, 6),
     date: now.toISOString().split('T')[0],
     heure: now.toTimeString().slice(0, 5),
     type,
+    munRefId: resolvedMunRefId,
     armeIdx,
     quantite,
     agentIdx,
@@ -71,8 +80,8 @@ export function logMouvement({ type, armeIdx, quantite, agentIdx = null, motif =
       delta = quantite; // Can be + or -
       break;
   }
-  if (delta !== 0) {
-    adjustStock(armeIdx, delta);
+  if (delta !== 0 && resolvedMunRefId) {
+    adjustMunRefStock(resolvedMunRefId, delta);
   }
 
   return mouvement;
@@ -92,6 +101,14 @@ export function getRecentMouvements(limit = 10) {
 export function getMouvementsForWeapon(armeIdx, limit = 50) {
   const { stockMouvements } = getState();
   return stockMouvements.filter(m => m.armeIdx === armeIdx).slice(0, limit);
+}
+
+/**
+ * Get movements for a specific munition ref
+ */
+export function getMouvementsForMunRef(munRefId, limit = 50) {
+  const { stockMouvements } = getState();
+  return stockMouvements.filter(m => m.munRefId === munRefId).slice(0, limit);
 }
 
 /**
