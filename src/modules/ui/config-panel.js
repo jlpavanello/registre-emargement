@@ -36,7 +36,7 @@ export function renderConfig() {
   team.forEach((t, i) => {
     if (t.telephone === undefined) t.telephone = '';
     if (t.asvp === undefined) t.asvp = false;
-    ec.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="emp" data-ri="${i}" title="Supprimer cet agent">✕</button><div class="cnum emp-bg">${i + 1}</div><div class="fields">
+    ec.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="emp" data-ri="${i}" title="Supprimer cet agent">Supprimer</button><div class="cnum emp-bg">${i + 1}</div><div class="fields">
     <input class="name-input" type="text" placeholder="Nom et Prénom" value="${escapeHtml(t.nom)}" data-t="emp" data-i="${i}" data-f="nom" maxlength="80">
     <input class="sub-input" type="text" placeholder="Matricule" value="${escapeHtml(t.matricule)}" data-t="emp" data-i="${i}" data-f="matricule" maxlength="30">
     <input class="sub-input" type="tel" placeholder="Téléphone" value="${escapeHtml(t.telephone)}" data-t="emp" data-i="${i}" data-f="telephone" style="font-size:12px;" maxlength="20">
@@ -52,7 +52,7 @@ export function renderConfig() {
     const catOpts = ['<option value="">— Catégorie —</option>'].concat(
       categories.map((c) => `<option value="${c.id}" ${(m.cat || '') === c.id ? 'selected' : ''}>${c.emoji} ${c.nom || '(sans nom)'}</option>`)
     ).join('');
-    mc.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="mach" data-ri="${i}" title="Supprimer cette arme">✕</button><div class="cnum mach-bg">${i + 1}</div><div class="fields">
+    mc.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="mach" data-ri="${i}" title="Supprimer cette arme">Supprimer</button><div class="cnum mach-bg">${i + 1}</div><div class="fields">
     <input class="name-input" type="text" placeholder="Nom de l'arme" value="${escapeHtml(m.nom)}" data-t="mach" data-i="${i}" data-f="nom" maxlength="80">
     <input class="sub-input" type="text" placeholder="Réf. / N° série" value="${escapeHtml(m.ref)}" data-t="mach" data-i="${i}" data-f="ref" maxlength="50">
     <select class="cat-select" data-t="mach" data-i="${i}" data-f="cat">${catOpts}</select>
@@ -64,7 +64,7 @@ export function renderConfig() {
   if (vc) {
     vc.innerHTML = '';
     vehicles.forEach((v, i) => {
-      vc.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="veh" data-ri="${i}" title="Supprimer ce véhicule">✕</button><div class="cnum veh-bg">${i + 1}</div><div class="fields">
+      vc.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="veh" data-ri="${i}" title="Supprimer ce véhicule">Supprimer</button><div class="cnum veh-bg">${i + 1}</div><div class="fields">
       <input class="name-input" type="text" placeholder="Marque / Modèle" value="${escapeHtml(v.marque || '')}" data-t="veh" data-i="${i}" data-f="marque" maxlength="60">
       <input class="sub-input" type="text" placeholder="Immatriculation" value="${escapeHtml(v.immatriculation || '')}" data-t="veh" data-i="${i}" data-f="immatriculation" style="text-transform:uppercase;" maxlength="20" pattern="[A-Za-z0-9 -]+">
       <input class="sub-input" type="text" placeholder="Équipement (radio, gyrophare...)" value="${escapeHtml(v.equipement || '')}" data-t="veh" data-i="${i}" data-f="equipement" style="font-size:12px;" maxlength="120">
@@ -91,7 +91,7 @@ export function renderConfig() {
   const armSel = document.getElementById('configArmurierSelect');
   armSel.addEventListener('change', onArmurierSelectChange);
 
-  // Bind boutons ✕ de suppression individuelle
+  // Bind boutons Supprimer de suppression individuelle
   document.querySelectorAll('.btn-remove-config').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();

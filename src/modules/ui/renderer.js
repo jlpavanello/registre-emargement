@@ -61,6 +61,7 @@ export function renderEmployees() {
     const showInfo = mList.length > 0 && d && d.matin.signature && (currentPeriod === 'matin' ? isSigned : true);
     const hasEcart = d && d.soir.returns && mList.some((m) => { const r = d.soir.returns[m.machineIdx]; return r && r.motif; });
     const hasCheckout = mList.length > 0 && d && !!d.matin.signature;
+    const needsMatinVisa = currentPeriod === 'soir' && hasCheckout && !isSigned && !lockedMatinPresents.includes(i);
 
     let machBadges = '';
     if (showInfo) {
@@ -80,7 +81,7 @@ export function renderEmployees() {
     card.style.animationDelay = (cardIdx * 0.04) + 's';
     cardIdx++;
     card.innerHTML = `
-      ${!empLocked ? '<button class="btn-remove-present" title="Retirer des présents">✕</button>' : ''}
+      ${!empLocked ? '<button class="btn-remove-present" title="Retirer des présents">Supprimer</button>' : ''}
       <div class="emp-num">${i + 1}</div>
       <div class="emp-info">
         <div class="emp-name">${escapeHtml(t.nom)}</div>
@@ -88,14 +89,14 @@ export function renderEmployees() {
         ${crewBadgeHtml || showInfo ? `<div class="emp-badges">
           ${crewBadgeHtml}
           ${machBadges}
-          ${totalAcc > 0 ? `<span class="badge badge-acc">${currentPeriod === 'matin' ? totalAcc + ' sortie' + (totalAcc > 1 ? 's' : '') : totalRet + ' rentrée' + (totalRet > 1 ? 's' : '')}</span>` : ''}
+          ${totalAcc > 0 ? `<span class="badge badge-acc">${currentPeriod === 'matin' ? totalAcc + ' munition' + (totalAcc > 1 ? 's' : '') : totalRet + ' munition' + (totalRet > 1 ? 's' : '')}</span>` : ''}
           ${currentPeriod === 'soir' && hasEcart ? '<span class="badge badge-warning">\u26A0 Écart</span>' : ''}
         </div>` : ''}
       </div>
       <div class="emp-sign-area">
         ${sig.heure ? `<span class="emp-time">${sig.heure}</span>` : ''}
-        <div class="sign-btn ${isSigned ? 'signed' : ''} ${empLocked ? 'locked-btn' : ''} ${currentPeriod === 'soir' && !hasCheckout && !isSigned ? 'no-checkout' : ''}">
-          ${isSigned ? `<img src="${sig.signature}" alt="s">` : (empLocked ? '\uD83D\uDD12' : (currentPeriod === 'soir' ? (hasCheckout ? 'Rendre' : '—') : 'Choisir'))}
+        <div class="sign-btn ${isSigned ? 'signed' : ''} ${empLocked ? 'locked-btn' : ''} ${needsMatinVisa ? 'needs-visa' : ''} ${currentPeriod === 'soir' && !hasCheckout && !isSigned ? 'no-checkout' : ''}">
+          ${isSigned ? `<img src="${sig.signature}" alt="s">` : (empLocked ? '\uD83D\uDD12' : (needsMatinVisa ? '⚠️ Visa' : (currentPeriod === 'soir' ? (hasCheckout ? 'Rendre' : '—') : 'Choisir')))}
         </div>
       </div>`;
 

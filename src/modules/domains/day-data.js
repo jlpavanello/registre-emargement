@@ -17,6 +17,7 @@ export function loadDayData() {
         setState('lockedMatinPresents', p.lockedMatinPresents || []);
         setState('lockedSoirPresents', p.lockedSoirPresents || []);
         setState('crewAssignments', p.crewAssignments || {});
+        setState('crewDrivers', p.crewDrivers || {});
         // Restore visa UI
         const { visaMatin, visaSoir, visaMatinSigner, visaSoirSigner } = getState();
         if (visaMatin) {
@@ -52,6 +53,7 @@ export function loadDayData() {
   setState('lockedMatinPresents', []);
   setState('lockedSoirPresents', []);
   setState('crewAssignments', {});
+  setState('crewDrivers', {});
 }
 
 export function syncDayData() {
@@ -94,5 +96,6 @@ export function saveDayData() {
     lockedMatinPresents: s.lockedMatinPresents,
     lockedSoirPresents: s.lockedSoirPresents,
     crewAssignments: s.crewAssignments,
+    crewDrivers: s.crewDrivers,
   });
 }

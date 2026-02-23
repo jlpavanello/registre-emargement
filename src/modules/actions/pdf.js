@@ -61,26 +61,42 @@ export function generatePDF() {
   doc.setFontSize(8);
   doc.text('Page n\u00b0 ' + pageNumber, pw - ml - 1, 13, { align: 'right' });
 
-  // --- Info block ---
+  // --- Info block (no border — bold labels for clarity) ---
   let y = 20;
-  doc.setDrawColor(26, 58, 92);
-  doc.setLineWidth(0.4);
-  doc.rect(ml, y, uw, 16);
+  const totalTeam = team.filter((t) => t.nom).length;
+  const presentCount = presentToday.length;
+  doc.setTextColor(26, 58, 92);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Police Municipale :', ml + 2, y + 4);
+  doc.setFont('helvetica', 'normal');
   doc.setTextColor(0);
-  doc.setFontSize(7.5);
+  doc.text(ent, ml + 34, y + 4);
   doc.setFont('helvetica', 'bold');
-  doc.text('Police Municipale :', ml + 2, y + 5);
+  doc.setTextColor(26, 58, 92);
+  doc.text('Date :', ml + uw * 0.35, y + 4);
   doc.setFont('helvetica', 'normal');
-  doc.text(ent, ml + 32, y + 5);
+  doc.setTextColor(0);
+  doc.text(ds, ml + uw * 0.35 + 11, y + 4);
   doc.setFont('helvetica', 'bold');
-  doc.text('Date :', ml + uw * 0.35, y + 5);
+  doc.setTextColor(26, 58, 92);
+  doc.text('Responsable :', ml + uw * 0.62, y + 4);
   doc.setFont('helvetica', 'normal');
-  doc.text(ds, ml + uw * 0.35 + 11, y + 5);
+  doc.setTextColor(0);
+  doc.text(rp, ml + uw * 0.62 + 25, y + 4);
+  // Second row: effectifs
   doc.setFont('helvetica', 'bold');
-  doc.text('Responsable :', ml + uw * 0.62, y + 5);
+  doc.setTextColor(26, 58, 92);
+  doc.text('Effectif de l\'APM :', ml + 2, y + 10);
   doc.setFont('helvetica', 'normal');
-  doc.text(rp, ml + uw * 0.62 + 25, y + 5);
-  // Second row left empty (ref chantier / adresse removed)
+  doc.setTextColor(0);
+  doc.text(String(totalTeam), ml + 34, y + 10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(26, 58, 92);
+  doc.text('Effectif présent :', ml + uw * 0.35, y + 10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0);
+  doc.text(String(presentCount), ml + uw * 0.35 + 28, y + 10);
 
   // --- Table layout ---
   y = 40;
@@ -159,7 +175,7 @@ export function generatePDF() {
   doc.text('Emargement', mid(cX[6], cX[7]), sYc + 1, { align: 'center' });
   doc.setTextColor(30, 64, 175);
   doc.text('Mun.', mid(cX[7], cX[8]), sYc - 0.5, { align: 'center' });
-  doc.text('rentree', mid(cX[7], cX[8]), sYc + 2.5, { align: 'center' });
+  doc.text('munition', mid(cX[7], cX[8]), sYc + 2.5, { align: 'center' });
   doc.text('Heure', mid(cX[8], cX[9]), sYc - 0.5, { align: 'center' });
   doc.text('dep.', mid(cX[8], cX[9]), sYc + 2.5, { align: 'center' });
   doc.text('Emargement', mid(cX[9], cX[10]), sYc + 1, { align: 'center' });
@@ -338,11 +354,8 @@ export function generatePDF() {
     }
   });
 
-  // --- Table border and grid ---
-  // Outer border
+  // --- Table grid (no outer border — lighter design) ---
   doc.setDrawColor(26, 58, 92);
-  doc.setLineWidth(0.5);
-  doc.rect(cX[0], y, uw, tH);
 
   // Header separator
   doc.setLineWidth(0.3);

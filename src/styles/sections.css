@@ -194,71 +194,174 @@
   text-align: center;
 }
 
-/* Presence shortcut button */
-.presence-shortcut-section {
-  padding: 0 !important;
-  overflow: hidden;
-}
-.presence-shortcut-btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 16px 18px;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-.presence-shortcut-btn:hover {
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-}
-.presence-shortcut-btn:active {
-  transform: scale(0.99);
-}
-.presence-shortcut-icon {
-  width: 42px; height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.presence-shortcut-icon svg {
-  width: 22px; height: 22px;
-  stroke: white;
-}
-.presence-shortcut-text {
-  flex: 1;
-  text-align: left;
-}
-.presence-shortcut-title {
-  display: block;
+/* Day config label between config and presence */
+.day-config-label {
+  text-align: center;
   font-size: 14px;
   font-weight: 700;
-  color: #15803d;
+  color: var(--dark);
+  padding: 10px 12px 4px;
+  letter-spacing: 0.3px;
 }
-.presence-shortcut-sub {
-  display: block;
-  font-size: 12px;
+
+/* Presence prompt box (card with dashed border) */
+.presence-prompt-box {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px;
+  margin: 0 12px 10px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 2px dashed #86efac;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+.presence-prompt-left {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.presence-prompt-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.presence-prompt-info p {
+  font-size: 13px;
+  color: #166534;
   font-weight: 500;
-  color: #4ade80;
-  margin-top: 2px;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+  padding: 0;
 }
-.presence-shortcut-count {
+.presence-prompt-info button {
+  display: inline-block;
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 800;
-  color: white;
-  background: linear-gradient(135deg, #16a34a, #15803d);
-  padding: 4px 12px;
-  border-radius: 20px;
-  min-width: 36px;
-  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(22,101,52,0.3);
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+}
+.presence-prompt-info button:hover {
+  box-shadow: 0 6px 20px rgba(22,101,52,0.4);
+  transform: translateY(-1px);
+}
+.presence-prompt-info button:active {
+  transform: scale(0.98);
+}
+.presence-prompt-stats {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px;
   flex-shrink: 0;
+}
+.presence-stat-badge {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  padding: 5px 14px;
+  border-radius: 20px;
+  text-align: center;
+  white-space: nowrap;
+  min-width: 70px;
+  box-sizing: border-box;
+}
+.presence-stat-badge.pm {
+  background: linear-gradient(135deg, #16a34a, #15803d);
   box-shadow: 0 2px 6px rgba(22,163,74,0.3);
 }
-.presence-shortcut-arrow {
-  width: 20px; height: 20px;
-  stroke: #86efac;
+.presence-stat-badge.asvp {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+}
+
+/* Crew / Equipages prompt box (purple theme) */
+.crew-prompt-box {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px;
+  margin: 0 12px 10px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 2px dashed #c4b5fd;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+.crew-prompt-left {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.crew-prompt-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.crew-prompt-info p {
+  font-size: 13px;
+  color: #4c1d95;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+.crew-prompt-info button {
+  display: inline-block;
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(22,101,52,0.3);
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+}
+.crew-prompt-info button:hover {
+  box-shadow: 0 6px 20px rgba(22,101,52,0.4);
+  transform: translateY(-1px);
+}
+.crew-prompt-info button:active {
+  transform: scale(0.98);
+}
+.crew-prompt-stats {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px;
   flex-shrink: 0;
+}
+.crew-stat-badge {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  padding: 5px 14px;
+  border-radius: 20px;
+  text-align: center;
+  white-space: nowrap;
+  min-width: 70px;
+  box-sizing: border-box;
+}
+.crew-stat-badge.equip {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  box-shadow: 0 2px 6px rgba(139,92,246,0.3);
 }

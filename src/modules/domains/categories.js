@@ -106,7 +106,7 @@ export function renderCatList() {
       .map(e => `<option value="${e}" ${cat.emoji === e ? 'selected' : ''}>${e}</option>`)
       .join('');
     c.innerHTML += `<div class="config-card">
-      <button class="btn-remove-config" data-rt="cat" data-ri="${i}" title="Supprimer cette catégorie">✕</button>
+      <button class="btn-remove-config" data-rt="cat" data-ri="${i}" title="Supprimer cette catégorie">Supprimer</button>
       <select data-ci="${i}" data-cf="emoji" style="width:44px;height:36px;font-size:20px;border:1.5px solid var(--border);border-radius:8px;text-align:center;background:white;cursor:pointer;appearance:none;">${emojiOpts}</select>
       <div class="fields">
         <input class="name-input" type="text" placeholder="Nom de la catégorie" value="${cat.nom}" data-ci="${i}" data-cf="nom">
@@ -121,7 +121,7 @@ export function renderCatList() {
       cats[idx][this.dataset.cf] = this.value;
     });
   });
-  // Bind boutons ✕ de suppression individuelle des catégories
+  // Bind boutons Supprimer de suppression individuelle des catégories
   document.querySelectorAll('#configCatList .btn-remove-config').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();

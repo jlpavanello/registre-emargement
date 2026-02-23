@@ -307,6 +307,12 @@ export function openSignModal(index, period) {
         closeModal();
         return;
       }
+      // Block return if agent's checkout was not countersigned by visa
+      if (!lockedMatinPresents.includes(index)) {
+        alert('La sortie de cet agent n\'a pas encore été contresignée par le responsable.\nVeuillez d\'abord signer le visa de sortie pour couvrir cet agent.');
+        closeModal();
+        return;
+      }
       renderSoirReturnArea(index);
       sigArea.style.display = 'block';
       document.getElementById('btnClear').style.display = '';

@@ -30,7 +30,7 @@ import { addCategory } from './modules/domains/categories.js';
 import { onArmurierSelectChange, onVisaSignerChange, populateArmurierSelect } from './modules/domains/responsables.js';
 import { getState } from './modules/state.js';
 import { openPresenceSelector, closePresenceSelector, selectAllPresence, selectNonePresence, savePresence, removeFromPresent, bindPresenceCallbacks } from './modules/domains/presence.js';
-import { openCrewSelector, closeCrewSelector, saveCrewAssignments, updateCrewBadge, bindCrewCallbacks } from './modules/domains/crew-assignment.js';
+import { openCrewSelector, closeCrewSelector, saveCrewAssignments, updateCrewBadge, bindCrewCallbacks, onVehicleSelect, onAgentSelect } from './modules/domains/crew-assignment.js';
 
 // UI
 import { renderEmployees, switchPeriod, updateCounts, updateSoirTabState, bindRendererCallbacks } from './modules/ui/renderer.js';
@@ -188,6 +188,7 @@ bindResetCallbacks({
 bindCrewCallbacks({
   renderEmployees,
   updateCounts,
+  afterSave: () => { updateCrewPromptStats(); },
 });
 
 // =============================================
@@ -254,9 +255,11 @@ document.getElementById('btnVocalSave').addEventListener('click', saveCurrentRep
 document.getElementById('vocalContenu').addEventListener('input', updateSaveButton);
 
 // Crew (Équipages) panel
-document.getElementById('btnEditCrew').addEventListener('click', openCrewSelector);
+document.getElementById('btnCrewShortcut').addEventListener('click', openCrewSelector);
 document.getElementById('btnCloseCrew').addEventListener('click', closeCrewSelector);
 document.getElementById('btnSaveCrew').addEventListener('click', saveCrewAssignments);
+document.getElementById('crewVehicleSelect').addEventListener('change', onVehicleSelect);
+document.getElementById('crewAgentSelect').addEventListener('change', onAgentSelect);
 
 // Config: Vehicles
 document.getElementById('btnAddVeh').addEventListener('click', () => addItem('veh'));
@@ -459,23 +462,88 @@ document.getElementById('btnShortcutArmes').addEventListener('click', () => open
 // Event: presence shortcut button
 document.getElementById('btnPresenceShortcut').addEventListener('click', openPresenceSelector);
 
-/** Update the presence shortcut subtitle and count badge */
+/** Update the presence shortcut subtitle and stat badges (PM + ASVP) */
 function updatePresenceShortcutSub() {
   const { presentToday, team } = getState();
   const sub = document.getElementById('presenceShortcutSub');
-  const countEl = document.getElementById('presenceShortcutCount');
+  const statPM = document.getElementById('presenceStatPM');
+  const statASVP = document.getElementById('presenceStatASVP');
   if (!sub) return;
+
   const count = presentToday.length;
   const total = team.filter(t => t.nom).length;
+
+  // Count present ASVP vs non-ASVP (PM)
+  let asvpCount = 0;
+  let pmCount = 0;
+  presentToday.forEach(idx => {
+    if (team[idx] && team[idx].nom) {
+      if (team[idx].asvp) asvpCount++;
+      else pmCount++;
+    }
+  });
+
   if (count === 0) {
     sub.textContent = 'Aucun agent sélectionné';
   } else {
-    sub.textContent = count + ' agent' + (count > 1 ? 's' : '') + ' présent' + (count > 1 ? 's' : '') + ' sur ' + total + ' configuré' + (total > 1 ? 's' : '');
+    sub.textContent = count + ' agent' + (count > 1 ? 's' : '') + ' présent' + (count > 1 ? 's' : '') + ' sur un effectif de ' + total;
   }
-  if (countEl) {
-    countEl.textContent = count + '/' + total;
+
+  // Update stat badges
+  if (statPM) {
+    statPM.textContent = pmCount + ' agent' + (pmCount > 1 ? 's' : '');
+  }
+  if (statASVP) {
+    statASVP.textContent = asvpCount + ' ASVP';
   }
 }
+
+/** Update the "Configurer la journée du ..." label with current date */
+function updateDayConfigLabel() {
+  const el = document.getElementById('dayConfigLabel');
+  if (!el) return;
+  const ds = document.getElementById('dateJour').value;
+  if (ds) {
+    const dateStr = new Date(ds + 'T00:00:00').toLocaleDateString('fr-FR', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+    el.textContent = 'Configurer la journ\u00e9e du ' + dateStr;
+  } else {
+    el.textContent = 'Configurer la journ\u00e9e du \u2014';
+  }
+}
+
+/** Update the crew prompt stats badges (équipages constitués + véhicules) */
+function updateCrewPromptStats() {
+  const { crewAssignments } = getState();
+  const sub = document.getElementById('crewShortcutSub');
+  const statEquip = document.getElementById('crewStatEquip');
+
+  // Count vehicles with at least one member assigned
+  let activeCrews = 0;
+  let totalMembers = 0;
+  for (const vIdx of Object.keys(crewAssignments)) {
+    const members = crewAssignments[vIdx];
+    if (members && members.length > 0) {
+      activeCrews++;
+      totalMembers += members.length;
+    }
+  }
+
+  if (sub) {
+    if (activeCrews === 0) {
+      sub.textContent = 'Aucun équipage constitué';
+    } else {
+      sub.textContent = activeCrews + ' équipage' + (activeCrews > 1 ? 's' : '') + ' — ' + totalMembers + ' agent' + (totalMembers > 1 ? 's' : '') + ' affecté' + (totalMembers > 1 ? 's' : '');
+    }
+  }
+  if (statEquip) {
+    statEquip.textContent = activeCrews + ' équipage' + (activeCrews > 1 ? 's' : '');
+  }
+}
+
+// Update day config label when date changes
+document.getElementById('dateJour').addEventListener('change', updateDayConfigLabel);
 
 // =============================================
 // Initialize the application
@@ -504,6 +572,8 @@ async function bootstrap() {
   populateMainArmurierSelect();
   updateShortcutCounts();
   updatePresenceShortcutSub();
+  updateCrewPromptStats();
+  updateDayConfigLabel();
 }
 
 bootstrap().catch((err) => console.error('Init error:', err));

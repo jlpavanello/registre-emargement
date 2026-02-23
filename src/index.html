@@ -83,7 +83,7 @@
 
 <!-- CONFIGURATION RAPIDE -->
 <div class="section config-shortcuts">
-  <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Configuration</h2>
+  <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Configuration des moyens</h2>
   <div class="config-shortcut-grid">
     <button class="config-shortcut-btn" id="btnShortcutAgents" data-section="agents">
       <div class="shortcut-icon agent-icon">
@@ -116,19 +116,42 @@
   </div>
 </div>
 
+<!-- TEXTE JOURNÉE -->
+<div class="day-config-label" id="dayConfigLabel">Configurer la journée du —</div>
+
 <!-- SÉLECTION DES PRÉSENTS (raccourci) -->
-<div class="section presence-shortcut-section">
-  <button class="presence-shortcut-btn" id="btnPresenceShortcut">
-    <div class="presence-shortcut-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+<div class="presence-prompt-box" id="presencePromptBox">
+  <div class="presence-prompt-left">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" style="width:32px;height:32px;flex-shrink:0;">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+    </svg>
+    <div class="presence-prompt-info">
+      <p id="presenceShortcutSub">Sélectionnez les agents présents aujourd'hui</p>
+      <button id="btnPresenceShortcut">Choisir / modifier la liste des présents</button>
     </div>
-    <div class="presence-shortcut-text">
-      <span class="presence-shortcut-title">Agents présents du jour</span>
-      <span class="presence-shortcut-sub" id="presenceShortcutSub">Aucun agent sélectionné</span>
+  </div>
+  <div class="presence-prompt-stats">
+    <span class="presence-stat-badge pm" id="presenceStatPM">0 agent</span>
+    <span class="presence-stat-badge asvp" id="presenceStatASVP">ASVP 0</span>
+  </div>
+</div>
+
+<!-- CONSTITUTION DES ÉQUIPAGES -->
+<div class="crew-prompt-box" id="crewPromptBox">
+  <div class="crew-prompt-left">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#4c1d95" stroke-width="1.8" style="width:36px;height:36px;flex-shrink:0;">
+      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.4 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h1"/>
+      <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
+    </svg>
+    <div class="crew-prompt-info">
+      <p id="crewShortcutSub">Aucun équipage constitué</p>
+      <button id="btnCrewShortcut">Constituer les équipages véhicules</button>
     </div>
-    <span class="presence-shortcut-count" id="presenceShortcutCount">0/0</span>
-    <svg class="presence-shortcut-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-  </button>
+  </div>
+  <div class="crew-prompt-stats">
+    <span class="crew-stat-badge equip" id="crewStatEquip">0 équipage</span>
+  </div>
 </div>
 
 <div class="period-tabs">
@@ -140,14 +163,9 @@
 <div id="presenceBadgeArea" style="display:none;">
   <div class="presence-badge" id="presenceBadge" style="display:none;"></div>
 </div>
+<!-- crewBadgeArea gardé caché pour compatibilité -->
 <div id="crewBadgeArea" style="display:none;">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 12px 0;">
-    <div class="crew-badge" id="crewBadge">🚗 Aucun équipage</div>
-    <button class="btn-edit-crew" id="btnEditCrew">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.4 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-      Équipages
-    </button>
-  </div>
+  <div class="crew-badge" id="crewBadge" style="display:none;"></div>
 </div>
 <div id="employeesList" class="employees-list"></div>
 
@@ -383,12 +401,39 @@
 <!-- ÉQUIPAGES (Crew Assignment) -->
 <div class="crew-overlay" id="crewPanel">
   <div class="crew-header">
-    <h2>🚗 Équipages</h2>
+    <h2>🚗 Équipages véhicules</h2>
     <button class="header-btn" id="btnCloseCrew" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
-  <div class="crew-info">Affectez chaque agent présent à un véhicule. Un agent ne peut être que dans un seul véhicule à la fois.</div>
-  <div class="crew-count" id="crewCount">0 agent affecté</div>
-  <div id="crewAssignmentList"></div>
+  <div class="crew-info">Choisissez un véhicule, puis ajoutez les agents de l'équipage.</div>
+
+  <!-- Sélecteur véhicule -->
+  <div class="crew-select-section">
+    <label class="crew-select-label">Véhicule</label>
+    <select id="crewVehicleSelect" class="crew-select">
+      <option value="">— Choisir un véhicule —</option>
+    </select>
+  </div>
+
+  <!-- Sélecteur agent (visible quand un véhicule est choisi) -->
+  <div class="crew-select-section" id="crewAgentSection" style="display:none;">
+    <label class="crew-select-label">Ajouter un agent à l'équipage</label>
+    <select id="crewAgentSelect" class="crew-select">
+      <option value="">— Choisir un agent —</option>
+    </select>
+  </div>
+
+  <!-- Liste des agents affectés au véhicule sélectionné -->
+  <div id="crewAssignedList" style="display:none;">
+    <div class="crew-assigned-header">
+      <span id="crewAssignedTitle">Équipage</span>
+      <span class="crew-count" id="crewCount">0 agent</span>
+    </div>
+    <div id="crewAssignedMembers"></div>
+  </div>
+
+  <!-- Résumé de tous les équipages -->
+  <div id="crewSummary"></div>
+
   <div style="height:90px;"></div>
   <div class="crew-bottom"><button class="btn-crew-save" id="btnSaveCrew">Valider les équipages</button></div>
 </div>

@@ -29,7 +29,9 @@ const state = {
   // Vehicles / Crews
   vehicles: [],
   crewAssignments: {},       // {vehicleIdx: [empIdx, ...]}
+  crewDrivers: {},           // {vehicleIdx: empIdx} — conducteur du jour
   tempCrewAssignments: {},   // Temp copy during selection
+  tempCrewDrivers: {},       // Temp copy during selection
   pageNumber: 1,
   // Vocal reports
   vocalReports: [],
