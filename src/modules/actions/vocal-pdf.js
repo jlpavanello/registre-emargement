@@ -108,7 +108,7 @@ export function generateVocalPDF(report) {
   doc.setFontSize(7);
   doc.setTextColor(160);
   doc.setFont('helvetica', 'italic');
-  doc.text("Document généré par le Registre d'Émargement Digital", ml, ph - 14);
+  doc.text("Document généré par Gestion Opérationnelle PM", ml, ph - 14);
   doc.text(formatDate(report.date) + ' à ' + (report.heure || ''), pw - mr, ph - 14, { align: 'right' });
 
   // ===== SAUVEGARDE =====

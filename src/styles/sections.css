@@ -10,7 +10,71 @@
   text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
   display: flex; align-items: center; gap: 8px;
 }
+.section h2.info-title {
+  font-size: 14px; color: var(--dark); margin-bottom: 14px;
+  letter-spacing: 0.5px;
+}
+.section h2.info-title svg { width: 18px; height: 18px; opacity: 0.7; }
 .section h2 svg { width: 14px; height: 14px; opacity: 0.5; }
+
+/* Police Municipale identity block */
+.pm-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--border-light);
+}
+.pm-logo {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+}
+.pm-text {
+  flex: 1;
+}
+.pm-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+.pm-ville-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.pm-ville-field span {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text2);
+}
+.pm-ville-input {
+  border: none;
+  border-bottom: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 4px 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+  background: transparent;
+  font-family: inherit;
+  flex: 1;
+  transition: border-color var(--transition);
+}
+.pm-ville-input:focus {
+  outline: none;
+  border-bottom-color: var(--accent-dark);
+}
+.pm-ville-input::placeholder {
+  color: var(--text3);
+  font-weight: 500;
+}
 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .info-grid.full { grid-template-columns: 1fr; }
 .info-field label {
@@ -27,3 +91,174 @@
   box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
 }
 .info-field input::placeholder { color: var(--text3); }
+
+/* Armurier du jour selector on main page */
+.info-armurier label {
+  display: block; font-size: 10px; color: var(--text3);
+  margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.armurier-select {
+  width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-xs);
+  padding: 10px 12px; font-size: 14px; background: var(--surface2);
+  font-family: inherit; transition: all var(--transition); color: var(--text);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.armurier-select:focus {
+  outline: none; border-color: var(--accent); background-color: white;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+.armurier-info {
+  font-size: 11px; color: var(--accent-dark); font-weight: 600;
+  margin-top: 4px; padding: 0 4px; min-height: 16px;
+}
+
+/* Folio (page number) in info section */
+.info-folio label {
+  display: block; font-size: 10px; color: var(--text3);
+  margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.folio-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, rgba(30,58,138,0.08) 0%, rgba(37,99,235,0.06) 100%);
+  border: 1.5px solid rgba(30,58,138,0.2); border-radius: var(--radius-xs);
+  padding: 10px 12px; font-size: 14px;
+  font-weight: 700; color: var(--dark);
+}
+.folio-badge svg { width: 16px; height: 16px; opacity: 0.5; stroke: var(--dark); }
+
+/* Configuration shortcut grid */
+.config-shortcuts {
+  padding: 14px 16px;
+}
+.config-shortcut-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.config-shortcut-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.config-shortcut-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(59,130,246,0.12);
+  transform: translateY(-1px);
+}
+.config-shortcut-btn:active {
+  transform: translateY(0);
+}
+.shortcut-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.shortcut-icon svg {
+  width: 18px; height: 18px;
+  stroke: white;
+}
+.shortcut-icon.agent-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.shortcut-icon.vehicule-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.shortcut-icon.categorie-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.shortcut-icon.arme-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+.shortcut-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: left;
+}
+.shortcut-count {
+  font-size: 12px;
+  font-weight: 800;
+  color: white;
+  background: var(--accent);
+  padding: 2px 8px;
+  border-radius: 20px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Presence shortcut button */
+.presence-shortcut-section {
+  padding: 0 !important;
+  overflow: hidden;
+}
+.presence-shortcut-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+.presence-shortcut-btn:hover {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+}
+.presence-shortcut-btn:active {
+  transform: scale(0.99);
+}
+.presence-shortcut-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.presence-shortcut-icon svg {
+  width: 22px; height: 22px;
+  stroke: white;
+}
+.presence-shortcut-text {
+  flex: 1;
+  text-align: left;
+}
+.presence-shortcut-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #15803d;
+}
+.presence-shortcut-sub {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #4ade80;
+  margin-top: 2px;
+}
+.presence-shortcut-count {
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  padding: 4px 12px;
+  border-radius: 20px;
+  min-width: 36px;
+  text-align: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(22,163,74,0.3);
+}
+.presence-shortcut-arrow {
+  width: 20px; height: 20px;
+  stroke: #86efac;
+  flex-shrink: 0;
+}

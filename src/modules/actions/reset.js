@@ -4,6 +4,7 @@ import { isMatinLocked, isSoirLocked } from '../ui/visa.js';
 import { saveDayData } from '../domains/day-data.js';
 import { savePageNumber, updatePageNumberDisplay } from '../domains/page-number.js';
 import { updatePresenceBadge } from '../domains/presence.js';
+import { logAudit } from '../domains/audit-log.js';
 
 let _callbacks = {};
 export function bindResetCallbacks(callbacks) {
@@ -41,6 +42,7 @@ export function resetSignatures() {
   document.getElementById('visaSoirSignedBy').style.display = 'none';
 
   saveDayData();
+  logAudit('RESET_SIGNATURES', { description: 'Effacement des signatures du jour' });
   if (_callbacks.renderEmployees) _callbacks.renderEmployees();
   if (_callbacks.updateCounts) _callbacks.updateCounts();
   if (_callbacks.updateSoirTabState) _callbacks.updateSoirTabState();
@@ -90,5 +92,6 @@ export function fullReset() {
   if (_callbacks.updateSoirTabState) _callbacks.updateSoirTabState();
   if (_callbacks.closeConfig) _callbacks.closeConfig();
 
+  logAudit('FULL_RESET', { description: 'Remise à zéro complète — signatures, présents, compteur de page' });
   alert('Remise à zéro effectuée. Le prochain jour commencera à la page n° 1.');
 }

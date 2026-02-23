@@ -8,6 +8,8 @@ import { logMouvement } from '../domains/stock-mouvements.js';
 import { ensureStockForWeapon } from '../domains/stock-munitions.js';
 import { initCanvas, clearCanvas } from './canvas.js';
 import { isMatinLocked, isSoirLocked, hasUncoveredSignatures } from './visa.js';
+import { escapeHtml } from '../utils/sanitize.js';
+import { logAudit } from '../domains/audit-log.js';
 
 let _afterConfirm = {};
 export function bindSignModalCallbacks(callbacks) {
@@ -35,7 +37,7 @@ export function resetMachineSelects() {
   const { categories } = getState();
   const catSel = document.getElementById('catSelect');
   catSel.innerHTML = '<option value="">— Choisir une catégorie —</option>';
-  categories.forEach((c) => { catSel.innerHTML += `<option value="${c.id}">${c.emoji} ${c.nom || '(sans nom)'}</option>`; });
+  categories.forEach((c) => { catSel.innerHTML += `<option value="${escapeHtml(c.id)}">${escapeHtml(c.emoji)} ${escapeHtml(c.nom) || '(sans nom)'}</option>`; });
   catSel.innerHTML += '<option value="__none__">\uD83D\uDCE6 Sans catégorie</option>';
   catSel.value = '';
   document.getElementById('machSelectSub').style.display = 'none';
@@ -61,7 +63,7 @@ export function onCatChange() {
     document.getElementById('btnAddMachine').disabled = true;
     return;
   }
-  avail.forEach((m) => { const o = document.createElement('option'); o.value = m.idx; o.textContent = m.nom + (m.ref ? ` (${m.ref})` : ''); machSel.appendChild(o); });
+  avail.forEach((m) => { const o = document.createElement('option'); o.value = m.idx; o.textContent = m.nom + (m.ref ? ` (${m.ref})` : ''); machSel.appendChild(o); }); // textContent is already safe
   machSub.style.display = 'block';
   document.getElementById('btnAddMachine').disabled = true;
 }
@@ -112,7 +114,7 @@ export function renderMachineList() {
     const catLabel = getMachineCatLabel(getMachineCat(m.machineIdx));
     const item = document.createElement('div');
     item.className = 'machine-list-item';
-    item.innerHTML = `<div class="mli-info"><div class="mli-name">${name}</div><div class="mli-detail">${catLabel ? catLabel + ' \u2014 ' : ''}${m.acc} munition${m.acc > 1 ? 's' : ''}</div></div>`;
+    item.innerHTML = `<div class="mli-info"><div class="mli-name">${escapeHtml(name)}</div><div class="mli-detail">${catLabel ? escapeHtml(catLabel) + ' \u2014 ' : ''}${m.acc} munition${m.acc > 1 ? 's' : ''}</div></div>`;
     const removeBtn = document.createElement('button');
     removeBtn.className = 'mli-remove';
     removeBtn.textContent = '\u2715';
@@ -192,7 +194,7 @@ export function renderSoirReturnArea(empIdx) {
     const motif = ret.motif || '';
     const hasEcart = m.acc > 0 && retQty !== m.acc;
     html += `<div class="soir-machine-card" data-midx="${m.machineIdx}">
-      <div class="smc-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="1"/></svg>${name}${catLabel ? ' \u2014 ' + catLabel : ''}</div>
+      <div class="smc-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="1"/></svg>${escapeHtml(name)}${catLabel ? ' \u2014 ' + escapeHtml(catLabel) : ''}</div>
       ${m.acc > 0 ? `<div class="smc-acc-info">${m.acc} munition${m.acc > 1 ? 's' : ''} sortie${m.acc > 1 ? 's' : ''} ce matin</div>
       <div class="qty-selector" style="margin-bottom:4px;">
         <button class="qty-minus" data-machidx="${m.machineIdx}" data-delta="-1">\u2212</button>
@@ -373,6 +375,26 @@ export function confirmSignature() {
   setState('dayData', dayData);
   closeModal();
   saveDayData();
+
+  // Audit: log de la signature
+  if (index === -1) {
+    const signer = getSignerInfo();
+    logAudit(period === 'visaMatin' ? 'VISA_MATIN' : 'VISA_SOIR', {
+      signerName: signer ? signer.nom : 'Responsable',
+      signerLabel: signer ? signer.label : '',
+    });
+  } else {
+    const { team } = getState();
+    const agentName = team[index] ? team[index].nom : `Agent ${index + 1}`;
+    logAudit(period === 'matin' ? 'SIGNATURE_MATIN' : 'SIGNATURE_SOIR', {
+      agentIdx: index,
+      agentName,
+      machinesCount: period === 'matin' ? selectedMachines.length : 0,
+      description: period === 'matin'
+        ? `${agentName} — ${selectedMachines.length} arme(s) sortie(s)`
+        : `${agentName} — retour des armes`,
+    });
+  }
 
   // Stock: log mouvements automatiques
   if (index !== -1 && period === 'matin' && selectedMachines.length > 0) {

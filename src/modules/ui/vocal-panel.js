@@ -2,6 +2,7 @@
 // Uses Web Speech API (webkitSpeechRecognition) for voice-to-text
 
 import { addReport, deleteReport, getReportsForToday, getAllReports } from '../domains/vocal-data.js';
+import { escapeHtml } from '../utils/sanitize.js';
 
 let _callbacks = {};
 export function bindVocalCallbacks(callbacks) {
@@ -265,19 +266,19 @@ export function renderReportsList() {
       .forEach((r) => {
         const contenuPreview = r.contenu.length > 200 ? r.contenu.substring(0, 200) + '...' : r.contenu;
         container.innerHTML += `
-        <div class="vocal-report-card" data-id="${r.id}">
+        <div class="vocal-report-card" data-id="${escapeHtml(r.id)}">
           <div class="vocal-report-header">
             <div class="vocal-report-meta">
-              <strong>${r.heure}</strong> — ${r.agent || 'Agent'}${r.matricule ? ' (' + r.matricule + ')' : ''}
+              <strong>${escapeHtml(r.heure)}</strong> — ${escapeHtml(r.agent || 'Agent')}${r.matricule ? ' (' + escapeHtml(r.matricule) + ')' : ''}
             </div>
             <div class="vocal-report-actions">
-              <button class="btn-vocal-pdf" data-pdf-id="${r.id}">📄 PDF</button>
-              <button class="btn-vocal-delete" data-del-id="${r.id}">🗑</button>
+              <button class="btn-vocal-pdf" data-pdf-id="${escapeHtml(r.id)}">📄 PDF</button>
+              <button class="btn-vocal-delete" data-del-id="${escapeHtml(r.id)}">🗑</button>
             </div>
           </div>
-          ${r.lieu ? `<div class="vocal-report-lieu">📍 ${r.lieu}</div>` : ''}
-          ${r.objet ? `<div class="vocal-report-objet">${r.objet}</div>` : ''}
-          <div class="vocal-report-contenu">${contenuPreview}</div>
+          ${r.lieu ? `<div class="vocal-report-lieu">📍 ${escapeHtml(r.lieu)}</div>` : ''}
+          ${r.objet ? `<div class="vocal-report-objet">${escapeHtml(r.objet)}</div>` : ''}
+          <div class="vocal-report-contenu">${escapeHtml(contenuPreview)}</div>
         </div>`;
       });
   });

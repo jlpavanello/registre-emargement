@@ -14,6 +14,13 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'src/index.html'),
       },
+      output: {
+        manualChunks: {
+          'pdf-libs': ['jspdf'],
+          'supabase': ['@supabase/supabase-js'],
+          'storage': ['idb'],
+        },
+      },
     },
   },
   server: {

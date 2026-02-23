@@ -19,4 +19,12 @@ export class LocalStorageAdapter {
   remove(key) {
     localStorage.removeItem(key);
   }
+
+  keys() {
+    try {
+      return Object.keys(localStorage);
+    } catch {
+      return [];
+    }
+  }
 }

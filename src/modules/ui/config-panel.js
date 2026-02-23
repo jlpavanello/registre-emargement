@@ -5,6 +5,8 @@ import { saveCategories, renderCatList, removeCategoryAt } from '../domains/cate
 import { saveResponsables, populateVisaSignerSelect, populateArmurierSelect, onArmurierSelectChange } from '../domains/responsables.js';
 import { saveVehicles } from '../domains/crews.js';
 import { syncDayData, saveDayData } from '../domains/day-data.js';
+import { escapeHtml } from '../utils/sanitize.js';
+import { logAudit } from '../domains/audit-log.js';
 
 let _afterSave = {};
 export function bindConfigCallbacks(callbacks) {
@@ -35,9 +37,9 @@ export function renderConfig() {
     if (t.telephone === undefined) t.telephone = '';
     if (t.asvp === undefined) t.asvp = false;
     ec.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="emp" data-ri="${i}" title="Supprimer cet agent">✕</button><div class="cnum emp-bg">${i + 1}</div><div class="fields">
-    <input class="name-input" type="text" placeholder="Nom et Prénom" value="${t.nom}" data-t="emp" data-i="${i}" data-f="nom">
-    <input class="sub-input" type="text" placeholder="Matricule" value="${t.matricule}" data-t="emp" data-i="${i}" data-f="matricule">
-    <input class="sub-input" type="tel" placeholder="Téléphone" value="${t.telephone}" data-t="emp" data-i="${i}" data-f="telephone" style="font-size:12px;">
+    <input class="name-input" type="text" placeholder="Nom et Prénom" value="${escapeHtml(t.nom)}" data-t="emp" data-i="${i}" data-f="nom" maxlength="80">
+    <input class="sub-input" type="text" placeholder="Matricule" value="${escapeHtml(t.matricule)}" data-t="emp" data-i="${i}" data-f="matricule" maxlength="30">
+    <input class="sub-input" type="tel" placeholder="Téléphone" value="${escapeHtml(t.telephone)}" data-t="emp" data-i="${i}" data-f="telephone" style="font-size:12px;" maxlength="20">
     <label class="asvp-check" style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;padding:2px 0;">
       <input type="checkbox" ${t.asvp ? 'checked' : ''} data-t="emp" data-i="${i}" data-f="asvp" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"> ASVP
     </label>
@@ -51,8 +53,8 @@ export function renderConfig() {
       categories.map((c) => `<option value="${c.id}" ${(m.cat || '') === c.id ? 'selected' : ''}>${c.emoji} ${c.nom || '(sans nom)'}</option>`)
     ).join('');
     mc.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="mach" data-ri="${i}" title="Supprimer cette arme">✕</button><div class="cnum mach-bg">${i + 1}</div><div class="fields">
-    <input class="name-input" type="text" placeholder="Nom de l'arme" value="${m.nom}" data-t="mach" data-i="${i}" data-f="nom">
-    <input class="sub-input" type="text" placeholder="Réf. / N° série" value="${m.ref}" data-t="mach" data-i="${i}" data-f="ref">
+    <input class="name-input" type="text" placeholder="Nom de l'arme" value="${escapeHtml(m.nom)}" data-t="mach" data-i="${i}" data-f="nom" maxlength="80">
+    <input class="sub-input" type="text" placeholder="Réf. / N° série" value="${escapeHtml(m.ref)}" data-t="mach" data-i="${i}" data-f="ref" maxlength="50">
     <select class="cat-select" data-t="mach" data-i="${i}" data-f="cat">${catOpts}</select>
   </div></div>`;
   });
@@ -63,9 +65,9 @@ export function renderConfig() {
     vc.innerHTML = '';
     vehicles.forEach((v, i) => {
       vc.innerHTML += `<div class="config-card"><button class="btn-remove-config" data-rt="veh" data-ri="${i}" title="Supprimer ce véhicule">✕</button><div class="cnum veh-bg">${i + 1}</div><div class="fields">
-      <input class="name-input" type="text" placeholder="Marque / Modèle" value="${v.marque || ''}" data-t="veh" data-i="${i}" data-f="marque">
-      <input class="sub-input" type="text" placeholder="Immatriculation" value="${v.immatriculation || ''}" data-t="veh" data-i="${i}" data-f="immatriculation" style="text-transform:uppercase;">
-      <input class="sub-input" type="text" placeholder="Équipement (radio, gyrophare...)" value="${v.equipement || ''}" data-t="veh" data-i="${i}" data-f="equipement" style="font-size:12px;">
+      <input class="name-input" type="text" placeholder="Marque / Modèle" value="${escapeHtml(v.marque || '')}" data-t="veh" data-i="${i}" data-f="marque" maxlength="60">
+      <input class="sub-input" type="text" placeholder="Immatriculation" value="${escapeHtml(v.immatriculation || '')}" data-t="veh" data-i="${i}" data-f="immatriculation" style="text-transform:uppercase;" maxlength="20" pattern="[A-Za-z0-9 -]+">
+      <input class="sub-input" type="text" placeholder="Équipement (radio, gyrophare...)" value="${escapeHtml(v.equipement || '')}" data-t="veh" data-i="${i}" data-f="equipement" style="font-size:12px;" maxlength="120">
     </div></div>`;
     });
   }
@@ -154,7 +156,14 @@ export function saveConfig() {
   populateVisaSignerSelect();
   syncDayData();
   saveDayData();
+  logAudit('CONFIG_SAVE', {
+    description: 'Configuration enregistrée',
+    teamCount: getState().team.filter(t => t.nom).length,
+    machinesCount: getState().machines.filter(m => m.nom).length,
+    vehiclesCount: getState().vehicles.length,
+  });
   closeConfig();
   if (_afterSave.renderEmployees) _afterSave.renderEmployees();
   if (_afterSave.updateCounts) _afterSave.updateCounts();
+  if (_afterSave.afterSave) _afterSave.afterSave();
 }

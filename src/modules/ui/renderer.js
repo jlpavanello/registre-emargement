@@ -4,6 +4,7 @@ import { getMachineName } from '../domains/machines.js';
 import { getVehicleLabel } from '../domains/crews.js';
 import { getCrewForEmployee } from '../domains/crew-assignment.js';
 import { isMatinLocked, isSoirLocked } from './visa.js';
+import { escapeHtml } from '../utils/sanitize.js';
 
 let _callbacks = {};
 export function bindRendererCallbacks(callbacks) {
@@ -82,8 +83,8 @@ export function renderEmployees() {
       ${!empLocked ? '<button class="btn-remove-present" title="Retirer des présents">✕</button>' : ''}
       <div class="emp-num">${i + 1}</div>
       <div class="emp-info">
-        <div class="emp-name">${t.nom}</div>
-        <div class="emp-detail">${t.matricule ? 'Mat. ' + t.matricule : ''}${isSigned ? ' \u2713 Signé' : ''}${empLocked && isSigned ? ' \uD83D\uDD12' : ''}</div>
+        <div class="emp-name">${escapeHtml(t.nom)}</div>
+        <div class="emp-detail">${t.matricule ? 'Mat. ' + escapeHtml(t.matricule) : ''}${isSigned ? ' \u2713 Signé' : ''}${empLocked && isSigned ? ' \uD83D\uDD12' : ''}</div>
         ${crewBadgeHtml || showInfo ? `<div class="emp-badges">
           ${crewBadgeHtml}
           ${machBadges}

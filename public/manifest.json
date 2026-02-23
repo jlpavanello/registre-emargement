@@ -1,12 +1,12 @@
 {
-  "name": "Registre d'\u00c9margement Digital",
-  "short_name": "\u00c9margement",
-  "description": "Registre d'\u00e9margement digital \u2014 gestion des machines, signatures et pr\u00e9sences",
+  "name": "Gestion Opérationnelle PM",
+  "short_name": "Gestion PM",
+  "description": "Gestion Opérationnelle PM — gestion des armes, signatures et présences pour la Police Municipale",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#1e3a8a",
+  "theme_color": "#1e3a8a",
   "lang": "fr-FR",
   "categories": ["business", "productivity"],
   "icons": [

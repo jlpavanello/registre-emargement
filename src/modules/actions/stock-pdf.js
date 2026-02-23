@@ -249,7 +249,7 @@ export function generateOrderPDF(commande) {
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(148, 163, 184);
-  doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')} — Registre d'émargement digital`, pageW / 2, footerY, { align: 'center' });
+  doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')} — Gestion Opérationnelle PM`, pageW / 2, footerY, { align: 'center' });
 
   // Save
   const filename = `${commande.numero}.pdf`;

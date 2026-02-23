@@ -8,10 +8,26 @@ import { syncPush } from '../supabase/data-sync.js';
 
 let _storage = null;
 let _initialized = false;
+let _fallback = null; // Lazy singleton fallback — avoid creating new LocalStorageAdapter on every call
+let _warnedOnce = false;
+
+/**
+ * Get the localStorage fallback (lazy singleton).
+ * Avoids creating a new instance on every proxy call.
+ */
+function getFallback() {
+  if (!_fallback) _fallback = new LocalStorageAdapter();
+  if (!_warnedOnce) {
+    console.warn('⚠️ storage used before initStorage() — using localStorage fallback');
+    _warnedOnce = true;
+  }
+  return _fallback;
+}
 
 /**
  * Initialize the storage backend.
  * Must be called (and awaited) before the app uses storage.
+ * After initialization, the proxy switches from fallback to the real adapter.
  */
 export async function initStorage() {
   if (_initialized) return;
@@ -25,13 +41,28 @@ export async function initStorage() {
     _storage = new LocalStorageAdapter();
     _initialized = true;
   }
+
+  // Migrate any data written to fallback during early access
+  if (_fallback && _storage !== _fallback) {
+    try {
+      const keys = _fallback.keys ? _fallback.keys() : [];
+      for (const key of keys) {
+        const val = _fallback.get(key);
+        if (val !== undefined && val !== null) {
+          _storage.set(key, val);
+        }
+      }
+    } catch (e) {
+      // Non-critical — fallback data may not support keys()
+    }
+  }
 }
 
 /**
  * Get the raw storage adapter (for sync operations that need direct access)
  */
 export function getRawStorage() {
-  return _storage || new LocalStorageAdapter();
+  return _storage || getFallback();
 }
 
 /**
@@ -41,19 +72,17 @@ export function getRawStorage() {
  */
 export const storage = new Proxy({}, {
   get(_target, prop) {
-    // Before init, use localStorage as fallback
+    // Before init, use localStorage fallback (singleton, warns once)
     if (!_storage) {
-      if (!_initialized) {
-        console.warn('⚠️ storage used before initStorage() — using localStorage fallback');
-      }
-      const fallback = new LocalStorageAdapter();
+      const fb = getFallback();
       if (prop === 'set') {
         return (key, value) => {
-          fallback.set(key, value);
+          fb.set(key, value);
           syncPush(key, value);
         };
       }
-      return fallback[prop].bind(fallback);
+      const val = fb[prop];
+      return typeof val === 'function' ? val.bind(fb) : val;
     }
 
     // Intercept set() to also sync to Supabase

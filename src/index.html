@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Registre d'émargement</title>
+<title>Gestion Opérationnelle PM</title>
 
 <!-- PWA Meta Tags -->
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#1e3a8a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Émargement">
+<meta name="apple-mobile-web-app-title" content="Gestion PM">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
-<meta name="description" content="Registre d'émargement digital — gestion des machines, signatures et présences">
+<meta name="description" content="Gestion Opérationnelle PM — gestion des armes, signatures et présences pour la Police Municipale">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,11 +22,14 @@
 <body>
 
 <header>
-  <h1>REGISTRE D'ÉMARGEMENT</h1>
+  <h1>GESTION OPÉRATIONNELLE PM</h1>
   <div style="display:flex;align-items:center;gap:6px;">
     <button class="header-btn" id="btnChangeRole" title="Changer de profil" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
       Profil
+    </button>
+    <button class="header-btn" id="btnOpenAudit" title="Audit & Incidents" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
+      🛡️
     </button>
     <button class="header-btn" id="btnOpenPV" title="Procès-Verbaux" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
       📋 PV
@@ -42,21 +45,90 @@
 </header>
 
 <div class="section">
-  <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Informations du jour</h2>
+  <div class="pm-identity">
+    <img src="/logo-police-municipale.png" alt="Police Municipale" class="pm-logo">
+    <div class="pm-text">
+      <div class="pm-title">Police Municipale</div>
+      <div class="pm-ville-field">
+        <span>de</span>
+        <input type="text" id="entreprise" placeholder="Nom de la ville" class="pm-ville-input">
+      </div>
+    </div>
+  </div>
+  <h2 class="info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Informations du jour</h2>
   <div class="info-grid">
-    <div class="info-field"><label>Entreprise</label><input type="text" id="entreprise" placeholder="Nom"></div>
     <div class="info-field"><label>Date</label><input type="date" id="dateJour"></div>
-    <div class="info-field"><label>Réf. chantier / site</label><input type="text" id="refChantier" placeholder="Référence"></div>
     <div class="info-field"><label>Responsable</label><input type="text" id="responsable" placeholder="Nom"></div>
   </div>
-  <div class="info-grid full" style="margin-top:10px;">
-    <div class="info-field"><label>Adresse du chantier</label><input type="text" id="adresseChantier" placeholder="Adresse complète"></div>
+  <div class="info-grid" style="margin-top:10px;">
+    <div class="info-armurier">
+      <label>Armurier du jour</label>
+      <select id="armurierDuJour" class="armurier-select">
+        <option value="">— Choisir l'armurier —</option>
+      </select>
+      <div class="armurier-info" id="armurierDuJourInfo"></div>
+    </div>
+    <div class="info-folio">
+      <label>Folio</label>
+      <div class="folio-badge" id="pageNumberBadge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span id="pageNumberText">Page n° —</span>
+      </div>
+    </div>
+  </div>
+  <!-- Champs cachés pour compatibilité (sauvegarde/PDF) -->
+  <input type="hidden" id="refChantier" value="">
+  <input type="hidden" id="adresseChantier" value="">
+</div>
+
+<!-- CONFIGURATION RAPIDE -->
+<div class="section config-shortcuts">
+  <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Configuration</h2>
+  <div class="config-shortcut-grid">
+    <button class="config-shortcut-btn" id="btnShortcutAgents" data-section="agents">
+      <div class="shortcut-icon agent-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span class="shortcut-label">Agents</span>
+      <span class="shortcut-count" id="shortcutAgentCount">0</span>
+    </button>
+    <button class="config-shortcut-btn" id="btnShortcutVehicules" data-section="vehicules">
+      <div class="shortcut-icon vehicule-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.4 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+      </div>
+      <span class="shortcut-label">Véhicules</span>
+      <span class="shortcut-count" id="shortcutVehiculeCount">0</span>
+    </button>
+    <button class="config-shortcut-btn" id="btnShortcutCategories" data-section="categories">
+      <div class="shortcut-icon categorie-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      </div>
+      <span class="shortcut-label">Catégories Arme</span>
+      <span class="shortcut-count" id="shortcutCategorieCount">0</span>
+    </button>
+    <button class="config-shortcut-btn" id="btnShortcutArmes" data-section="armes">
+      <div class="shortcut-icon arme-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+      </div>
+      <span class="shortcut-label">Armes</span>
+      <span class="shortcut-count" id="shortcutArmeCount">0</span>
+    </button>
   </div>
 </div>
 
-<div class="page-number-badge" id="pageNumberBadge">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-  <span id="pageNumberText">Page n° —</span>
+<!-- SÉLECTION DES PRÉSENTS (raccourci) -->
+<div class="section presence-shortcut-section">
+  <button class="presence-shortcut-btn" id="btnPresenceShortcut">
+    <div class="presence-shortcut-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    </div>
+    <div class="presence-shortcut-text">
+      <span class="presence-shortcut-title">Agents présents du jour</span>
+      <span class="presence-shortcut-sub" id="presenceShortcutSub">Aucun agent sélectionné</span>
+    </div>
+    <span class="presence-shortcut-count" id="presenceShortcutCount">0/0</span>
+    <svg class="presence-shortcut-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
 </div>
 
 <div class="period-tabs">
@@ -64,14 +136,9 @@
   <button class="period-tab" id="tabSoir">RETOUR DES ARMES<span class="count" id="countSoir">0/0</span></button>
 </div>
 
+<!-- presenceBadgeArea supprimé — info présents intégrée dans le pavé vert -->
 <div id="presenceBadgeArea" style="display:none;">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 12px 0;">
-    <div class="presence-badge" id="presenceBadge"></div>
-    <button class="btn-edit-presence" id="btnEditPresence">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-      Modifier
-    </button>
-  </div>
+  <div class="presence-badge" id="presenceBadge" style="display:none;"></div>
 </div>
 <div id="crewBadgeArea" style="display:none;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 12px 0;">
@@ -356,6 +423,20 @@
     <button class="stock-tab" data-tab="commandes">Commandes</button>
   </div>
   <div id="stockTabContent"></div>
+  <div style="height:20px;"></div>
+</div>
+
+<!-- AUDIT & INCIDENTS -->
+<div class="audit-overlay" id="auditPanel">
+  <div class="audit-header">
+    <h2>🛡️ Audit & Incidents</h2>
+    <button class="header-btn" id="btnCloseAudit" style="background:rgba(255,255,255,0.2);">Fermer</button>
+  </div>
+  <div class="audit-tabs">
+    <button class="audit-tab active" data-tab="audit">📋 Journal</button>
+    <button class="audit-tab" data-tab="incidents">🚨 Incidents</button>
+  </div>
+  <div id="auditTabContent"></div>
   <div style="height:20px;"></div>
 </div>
 

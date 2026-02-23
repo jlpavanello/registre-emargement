@@ -21,12 +21,14 @@ import './styles/crew.css';
 import './styles/stock.css';
 import './styles/pv.css';
 import './styles/chat.css';
+import './styles/audit.css';
 
 // --- Module Imports ---
 // Domains
 import { init, bindInitCallbacks } from './modules/domains/init.js';
 import { addCategory } from './modules/domains/categories.js';
-import { onArmurierSelectChange, onVisaSignerChange } from './modules/domains/responsables.js';
+import { onArmurierSelectChange, onVisaSignerChange, populateArmurierSelect } from './modules/domains/responsables.js';
+import { getState } from './modules/state.js';
 import { openPresenceSelector, closePresenceSelector, selectAllPresence, selectNonePresence, savePresence, removeFromPresent, bindPresenceCallbacks } from './modules/domains/presence.js';
 import { openCrewSelector, closeCrewSelector, saveCrewAssignments, updateCrewBadge, bindCrewCallbacks } from './modules/domains/crew-assignment.js';
 
@@ -39,16 +41,79 @@ import { openVisaSign, updateVisaButtonState, bindVisaCallbacks } from './module
 
 // Actions
 import { resetSignatures, fullReset, bindResetCallbacks } from './modules/actions/reset.js';
-import { generatePDF } from './modules/actions/pdf.js';
-// Vocal report
-import { openVocalPanel, closeVocalPanel, startRecording, clearForm as clearVocalForm, saveCurrentReport, updateSaveButton, bindVocalCallbacks } from './modules/ui/vocal-panel.js';
-import { generateVocalPDF } from './modules/actions/vocal-pdf.js';
-// Stock & Logistique
-import { openStock, closeStock, switchStockTab } from './modules/ui/stock-panel.js';
-// PV (Procès-Verbaux)
-import { openPV, closePV, switchPvTab } from './modules/ui/pv-panel.js';
-// Chat d'équipe
-import { openChat, closeChat, sendChatMessage, initChatKeyboard, onChatDataUpdated } from './modules/ui/chat-widget.js';
+
+// --- Lazy-loaded modules (code-splitting) ---
+// PDF, Vocal, Stock, PV, Chat sont chargés à la demande pour réduire le bundle initial
+
+async function generatePDF() {
+  const { generatePDF: gen } = await import('./modules/actions/pdf.js');
+  return gen();
+}
+
+// Vocal report — lazy
+let _vocalModule = null;
+async function getVocalModule() {
+  if (!_vocalModule) _vocalModule = await import('./modules/ui/vocal-panel.js');
+  return _vocalModule;
+}
+async function openVocalPanel() {
+  const mod = await getVocalModule();
+  mod.bindVocalCallbacks({ generateVocalPDF });
+  mod.openVocalPanel();
+}
+async function closeVocalPanel() { (await getVocalModule()).closeVocalPanel(); }
+async function startRecording() { (await getVocalModule()).startRecording(); }
+async function clearVocalForm() { (await getVocalModule()).clearForm(); }
+async function saveCurrentReport() { (await getVocalModule()).saveCurrentReport(); }
+async function updateSaveButton() { (await getVocalModule()).updateSaveButton(); }
+
+let _vocalPdfModule = null;
+async function generateVocalPDF() {
+  if (!_vocalPdfModule) _vocalPdfModule = await import('./modules/actions/vocal-pdf.js');
+  return _vocalPdfModule.generateVocalPDF();
+}
+
+// Stock & Logistique — lazy
+let _stockModule = null;
+async function getStockModule() {
+  if (!_stockModule) _stockModule = await import('./modules/ui/stock-panel.js');
+  return _stockModule;
+}
+async function openStock() { (await getStockModule()).openStock(); }
+async function closeStock() { (await getStockModule()).closeStock(); }
+async function switchStockTab(tab) { (await getStockModule()).switchStockTab(tab); }
+
+// PV (Procès-Verbaux) — lazy
+let _pvModule = null;
+async function getPvModule() {
+  if (!_pvModule) _pvModule = await import('./modules/ui/pv-panel.js');
+  return _pvModule;
+}
+async function openPV() { (await getPvModule()).openPV(); }
+async function closePV() { (await getPvModule()).closePV(); }
+async function switchPvTab(tab) { (await getPvModule()).switchPvTab(tab); }
+
+// Chat d'équipe — lazy
+let _chatModule = null;
+async function getChatModule() {
+  if (!_chatModule) _chatModule = await import('./modules/ui/chat-widget.js');
+  return _chatModule;
+}
+async function openChat() { (await getChatModule()).openChat(); }
+async function closeChat() { (await getChatModule()).closeChat(); }
+async function sendChatMessage() { (await getChatModule()).sendChatMessage(); }
+async function initChatKeyboard() { (await getChatModule()).initChatKeyboard(); }
+async function onChatDataUpdated() { const m = await getChatModule(); m.onChatDataUpdated(); }
+
+// Audit & Incidents — lazy
+let _auditModule = null;
+async function getAuditModule() {
+  if (!_auditModule) _auditModule = await import('./modules/ui/audit-panel.js');
+  return _auditModule;
+}
+async function openAuditPanel() { (await getAuditModule()).openAuditPanel(); }
+async function closeAuditPanel() { (await getAuditModule()).closeAuditPanel(); }
+async function switchAuditTab(tab) { (await getAuditModule()).switchAuditTab(tab); }
 
 // Phase 4: Sync engine
 import { initSyncEngine } from './modules/supabase/sync-engine.js';
@@ -92,12 +157,19 @@ bindSignModalCallbacks({
 bindConfigCallbacks({
   renderEmployees,
   updateCounts,
+  afterSave: () => {
+    populateMainArmurierSelect();
+    updateShortcutCounts();
+  },
 });
 
 bindPresenceCallbacks({
   renderEmployees,
   updateCounts,
   updateVisaButtonState,
+  afterSave: () => {
+    updatePresenceShortcutSub();
+  },
 });
 
 bindVisaCallbacks({
@@ -111,9 +183,7 @@ bindResetCallbacks({
   closeConfig,
 });
 
-bindVocalCallbacks({
-  generateVocalPDF,
-});
+// bindVocalCallbacks is now called lazily in openVocalPanel()
 
 bindCrewCallbacks({
   renderEmployees,
@@ -135,7 +205,7 @@ document.getElementById('tabMatin').addEventListener('click', () => switchPeriod
 document.getElementById('tabSoir').addEventListener('click', () => switchPeriod('soir'));
 
 // Presence
-document.getElementById('btnEditPresence').addEventListener('click', openPresenceSelector);
+// btnEditPresence supprimé — la présence se gère via le pavé vert btnPresenceShortcut
 document.getElementById('btnClosePresence').addEventListener('click', closePresenceSelector);
 document.getElementById('btnPresenceAll').addEventListener('click', selectAllPresence);
 document.getElementById('btnPresenceNone').addEventListener('click', selectNonePresence);
@@ -205,6 +275,13 @@ document.querySelectorAll('#stockPanel .stock-tab').forEach(tab => {
   tab.addEventListener('click', () => switchStockTab(tab.dataset.tab));
 });
 
+// Audit & Incidents panel
+document.getElementById('btnOpenAudit').addEventListener('click', openAuditPanel);
+document.getElementById('btnCloseAudit').addEventListener('click', closeAuditPanel);
+document.querySelectorAll('#auditPanel .audit-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchAuditTab(tab.dataset.tab));
+});
+
 // Chat d'équipe
 document.getElementById('chatFab').addEventListener('click', openChat);
 document.getElementById('btnCloseChat').addEventListener('click', closeChat);
@@ -239,11 +316,11 @@ function showInstallBanner() {
   const banner = document.createElement('div');
   banner.id = 'pwa-install-banner';
   banner.style.cssText =
-    'position:fixed;bottom:80px;left:12px;right:12px;background:linear-gradient(135deg,#1e293b,#0f172a);color:white;padding:14px 16px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;gap:12px;animation:slideUp 0.4s ease;';
+    'position:fixed;bottom:80px;left:12px;right:12px;background:linear-gradient(135deg,#2563eb,#1e3a8a);color:white;padding:14px 16px;border-radius:14px;box-shadow:0 10px 40px rgba(30,58,138,0.3);z-index:9999;display:flex;align-items:center;gap:12px;animation:slideUp 0.4s ease;';
   banner.innerHTML = `
     <div style="flex:1">
       <div style="font-weight:700;font-size:13px;margin-bottom:2px;">📱 Installer l'application</div>
-      <div style="font-size:11px;color:#94a3b8;">Accédez au registre depuis votre écran d'accueil</div>
+      <div style="font-size:11px;color:#94a3b8;">Accédez à l'application depuis votre écran d'accueil</div>
     </div>
     <button id="pwa-install-btn" style="background:#3b82f6;color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;">Installer</button>
     <button id="pwa-dismiss-btn" style="background:none;border:none;color:#64748b;font-size:18px;cursor:pointer;padding:4px;">✕</button>
@@ -273,6 +350,134 @@ window.addEventListener('appinstalled', () => {
 });
 
 // =============================================
+// Main page: Armurier du jour + Config shortcuts
+// =============================================
+
+/**
+ * Populate the "Armurier du jour" dropdown on the main page
+ * using the team list (agents with names only)
+ */
+function populateMainArmurierSelect() {
+  const { team, responsables } = getState();
+  const sel = document.getElementById('armurierDuJour');
+  const info = document.getElementById('armurierDuJourInfo');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Choisir l\'armurier —</option>';
+  const active = team.map((t, i) => ({ ...t, idx: i })).filter(t => t.nom);
+  active.forEach(t => {
+    sel.innerHTML += `<option value="${t.idx}">${t.nom}${t.matricule ? ' — Mat. ' + t.matricule : ''}</option>`;
+  });
+  // Pre-select current armurier if set
+  if (responsables.armurier.nom) {
+    const match = active.find(
+      t => t.nom === responsables.armurier.nom &&
+        (!responsables.armurier.matricule || t.matricule === responsables.armurier.matricule)
+    );
+    if (match) {
+      sel.value = match.idx;
+      info.textContent = '✓ ' + match.nom + (match.matricule ? ' (Mat. ' + match.matricule + ')' : '');
+    } else {
+      info.textContent = responsables.armurier.nom + ' (non trouvé)';
+    }
+  } else {
+    info.textContent = '';
+  }
+}
+
+/** Handle main page armurier selection change */
+function onMainArmurierChange() {
+  const { team, responsables } = getState();
+  const sel = document.getElementById('armurierDuJour');
+  const info = document.getElementById('armurierDuJourInfo');
+  const idx = parseInt(sel.value);
+  if (isNaN(idx) || !team[idx]) {
+    responsables.armurier = { nom: '', matricule: '' };
+    info.textContent = '';
+  } else {
+    responsables.armurier = { nom: team[idx].nom, matricule: team[idx].matricule || '' };
+    info.textContent = '✓ ' + team[idx].nom + (team[idx].matricule ? ' (Mat. ' + team[idx].matricule + ')' : '');
+  }
+  // Also sync with config panel armurier if open, and save
+  import('./modules/domains/responsables.js').then(mod => {
+    mod.saveResponsables();
+    mod.populateVisaSignerSelect();
+  });
+}
+
+/** Update shortcut count badges */
+function updateShortcutCounts() {
+  const { team, vehicles, categories, machines } = getState();
+  const agentEl = document.getElementById('shortcutAgentCount');
+  const vehiculeEl = document.getElementById('shortcutVehiculeCount');
+  const categorieEl = document.getElementById('shortcutCategorieCount');
+  const armeEl = document.getElementById('shortcutArmeCount');
+  if (agentEl) agentEl.textContent = team.filter(t => t.nom).length;
+  if (vehiculeEl) vehiculeEl.textContent = vehicles.length;
+  if (categorieEl) categorieEl.textContent = categories.length;
+  if (armeEl) armeEl.textContent = machines.filter(m => m.nom).length;
+}
+
+/** Open config and scroll to a specific section */
+function openConfigToSection(section) {
+  openConfig();
+  // Wait for overlay to be visible before scrolling
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const panel = document.getElementById('configPanel');
+      let target = null;
+      switch (section) {
+        case 'agents':
+          target = document.getElementById('configEmpList');
+          break;
+        case 'vehicules':
+          target = document.getElementById('configVehiclesList');
+          break;
+        case 'categories':
+          target = document.getElementById('configCatList');
+          break;
+        case 'armes':
+          target = document.getElementById('configMachList');
+          break;
+      }
+      if (target && panel) {
+        const offset = target.offsetTop - 80;
+        panel.scrollTo({ top: offset, behavior: 'smooth' });
+      }
+    }, 150);
+  });
+}
+
+// Event: main page armurier select
+document.getElementById('armurierDuJour').addEventListener('change', onMainArmurierChange);
+
+// Event: config shortcut buttons
+document.getElementById('btnShortcutAgents').addEventListener('click', () => openConfigToSection('agents'));
+document.getElementById('btnShortcutVehicules').addEventListener('click', () => openConfigToSection('vehicules'));
+document.getElementById('btnShortcutCategories').addEventListener('click', () => openConfigToSection('categories'));
+document.getElementById('btnShortcutArmes').addEventListener('click', () => openConfigToSection('armes'));
+
+// Event: presence shortcut button
+document.getElementById('btnPresenceShortcut').addEventListener('click', openPresenceSelector);
+
+/** Update the presence shortcut subtitle and count badge */
+function updatePresenceShortcutSub() {
+  const { presentToday, team } = getState();
+  const sub = document.getElementById('presenceShortcutSub');
+  const countEl = document.getElementById('presenceShortcutCount');
+  if (!sub) return;
+  const count = presentToday.length;
+  const total = team.filter(t => t.nom).length;
+  if (count === 0) {
+    sub.textContent = 'Aucun agent sélectionné';
+  } else {
+    sub.textContent = count + ' agent' + (count > 1 ? 's' : '') + ' présent' + (count > 1 ? 's' : '') + ' sur ' + total + ' configuré' + (total > 1 ? 's' : '');
+  }
+  if (countEl) {
+    countEl.textContent = count + '/' + total;
+  }
+}
+
+// =============================================
 // Initialize the application
 // =============================================
 
@@ -294,6 +499,11 @@ async function bootstrap() {
   // Phase 4: Start sync engine
   initSyncEngine();
   initSyncStatusUI();
+
+  // Populate main page elements
+  populateMainArmurierSelect();
+  updateShortcutCounts();
+  updatePresenceShortcutSub();
 }
 
 bootstrap().catch((err) => console.error('Init error:', err));

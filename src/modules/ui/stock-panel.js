@@ -5,6 +5,7 @@ import { getWeaponsNeedingAttention } from '../domains/stock-armes.js';
 import { getRecentMouvements, MOUVEMENT_TYPES } from '../domains/stock-mouvements.js';
 import { getNextPrevision } from '../domains/previsions-tir.js';
 import { getMachineName } from '../domains/machines.js';
+import { escapeHtml } from '../utils/sanitize.js';
 import { renderMunitionsTab } from './stock-munitions-tab.js';
 import { renderArmesTab } from './stock-armes-tab.js';
 import { renderPrevisionsTab } from './stock-previsions-tab.js';
@@ -79,7 +80,7 @@ function renderDashboard(container) {
       html += `<div class="alert-card ${a.level}">
         <div class="alert-icon">${a.level === 'critique' ? '🔴' : '🟡'}</div>
         <div class="alert-info">
-          <div class="alert-name">${a.nom}${a.ref ? ' (' + a.ref + ')' : ''}</div>
+          <div class="alert-name">${escapeHtml(a.nom)}${a.ref ? ' (' + escapeHtml(a.ref) + ')' : ''}</div>
           <div class="alert-detail">${a.stockActuel} ${a.unite}${a.stockActuel > 1 ? 's' : ''} restante${a.stockActuel > 1 ? 's' : ''} — seuil ${a.level === 'critique' ? 'critique' : "d'alerte"}: ${a.level === 'critique' ? a.seuilCritique : a.seuilAlerte}</div>
         </div>
       </div>`;
@@ -93,8 +94,8 @@ function renderDashboard(container) {
       html += `<div class="alert-card alerte">
         <div class="alert-icon">🔧</div>
         <div class="alert-info">
-          <div class="alert-name">${w.nom}${w.ref ? ' (' + w.ref + ')' : ''}</div>
-          <div class="alert-detail">${w.etat === 'en_revision' ? 'En révision' : 'Hors service'}${w.dateRevision ? ' — Révision: ' + w.dateRevision : ''}${w.notes ? ' — ' + w.notes : ''}</div>
+          <div class="alert-name">${escapeHtml(w.nom)}${w.ref ? ' (' + escapeHtml(w.ref) + ')' : ''}</div>
+          <div class="alert-detail">${w.etat === 'en_revision' ? 'En révision' : 'Hors service'}${w.dateRevision ? ' — Révision: ' + escapeHtml(w.dateRevision) : ''}${w.notes ? ' — ' + escapeHtml(w.notes) : ''}</div>
         </div>
       </div>`;
     });
@@ -110,7 +111,7 @@ function renderDashboard(container) {
       if (!stock) {
         html += `<div class="stock-card" style="padding:10px 14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div><div class="stock-card-title" style="font-size:13px;">${m.nom}</div><div class="stock-card-sub">${m.ref || ''}</div></div>
+            <div><div class="stock-card-title" style="font-size:13px;">${escapeHtml(m.nom)}</div><div class="stock-card-sub">${escapeHtml(m.ref || '')}</div></div>
             <div style="font-size:11px;color:var(--text3);font-style:italic;">Non configuré</div>
           </div>
         </div>`;
@@ -120,7 +121,7 @@ function renderDashboard(container) {
       const level = stock.stockActuel <= stock.seuilCritique ? 'critique' : stock.stockActuel <= stock.seuilAlerte ? 'alerte' : 'ok';
       html += `<div class="stock-card" style="padding:10px 14px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div><div class="stock-card-title" style="font-size:13px;">${m.nom}</div><div class="stock-card-sub">${m.ref || ''}</div></div>
+          <div><div class="stock-card-title" style="font-size:13px;">${escapeHtml(m.nom)}</div><div class="stock-card-sub">${escapeHtml(m.ref || '')}</div></div>
           <div class="stock-value ${level}" style="font-size:16px;">${stock.stockActuel}</div>
         </div>
         <div class="stock-bar-container"><div class="stock-bar ${level}" style="width:${pct}%;"></div></div>
@@ -152,7 +153,7 @@ function renderDashboard(container) {
         <div class="mouvement-icon">${typeInfo.icon}</div>
         <div class="mouvement-info">
           <div class="mouvement-type" style="color:${typeInfo.color};">${typeInfo.label}</div>
-          <div class="mouvement-detail">${getMachineName(m.armeIdx)} · ${m.date} ${m.heure}${m.motif ? ' · ' + m.motif : ''}</div>
+          <div class="mouvement-detail">${escapeHtml(getMachineName(m.armeIdx))} · ${escapeHtml(m.date)} ${escapeHtml(m.heure)}${m.motif ? ' · ' + escapeHtml(m.motif) : ''}</div>
         </div>
         <div class="mouvement-qty ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${m.quantite}</div>
       </div>`;

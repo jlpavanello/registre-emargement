@@ -45,6 +45,10 @@ const state = {
   pvDocuments: [],
   // Chat d'équipe
   chatMessages: [],
+  // Piste d'audit
+  auditLog: [],
+  // Incidents
+  incidents: [],
   // Canvas state
   isDrawing: false,
   sigCtx: null,

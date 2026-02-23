@@ -28,5 +28,5 @@ export function savePageNumber() {
 export function updatePageNumberDisplay() {
   const ds = document.getElementById('dateJour').value;
   const dateStr = ds ? new Date(ds + 'T00:00:00').toLocaleDateString('fr-FR') : '\u2014';
-  document.getElementById('pageNumberText').textContent = 'Page n\u00B0 ' + getState().pageNumber + ' \u2014 ' + dateStr;
+  document.getElementById('pageNumberText').textContent = 'Folio n\u00B0 ' + getState().pageNumber + ' \u2014 ' + dateStr;
 }

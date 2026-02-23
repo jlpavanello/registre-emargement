@@ -16,7 +16,7 @@ export function createLoginScreen() {
     position: fixed;
     inset: 0;
     z-index: 2000;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -27,7 +27,7 @@ export function createLoginScreen() {
   screen.innerHTML = `
     <div style="text-align:center; margin-bottom: 30px;">
       <div style="font-size: 48px; margin-bottom: 12px;">🛡️</div>
-      <h1 style="color: white; font-size: 18px; font-weight: 800; margin: 0; letter-spacing: 0.5px;">REGISTRE D'ÉMARGEMENT</h1>
+      <h1 style="color: white; font-size: 18px; font-weight: 800; margin: 0; letter-spacing: 0.5px;">GESTION OPÉRATIONNELLE PM</h1>
       <p style="color: #94a3b8; font-size: 12px; margin: 6px 0 0; font-weight: 500;">Police Municipale</p>
     </div>
 

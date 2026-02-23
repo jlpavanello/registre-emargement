@@ -84,6 +84,7 @@ export function savePresence() {
   if (_callbacks.updateCounts) _callbacks.updateCounts();
   updatePresenceBadge();
   if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
+  if (_callbacks.afterSave) _callbacks.afterSave();
 }
 
 export function removeFromPresent(idx) {
@@ -110,6 +111,7 @@ export function removeFromPresent(idx) {
   if (_callbacks.updateCounts) _callbacks.updateCounts();
   updatePresenceBadge();
   if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
+  if (_callbacks.afterSave) _callbacks.afterSave();
 }
 
 export function updatePresenceBadge() {

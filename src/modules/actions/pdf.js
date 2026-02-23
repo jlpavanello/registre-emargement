@@ -57,7 +57,7 @@ export function generatePDF() {
   doc.setTextColor(255);
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text("REGISTRE D'EMARGEMENT QUOTIDIEN", pw / 2, 13, { align: 'center' });
+  doc.text("GESTION OPERATIONNELLE PM — REGISTRE QUOTIDIEN", pw / 2, 13, { align: 'center' });
   doc.setFontSize(8);
   doc.text('Page n\u00b0 ' + pageNumber, pw - ml - 1, 13, { align: 'right' });
 
@@ -69,9 +69,9 @@ export function generatePDF() {
   doc.setTextColor(0);
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'bold');
-  doc.text('Entreprise :', ml + 2, y + 5);
+  doc.text('Police Municipale :', ml + 2, y + 5);
   doc.setFont('helvetica', 'normal');
-  doc.text(ent, ml + 22, y + 5);
+  doc.text(ent, ml + 32, y + 5);
   doc.setFont('helvetica', 'bold');
   doc.text('Date :', ml + uw * 0.35, y + 5);
   doc.setFont('helvetica', 'normal');
@@ -80,14 +80,7 @@ export function generatePDF() {
   doc.text('Responsable :', ml + uw * 0.62, y + 5);
   doc.setFont('helvetica', 'normal');
   doc.text(rp, ml + uw * 0.62 + 25, y + 5);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Ref. chantier :', ml + 2, y + 11);
-  doc.setFont('helvetica', 'normal');
-  doc.text(rc, ml + 26, y + 11);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Adresse :', ml + uw * 0.35, y + 11);
-  doc.setFont('helvetica', 'normal');
-  doc.text(ad, ml + uw * 0.35 + 16, y + 11);
+  // Second row left empty (ref chantier / adresse removed)
 
   // --- Table layout ---
   y = 40;
@@ -490,8 +483,8 @@ export function generatePDF() {
   doc.setFontSize(4.5);
   doc.setTextColor(170);
   doc.setFont('helvetica', 'normal');
-  doc.text("Registre d'emargement quotidien", ml, ph - 4);
+  doc.text("Gestion Operationnelle PM", ml, ph - 4);
   doc.text('Page n\u00b0 ' + pageNumber + ' - ' + ds, pw - ml, ph - 4, { align: 'right' });
 
-  doc.save('registre_' + (dv || 'jour') + '.pdf');
+  doc.save('gestion_pm_' + (dv || 'jour') + '.pdf');
 }

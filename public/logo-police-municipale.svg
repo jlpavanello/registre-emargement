@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Shield background -->
+  <path d="M60 8 L108 30 L108 65 C108 90 85 110 60 116 C35 110 12 90 12 65 L12 30 Z" fill="#1e3a8a" stroke="#1e40af" stroke-width="2"/>
+  <!-- Inner shield -->
+  <path d="M60 16 L100 34 L100 64 C100 85 80 103 60 108 C40 103 20 85 20 64 L20 34 Z" fill="#2563eb"/>
+  <!-- Star -->
+  <polygon points="60,28 66,46 85,46 70,56 76,74 60,64 44,74 50,56 35,46 54,46" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/>
+  <!-- Text PM -->
+  <text x="60" y="96" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" letter-spacing="3">PM</text>
+</svg>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'emargement-v2';
+const CACHE_NAME = 'gestion-pm-v3';
 const ASSETS = [
   '/',
   '/index.html',
