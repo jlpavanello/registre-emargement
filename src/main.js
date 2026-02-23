@@ -41,6 +41,7 @@ import { openVisaSign, updateVisaButtonState, bindVisaCallbacks } from './module
 
 // Actions
 import { resetSignatures, fullReset, bindResetCallbacks } from './modules/actions/reset.js';
+import { exportAllData, importAllData, bindExportImportCallbacks } from './modules/actions/export-import.js';
 
 // --- Lazy-loaded modules (code-splitting) ---
 // PDF, Vocal, Stock, PV, Chat sont chargés à la demande pour réduire le bundle initial
@@ -183,6 +184,13 @@ bindResetCallbacks({
   closeConfig,
 });
 
+bindExportImportCallbacks({
+  saveConfig,
+  renderConfig,
+  renderEmployees,
+  updateCounts,
+});
+
 // bindVocalCallbacks is now called lazily in openVocalPanel()
 
 bindCrewCallbacks({
@@ -242,6 +250,11 @@ document.getElementById('btnAddEmp').addEventListener('click', () => addItem('em
 document.getElementById('btnAddCat').addEventListener('click', addCategory);
 document.getElementById('btnAddMach').addEventListener('click', () => addItem('mach'));
 document.getElementById('configArmurierSelect').addEventListener('change', onArmurierSelectChange);
+
+// Export / Import (inside config panel)
+document.getElementById('btnExportAll').addEventListener('click', exportAllData);
+document.getElementById('btnImportAll').addEventListener('click', () => document.getElementById('fileImportAll').click());
+document.getElementById('fileImportAll').addEventListener('change', importAllData);
 
 // Full reset (inside config panel)
 document.getElementById('btnFullReset').addEventListener('click', fullReset);
