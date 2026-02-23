@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  base: '/registre-emargement/',
   root: 'src',
   publicDir: resolve(__dirname, 'public'),
   build: {
