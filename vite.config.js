@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig({
-  base: '/registre-emargement/',
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/registre-emargement/' : '/',
   root: 'src',
   publicDir: resolve(__dirname, 'public'),
   build: {
@@ -28,4 +28,4 @@ export default defineConfig({
     port: 3000,
     open: true,
   },
-});
+}));
