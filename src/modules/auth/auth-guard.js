@@ -81,7 +81,7 @@ function hideApp() {
   if (roleScreen) roleScreen.style.display = 'flex';
 
   // Hide main content sections
-  const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #crewBadgeArea, #lockedBanner, #pageNumberBadge');
+  const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #crewBadgeArea, #lockedBanner, #pageNumberBadge, #presencePromptBox, #crewPromptBox');
   mainSections.forEach(el => {
     el.style.display = 'none';
   });
@@ -96,7 +96,7 @@ function showApp() {
 
   // Show main content sections (sauf celles gérées par les gardes de rôle)
   const guardedIds = ['sectionConfigMoyens', 'presencePromptBox', 'crewPromptBox'];
-  const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #pageNumberBadge');
+  const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #pageNumberBadge, #presencePromptBox, #crewPromptBox');
   mainSections.forEach(el => {
     if (!guardedIds.includes(el.id)) {
       el.style.removeProperty('display');
