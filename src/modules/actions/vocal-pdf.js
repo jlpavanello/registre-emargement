@@ -59,8 +59,9 @@ export function generateVocalPDF(report) {
 
     doc.setFont('helvetica', 'bold');
     doc.text(f.label, x, fy);
+    const labelWidth = doc.getTextWidth(f.label);
     doc.setFont('helvetica', 'normal');
-    doc.text(f.value, x + 20, fy);
+    doc.text(f.value, x + labelWidth + 2, fy);
 
     if (isRight) row++;
   });
