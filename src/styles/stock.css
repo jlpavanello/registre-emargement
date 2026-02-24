@@ -40,13 +40,13 @@
 }
 
 /* Contenu onglet */
-#stockTabContent { padding: 12px; min-height: 300px; }
+#stockTabContent { padding: 12px; min-height: 300px; background: linear-gradient(180deg, #d1fae5 0%, #dcfce7 100%); }
 
 /* Carte stock générique */
 .stock-card {
   background: white; border-radius: 14px; padding: 14px 16px;
-  margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border: 1px solid var(--border-light);
+  margin-bottom: 10px; box-shadow: 0 2px 12px rgba(22,101,52,0.1);
+  border: 1px solid rgba(22,101,52,0.12);
 }
 .stock-card-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -403,8 +403,8 @@
 
 /* ===== Bloc calcul munitions (nombre × conditionnement = total) ===== */
 .mun-calc-block {
-  background: #f8fafc;
-  border: 1.5px solid var(--border-light);
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1.5px solid #bbf7d0;
   border-radius: 12px;
   padding: 12px 10px 10px;
   margin: 10px 0;
