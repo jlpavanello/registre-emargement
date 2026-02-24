@@ -28,7 +28,7 @@ import './styles/audit.css';
 import { init, bindInitCallbacks } from './modules/domains/init.js';
 import { addCategory } from './modules/domains/categories.js';
 import { onArmurierSelectChange, onVisaSignerChange, populateArmurierSelect } from './modules/domains/responsables.js';
-import { getState } from './modules/state.js';
+import { getState, subscribe } from './modules/state.js';
 import { openPresenceSelector, closePresenceSelector, selectAllPresence, selectNonePresence, savePresence, removeFromPresent, bindPresenceCallbacks } from './modules/domains/presence.js';
 import { openCrewSelector, closeCrewSelector, saveCrewAssignments, updateCrewBadge, bindCrewCallbacks, onVehicleSelect, onAgentSelect } from './modules/domains/crew-assignment.js';
 
@@ -117,7 +117,7 @@ async function closeAuditPanel() { (await getAuditModule()).closeAuditPanel(); }
 async function switchAuditTab(tab) { (await getAuditModule()).switchAuditTab(tab); }
 
 // Phase 4: Sync engine
-import { initSyncEngine } from './modules/supabase/sync-engine.js';
+import { initSyncEngine, schedulePush } from './modules/supabase/sync-engine.js';
 import { initSyncStatusUI } from './modules/supabase/sync-status.js';
 
 // Phase 5: Auth
@@ -580,6 +580,20 @@ async function bootstrap() {
   // Phase 4: Start sync engine
   initSyncEngine();
   initSyncStatusUI();
+
+  // Phase 4: Auto-sync — schedule push on any state change
+  const syncKeys = [
+    'team', 'machines', 'categories', 'responsables', 'vehicles', 'pageNumber',
+    'dayData', 'presentToday', 'visaMatin', 'visaSoir',
+    'visaMatinSigner', 'visaSoirSigner',
+    'lockedMatinPresents', 'lockedSoirPresents',
+    'crewAssignments', 'crewDrivers',
+    'munitionRefs', 'stockArmes', 'stockMouvements',
+    'previsionsTir', 'fournisseurs', 'commandes',
+    'pvTemplates', 'pvDocuments',
+    'vocalReports', 'chatMessages', 'auditLog', 'incidents',
+  ];
+  syncKeys.forEach(key => subscribe(key, () => schedulePush()));
 
   // Populate main page elements
   populateMainArmurierSelect();
