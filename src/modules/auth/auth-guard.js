@@ -27,6 +27,9 @@ export function applyRoleGuards() {
   // Config button: armurier+ only (= responsable en mode local)
   toggleElement('btnOpenConfig', ACCESS.canViewConfig());
 
+  // Configuration des moyens (pavé raccourcis): responsable uniquement
+  toggleElement('sectionConfigMoyens', ACCESS.canViewConfig());
+
   // Reset button: chef+ only
   toggleElement('btnReset', ACCESS.canResetDay());
 
