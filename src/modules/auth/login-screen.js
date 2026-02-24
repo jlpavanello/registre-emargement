@@ -103,8 +103,8 @@ export function showRoleScreen() {
   if (screen) {
     screen.style.display = 'flex';
     // Also hide the app behind it
-    document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #crewBadgeArea, #lockedBanner, #pageNumberBadge').forEach(el => {
-      el.style.display = 'none';
+    document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #crewBadgeArea, #lockedBanner, #pageNumberBadge, #presencePromptBox, #crewPromptBox').forEach(el => {
+      el.classList.add('hidden-by-role');
     });
   }
 }

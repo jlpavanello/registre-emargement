@@ -65,10 +65,10 @@ function toggleElement(id, visible) {
   const el = document.getElementById(id);
   if (!el) return;
   if (visible) {
-    el.style.removeProperty('display');
+    el.classList.remove('hidden-by-role');
     el.removeAttribute('aria-hidden');
   } else {
-    el.style.display = 'none';
+    el.classList.add('hidden-by-role');
     el.setAttribute('aria-hidden', 'true');
   }
 }
@@ -83,7 +83,7 @@ function hideApp() {
   // Hide main content sections
   const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #crewBadgeArea, #lockedBanner, #pageNumberBadge, #presencePromptBox, #crewPromptBox');
   mainSections.forEach(el => {
-    el.style.display = 'none';
+    el.classList.add('hidden-by-role');
   });
 }
 
@@ -99,7 +99,7 @@ function showApp() {
   const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #pageNumberBadge, #presencePromptBox, #crewPromptBox');
   mainSections.forEach(el => {
     if (!guardedIds.includes(el.id)) {
-      el.style.removeProperty('display');
+      el.classList.remove('hidden-by-role');
     }
   });
 }

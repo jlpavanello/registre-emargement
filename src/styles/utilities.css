@@ -21,3 +21,8 @@
   transition: all var(--transition);
 }
 .empty-state button:hover { box-shadow: 0 6px 20px rgba(245,158,11,0.4); transform: translateY(-1px); }
+
+/* Role-based visibility: hides elements regardless of other CSS rules */
+.hidden-by-role {
+  display: none !important;
+}
