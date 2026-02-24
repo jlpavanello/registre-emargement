@@ -104,6 +104,7 @@ async function openChat() { (await getChatModule()).openChat(); }
 async function closeChat() { (await getChatModule()).closeChat(); }
 async function sendChatMessage() { (await getChatModule()).sendChatMessage(); }
 async function initChatKeyboard() { (await getChatModule()).initChatKeyboard(); }
+async function initNotifButton() { (await getChatModule()).initNotifButton(); }
 async function onChatDataUpdated() { const m = await getChatModule(); m.onChatDataUpdated(); }
 
 // Audit & Incidents — lazy
@@ -127,6 +128,9 @@ import { createLoginScreen, showRoleScreen } from './modules/auth/login-screen.j
 
 // Phase 6: Accessibility
 import { initAccessibility } from './modules/a11y/accessibility.js';
+
+// Phase 7: Push Notifications
+import { isPushSupported, getPushPermission, subscribeToPush } from './modules/push/push-notifications.js';
 
 // =============================================
 // Late-binding callbacks to avoid circular deps
@@ -303,14 +307,16 @@ document.getElementById('chatFab').addEventListener('click', openChat);
 document.getElementById('btnCloseChat').addEventListener('click', closeChat);
 document.getElementById('btnSendChat').addEventListener('click', sendChatMessage);
 initChatKeyboard();
+initNotifButton();
 
 // =============================================
 // PWA: Service Worker Registration
 // =============================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    const base = import.meta.env.BASE_URL || '/';
     navigator.serviceWorker
-      .register('/sw.js?v=18')
+      .register(base + 'sw.js?v=19')
       .then((reg) => console.log('SW enregistré:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });
@@ -594,6 +600,11 @@ async function bootstrap() {
     'vocalReports', 'chatMessages', 'auditLog', 'incidents',
   ];
   syncKeys.forEach(key => subscribe(key, () => schedulePush()));
+
+  // Phase 7: Auto-subscribe to push if permission already granted
+  if (isPushSupported() && getPushPermission() === 'granted') {
+    subscribeToPush().catch(err => console.warn('Push auto-subscribe:', err));
+  }
 
   // Populate main page elements
   populateMainArmurierSelect();

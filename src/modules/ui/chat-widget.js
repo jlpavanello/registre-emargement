@@ -5,6 +5,12 @@ import {
   getChatMessages, addMessage, clearOldMessages,
 } from '../domains/chat-data.js';
 import { getActiveTeam } from '../domains/team.js';
+import {
+  triggerPushNotification,
+  subscribeToPush,
+  isPushSupported,
+  getPushPermission,
+} from '../push/push-notifications.js';
 
 let _isOpen = false;
 let _lastReadCount = 0;
@@ -23,6 +29,7 @@ export function openChat() {
   renderMessages();
   _updateBadge(0);
   _lastReadCount = getChatMessages().length;
+  _updateNotifButton();
 
   // Focus input
   setTimeout(() => {
@@ -41,10 +48,15 @@ export function sendChatMessage() {
   if (!input) return;
   const text = input.value;
   if (!text.trim()) return;
-  addMessage(text);
+  const msg = addMessage(text);
   input.value = '';
   renderMessages();
   _lastReadCount = getChatMessages().length;
+
+  // Notifier les autres appareils via push (fire-and-forget)
+  if (msg) {
+    triggerPushNotification(msg.senderName, msg.text).catch(() => {});
+  }
 }
 
 /**
@@ -196,4 +208,63 @@ export function initChatKeyboard() {
       sendChatMessage();
     }
   });
+}
+
+// ── Notification push button ─────────────────────────────────
+
+/**
+ * Initialise le bouton de notification dans le header du chat.
+ * Doit être appelé après le rendu du chat panel.
+ */
+export function initNotifButton() {
+  const btn = document.getElementById('btnChatNotif');
+  if (!btn) return;
+
+  if (!isPushSupported()) {
+    btn.style.display = 'none';
+    return;
+  }
+
+  btn.addEventListener('click', async () => {
+    const perm = getPushPermission();
+    if (perm === 'granted') {
+      // Déjà activé — on ré-abonne silencieusement (refresh token)
+      await subscribeToPush();
+      _updateNotifButton();
+    } else if (perm === 'denied') {
+      alert('Les notifications sont bloquées.\nAllez dans les paramètres de votre navigateur pour les réactiver.');
+    } else {
+      // 'default' — demander la permission
+      const sub = await subscribeToPush();
+      _updateNotifButton();
+      if (sub) {
+        alert('Notifications activées !\nVous recevrez une alerte pour chaque nouveau message.');
+      }
+    }
+  });
+
+  _updateNotifButton();
+}
+
+function _updateNotifButton() {
+  const btn = document.getElementById('btnChatNotif');
+  if (!btn || !isPushSupported()) return;
+
+  const perm = getPushPermission();
+  if (perm === 'granted') {
+    btn.innerHTML = '🔔';
+    btn.title = 'Notifications activées';
+    btn.classList.remove('notif-off', 'notif-default');
+    btn.classList.add('notif-on');
+  } else if (perm === 'denied') {
+    btn.innerHTML = '🔕';
+    btn.title = 'Notifications bloquées — cliquez pour en savoir plus';
+    btn.classList.remove('notif-on', 'notif-default');
+    btn.classList.add('notif-off');
+  } else {
+    btn.innerHTML = '🔔';
+    btn.title = 'Activer les notifications';
+    btn.classList.remove('notif-on', 'notif-off');
+    btn.classList.add('notif-default');
+  }
 }
