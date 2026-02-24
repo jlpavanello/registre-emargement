@@ -23,7 +23,7 @@ export function saveVocalReports() {
   storage.set(STORAGE_KEY, { reports: vocalReports });
 }
 
-export function addReport({ lieu, objet, contenu }) {
+export function addReport({ lieu, objet, contenu, heureMission, duree }) {
   const { vocalReports, responsables, team } = getState();
   // Essayer de récupérer l'agent depuis la config (chef d'unité par défaut)
   const agent = responsables.chef.nom || '';
@@ -36,6 +36,8 @@ export function addReport({ lieu, objet, contenu }) {
     lieu: lieu || '',
     objet: objet || '',
     contenu: contenu || '',
+    heureMission: heureMission || '',
+    duree: duree || '',
     agent,
     matricule,
   };

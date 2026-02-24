@@ -168,9 +168,13 @@ export function stopRecording() {
 export function clearForm() {
   const lieu = document.getElementById('vocalLieu');
   const objet = document.getElementById('vocalObjet');
+  const heureMission = document.getElementById('vocalHeureMission');
+  const duree = document.getElementById('vocalDuree');
   const contenu = document.getElementById('vocalContenu');
   if (lieu) lieu.value = '';
   if (objet) objet.value = '';
+  if (heureMission) heureMission.value = '';
+  if (duree) duree.value = '';
   if (contenu) {
     contenu.value = '';
     contenu.dataset.baseText = '';
@@ -191,6 +195,8 @@ export function updateSaveButton() {
 export function saveCurrentReport() {
   const lieu = document.getElementById('vocalLieu').value.trim();
   const objet = document.getElementById('vocalObjet').value.trim();
+  const heureMission = document.getElementById('vocalHeureMission').value.trim();
+  const duree = document.getElementById('vocalDuree').value.trim();
   const contenu = document.getElementById('vocalContenu').value.trim();
 
   if (!contenu) {
@@ -200,7 +206,7 @@ export function saveCurrentReport() {
 
   if (isRecording) stopRecording();
 
-  addReport({ lieu, objet, contenu });
+  addReport({ lieu, objet, contenu, heureMission, duree });
   clearForm();
   renderReportsList();
 }
@@ -277,6 +283,7 @@ export function renderReportsList() {
             </div>
           </div>
           ${r.lieu ? `<div class="vocal-report-lieu">📍 ${escapeHtml(r.lieu)}</div>` : ''}
+          ${r.heureMission || r.duree ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">${r.heureMission ? '🕐 ' + escapeHtml(r.heureMission) : ''}${r.heureMission && r.duree ? ' · ' : ''}${r.duree ? '⏱ ' + escapeHtml(r.duree) : ''}</div>` : ''}
           ${r.objet ? `<div class="vocal-report-objet">${escapeHtml(r.objet)}</div>` : ''}
           <div class="vocal-report-contenu">${escapeHtml(contenuPreview)}</div>
         </div>`;
