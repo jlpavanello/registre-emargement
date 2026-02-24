@@ -31,7 +31,9 @@ export function renderMunitionsTab(container) {
     const pct = ref.seuilAlerte > 0 ? Math.min(100, (ref.stockActuel / (ref.seuilAlerte * 2)) * 100) : (ref.stockActuel > 0 ? 100 : 0);
     const condit = ref.conditionnement || 1;
     const total = ref.stockActuel * condit;
-    const unitePluriel = escapeHtml(ref.unite) + (total > 1 ? 's' : '');
+    const uniteRaw = escapeHtml(ref.unite);
+    // Pluriel intelligent : pas de double "s"
+    const unitePluriel = total > 1 ? (uniteRaw.endsWith('s') ? uniteRaw : uniteRaw + 's') : uniteRaw;
 
     // Build weapon chips
     let armesHtml = '';
@@ -47,35 +49,25 @@ export function renderMunitionsTab(container) {
       });
     }
 
-    // Build calc block — nombre × conditionnement = total
-    let calcHtml;
-    if (condit > 1) {
-      calcHtml = `<div class="mun-calc-block">
-        <div class="mun-calc-row">
-          <div class="mun-calc-item">
-            <div class="mun-calc-value">${ref.stockActuel}</div>
-            <div class="mun-calc-label">boîtes</div>
-          </div>
-          <div class="mun-calc-op">×</div>
-          <div class="mun-calc-item">
-            <div class="mun-calc-value">${condit}</div>
-            <div class="mun-calc-label">par boîte</div>
-          </div>
-          <div class="mun-calc-op">=</div>
-          <div class="mun-calc-item">
-            <div class="mun-calc-value total ${level}">${total}</div>
-            <div class="mun-calc-label">${unitePluriel}</div>
-          </div>
+    // Build calc block — toujours afficher nombre × conditionnement = total
+    const calcHtml = `<div class="mun-calc-block">
+      <div class="mun-calc-row">
+        <div class="mun-calc-item">
+          <div class="mun-calc-value">${ref.stockActuel}</div>
+          <div class="mun-calc-label">${condit > 1 ? 'boîtes' : 'quantité'}</div>
         </div>
-      </div>`;
-    } else {
-      calcHtml = `<div class="mun-calc-block">
-        <div class="mun-calc-simple">
+        <div class="mun-calc-op">×</div>
+        <div class="mun-calc-item">
+          <div class="mun-calc-value">${condit}</div>
+          <div class="mun-calc-label">${condit > 1 ? 'par boîte' : 'conditionnement'}</div>
+        </div>
+        <div class="mun-calc-op">=</div>
+        <div class="mun-calc-item">
           <div class="mun-calc-value total ${level}">${total}</div>
-          <div class="mun-calc-unit">${unitePluriel}</div>
+          <div class="mun-calc-label">${unitePluriel}</div>
         </div>
-      </div>`;
-    }
+      </div>
+    </div>`;
 
     html += `<div class="stock-card" data-mun-ref-id="${ref.id}">
       <div class="stock-card-header">
