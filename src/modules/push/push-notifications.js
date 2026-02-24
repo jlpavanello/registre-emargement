@@ -57,7 +57,13 @@ export async function subscribeToPush() {
   }
 
   try {
-    const registration = await navigator.serviceWorker.ready;
+    // Timeout de 5s pour éviter de bloquer si le SW n'est pas prêt
+    const registration = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Service Worker non prêt (timeout 5s)')), 5000)
+      ),
+    ]);
 
     // Check for existing subscription
     let subscription = await registration.pushManager.getSubscription();

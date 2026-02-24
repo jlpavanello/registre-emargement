@@ -316,7 +316,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const base = import.meta.env.BASE_URL || '/';
     navigator.serviceWorker
-      .register(base + 'sw.js?v=19')
+      .register(base + 'sw.js?v=20')
       .then((reg) => console.log('SW enregistré:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });
