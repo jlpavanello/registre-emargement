@@ -90,10 +90,13 @@ function showApp() {
   const roleScreen = document.getElementById('roleSelectScreen');
   if (roleScreen) roleScreen.style.display = 'none';
 
-  // Show main content sections
+  // Show main content sections (sauf celles gérées par les gardes de rôle)
+  const guardedIds = ['sectionConfigMoyens'];
   const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #pageNumberBadge');
   mainSections.forEach(el => {
-    el.style.removeProperty('display');
+    if (!guardedIds.includes(el.id)) {
+      el.style.removeProperty('display');
+    }
   });
 }
 
