@@ -31,7 +31,7 @@ export function generateVocalPDF(report) {
   let y = 40;
   doc.setDrawColor(26, 58, 92);
   doc.setLineWidth(0.4);
-  doc.rect(ml, y, uw, 42);
+  doc.rect(ml, y, uw, 47);
 
   doc.setTextColor(0);
   doc.setFontSize(9);
@@ -43,6 +43,7 @@ export function generateVocalPDF(report) {
     { label: 'Matricule :', value: report.matricule || '—' },
     { label: 'Lieu :', value: report.lieu || '—' },
     { label: 'Objet :', value: report.objet || '—' },
+    { label: 'Famille :', value: report.famille || '—' },
     { label: 'Heure mission :', value: report.heureMission || '—' },
     { label: 'Durée :', value: report.duree || '—' },
   ];
@@ -67,7 +68,7 @@ export function generateVocalPDF(report) {
   });
 
   // ===== CONTENU DU RAPPORT =====
-  y = 88;
+  y = 93;
   doc.setFillColor(240, 245, 250);
   doc.rect(ml, y, uw, 8, 'F');
   doc.setDrawColor(26, 58, 92);
@@ -78,7 +79,7 @@ export function generateVocalPDF(report) {
   doc.setFont('helvetica', 'bold');
   doc.text('CONTENU DU COMPTE-RENDU', ml + 4, y + 5.5);
 
-  y = 100;
+  y = 105;
   doc.setTextColor(0);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -99,10 +100,10 @@ export function generateVocalPDF(report) {
   });
 
   // ===== ENCADREMENT DU CONTENU =====
-  const contentHeight = Math.min(lineY - 100 + 6, maxY - 96);
+  const contentHeight = Math.min(lineY - 105 + 6, maxY - 101);
   doc.setDrawColor(200, 210, 220);
   doc.setLineWidth(0.2);
-  doc.rect(ml, 96, uw, contentHeight);
+  doc.rect(ml, 101, uw, contentHeight);
 
   // ===== PIED DE PAGE =====
   doc.setDrawColor(26, 58, 92);

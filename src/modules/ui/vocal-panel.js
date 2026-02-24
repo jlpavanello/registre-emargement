@@ -168,11 +168,13 @@ export function stopRecording() {
 export function clearForm() {
   const lieu = document.getElementById('vocalLieu');
   const objet = document.getElementById('vocalObjet');
+  const famille = document.getElementById('vocalFamille');
   const heureMission = document.getElementById('vocalHeureMission');
   const duree = document.getElementById('vocalDuree');
   const contenu = document.getElementById('vocalContenu');
   if (lieu) lieu.value = '';
   if (objet) objet.value = '';
+  if (famille) famille.value = '';
   if (heureMission) heureMission.value = '';
   if (duree) duree.value = '';
   if (contenu) {
@@ -195,6 +197,7 @@ export function updateSaveButton() {
 export function saveCurrentReport() {
   const lieu = document.getElementById('vocalLieu').value.trim();
   const objet = document.getElementById('vocalObjet').value.trim();
+  const famille = document.getElementById('vocalFamille').value;
   const heureMission = document.getElementById('vocalHeureMission').value.trim();
   const duree = document.getElementById('vocalDuree').value.trim();
   const contenu = document.getElementById('vocalContenu').value.trim();
@@ -206,7 +209,7 @@ export function saveCurrentReport() {
 
   if (isRecording) stopRecording();
 
-  addReport({ lieu, objet, contenu, heureMission, duree });
+  addReport({ lieu, objet, contenu, heureMission, duree, famille });
   clearForm();
   renderReportsList();
 }
@@ -276,6 +279,7 @@ export function renderReportsList() {
           <div class="vocal-report-header">
             <div class="vocal-report-meta">
               <strong>${escapeHtml(r.heure)}</strong> — ${escapeHtml(r.agent || 'Agent')}${r.matricule ? ' (' + escapeHtml(r.matricule) + ')' : ''}
+              ${r.famille ? `<span style="display:inline-block;margin-left:6px;padding:1px 8px;background:var(--accent);color:white;border-radius:10px;font-size:10px;font-weight:600;">${escapeHtml(r.famille)}</span>` : ''}
             </div>
             <div class="vocal-report-actions">
               <button class="btn-vocal-pdf" data-pdf-id="${escapeHtml(r.id)}">📄 PDF</button>
