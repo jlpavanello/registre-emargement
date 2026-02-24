@@ -30,6 +30,10 @@ export function applyRoleGuards() {
   // Configuration des moyens (pavé raccourcis): responsable uniquement
   toggleElement('sectionConfigMoyens', ACCESS.canViewConfig());
 
+  // Présents du jour + Équipages: responsable uniquement
+  toggleElement('presencePromptBox', ACCESS.canViewConfig());
+  toggleElement('crewPromptBox', ACCESS.canViewConfig());
+
   // Reset button: chef+ only
   toggleElement('btnReset', ACCESS.canResetDay());
 
@@ -91,7 +95,7 @@ function showApp() {
   if (roleScreen) roleScreen.style.display = 'none';
 
   // Show main content sections (sauf celles gérées par les gardes de rôle)
-  const guardedIds = ['sectionConfigMoyens'];
+  const guardedIds = ['sectionConfigMoyens', 'presencePromptBox', 'crewPromptBox'];
   const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #pageNumberBadge');
   mainSections.forEach(el => {
     if (!guardedIds.includes(el.id)) {
