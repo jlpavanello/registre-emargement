@@ -49,6 +49,7 @@ export function generateVocalPDF(report) {
 
   const col1X = ml + 4;
   const col2X = ml + uw / 2 + 4;
+  const valOffset = 28; // offset fixe pour aligner les valeurs
   const lineH = 5;
   let row = 0;
 
@@ -59,9 +60,8 @@ export function generateVocalPDF(report) {
 
     doc.setFont('helvetica', 'bold');
     doc.text(f.label, x, fy);
-    const labelWidth = doc.getTextWidth(f.label);
     doc.setFont('helvetica', 'normal');
-    doc.text(f.value, x + labelWidth + 2, fy);
+    doc.text(' ' + f.value, x + valOffset, fy);
 
     if (isRight) row++;
   });
