@@ -91,8 +91,10 @@ export async function init() {
     }
     setState('team', newTeam);
     setState('machines', newMachines);
-    saveTeam();
-    saveMachines();
+    // Save locally ONLY — never push empty scaffold data to Supabase
+    const rawStore = getRawStorage();
+    rawStore.set('reg_team', newTeam);
+    rawStore.set('reg_machines', newMachines);
     setTimeout(() => {
       if (_callbacks.openConfig) _callbacks.openConfig();
     }, 300);

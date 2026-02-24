@@ -18,6 +18,12 @@ const TABLE = 'shared_data';
 export function syncPush(key, value) {
   if (!isSupabaseEnabled() || !navigator.onLine) return;
 
+  // Safety: never push empty team/machines scaffold to Supabase
+  if ((key === 'reg_team' || key === 'reg_machines') && Array.isArray(value)) {
+    const hasReal = value.some(item => item.nom);
+    if (!hasReal) return; // Skip — empty scaffold, don't overwrite remote data
+  }
+
   const supabase = getSupabase();
   if (!supabase) return;
 
@@ -114,6 +120,14 @@ export async function syncPushAll(storageAdapter) {
 
   const supabase = getSupabase();
   if (!supabase) return;
+
+  // Safety: don't push if local data is empty (new device with no real data)
+  const team = storageAdapter.get('reg_team');
+  const hasRealData = team && Array.isArray(team) && team.some(t => t.nom);
+  if (!hasRealData) {
+    console.log('ℹ️ syncPushAll ignoré — pas de données réelles à pousser');
+    return;
+  }
 
   const keys = [
     'reg_team', 'reg_machines', 'reg_categories', 'reg_resp',
