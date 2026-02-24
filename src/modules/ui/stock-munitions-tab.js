@@ -29,6 +29,9 @@ export function renderMunitionsTab(container) {
   munitionRefs.forEach(ref => {
     const level = getAlertLevelForRef(ref);
     const pct = ref.seuilAlerte > 0 ? Math.min(100, (ref.stockActuel / (ref.seuilAlerte * 2)) * 100) : (ref.stockActuel > 0 ? 100 : 0);
+    const condit = ref.conditionnement || 1;
+    const total = ref.stockActuel * condit;
+    const unitePluriel = escapeHtml(ref.unite) + (total > 1 ? 's' : '');
 
     // Build weapon chips
     let armesHtml = '';
@@ -44,24 +47,50 @@ export function renderMunitionsTab(container) {
       });
     }
 
+    // Build calc block — nombre × conditionnement = total
+    let calcHtml;
+    if (condit > 1) {
+      calcHtml = `<div class="mun-calc-block">
+        <div class="mun-calc-row">
+          <div class="mun-calc-item">
+            <div class="mun-calc-value">${ref.stockActuel}</div>
+            <div class="mun-calc-label">boîtes</div>
+          </div>
+          <div class="mun-calc-op">×</div>
+          <div class="mun-calc-item">
+            <div class="mun-calc-value">${condit}</div>
+            <div class="mun-calc-label">par boîte</div>
+          </div>
+          <div class="mun-calc-op">=</div>
+          <div class="mun-calc-item">
+            <div class="mun-calc-value total ${level}">${total}</div>
+            <div class="mun-calc-label">${unitePluriel}</div>
+          </div>
+        </div>
+      </div>`;
+    } else {
+      calcHtml = `<div class="mun-calc-block">
+        <div class="mun-calc-simple">
+          <div class="mun-calc-value total ${level}">${total}</div>
+          <div class="mun-calc-unit">${unitePluriel}</div>
+        </div>
+      </div>`;
+    }
+
     html += `<div class="stock-card" data-mun-ref-id="${ref.id}">
       <div class="stock-card-header">
         <div>
-          <div class="stock-card-title">${escapeHtml(ref.nom)}</div>
-          <div class="stock-card-sub">${ref.calibre ? escapeHtml(ref.calibre) : 'Pas de calibre'}</div>
-        </div>
-        <div class="stock-value ${level}" style="text-align:right;line-height:1.3;">
-          ${(ref.conditionnement || 1) > 1
-            ? `${ref.stockActuel} x ${ref.conditionnement} ${escapeHtml(ref.unite)}s<br><span style="font-size:13px;font-weight:800;">= ${ref.stockActuel * ref.conditionnement}</span>`
-            : `${ref.stockActuel}<span style="font-size:11px;font-weight:500;color:var(--text3);margin-left:4px;">${escapeHtml(ref.unite)}s</span>`}
+          <div class="stock-card-title">📦 ${escapeHtml(ref.nom)}</div>
+          <div class="stock-card-sub">${ref.calibre ? 'Calibre : ' + escapeHtml(ref.calibre) : 'Pas de calibre défini'}</div>
         </div>
       </div>
-      <div style="margin:6px 0;"><span style="font-size:11px;font-weight:600;color:var(--text2);">Armes associées :</span></div>
+      ${calcHtml}
+      <div style="margin:6px 0 4px;"><span style="font-size:11px;font-weight:600;color:var(--text2);">Armes associées :</span></div>
       <div class="mun-armes-row">${armesHtml}</div>
       <div class="stock-bar-container"><div class="stock-bar ${level}" style="width:${pct}%;"></div></div>
       <div class="stock-info-row">
-        <span>Alerte: ${ref.seuilAlerte}</span>
-        <span>Critique: ${ref.seuilCritique}</span>
+        <span>Seuil alerte : ${ref.seuilAlerte}</span>
+        <span>Seuil critique : ${ref.seuilCritique}</span>
       </div>
       <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
         <button class="stock-btn stock-btn-primary stock-btn-sm btn-mref-appro" data-id="${ref.id}">+ Approvisionner</button>

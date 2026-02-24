@@ -400,3 +400,73 @@
   margin: 0;
   accent-color: #16a34a;
 }
+
+/* ===== Bloc calcul munitions (nombre × conditionnement = total) ===== */
+.mun-calc-block {
+  background: #f8fafc;
+  border: 1.5px solid var(--border-light);
+  border-radius: 12px;
+  padding: 12px 10px 10px;
+  margin: 10px 0;
+  text-align: center;
+}
+.mun-calc-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mun-calc-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.mun-calc-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+}
+.mun-calc-value.total {
+  font-size: 28px;
+}
+.mun-calc-value.total.ok { color: #16a34a; }
+.mun-calc-value.total.alerte { color: #d97706; }
+.mun-calc-value.total.critique { color: #dc2626; }
+.mun-calc-op {
+  font-size: 18px;
+  font-weight: 700;
+  color: #94a3b8;
+  padding: 0 2px;
+  align-self: center;
+}
+.mun-calc-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.mun-calc-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 2px;
+}
+/* Cas conditionnement = 1 : affichage simple */
+.mun-calc-simple {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+.mun-calc-simple .mun-calc-value {
+  font-size: 28px;
+}
+.mun-calc-simple .mun-calc-unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
