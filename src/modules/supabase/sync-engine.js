@@ -113,7 +113,7 @@ function applyRemoteState(data) {
   if (data.categories) { setState('categories', data.categories); saveCategories(); }
   if (data.responsables) { setState('responsables', data.responsables); saveResponsables(); }
   if (data.vehicles) { setState('vehicles', data.vehicles); saveVehicles(); }
-  if (data.pageNumber !== undefined) { setState('pageNumber', data.pageNumber); savePageNumber(); }
+  if (typeof data.pageNumber === 'number' && !isNaN(data.pageNumber)) { setState('pageNumber', data.pageNumber); savePageNumber(); }
   if (data.infoFields) {
     const inf = data.infoFields;
     const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };

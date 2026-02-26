@@ -7,9 +7,10 @@ import { getActiveVehicles, getVehicleLabel } from '../domains/crews.js';
 
 export function generatePDF() {
   const {
-    team, dayData, presentToday, pageNumber,
+    team, dayData, presentToday, pageNumber: rawPN,
     visaMatin, visaSoir, visaMatinSigner, visaSoirSigner,
   } = getState();
+  const pageNumber = (typeof rawPN === 'number' && !isNaN(rawPN)) ? rawPN : 1;
 
   // Vérifier que les deux visas sont signés
   if (!visaMatin || !visaSoir) {

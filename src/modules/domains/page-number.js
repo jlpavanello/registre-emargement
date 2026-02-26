@@ -5,7 +5,7 @@ import { todayStr } from '../utils/date.js';
 export function loadPageNumber() {
   try {
     const r = storage.get('reg_page');
-    if (r) {
+    if (r && typeof r.num === 'number' && !isNaN(r.num)) {
       if (r.date === todayStr()) {
         setState('pageNumber', r.num);
       } else {
