@@ -1,0 +1,360 @@
+/* ===== Planning Panel ===== */
+.planning-overlay {
+  display: none; position: fixed; inset: 0;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  z-index: 50; overflow-y: auto; padding-bottom: 20px;
+}
+.planning-overlay.active { display: block; animation: fadeIn 0.2s ease; }
+
+.planning-header {
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  color: white; padding: 16px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 51;
+  box-shadow: 0 4px 20px rgba(30,64,175,0.25);
+}
+.planning-header h2 { font-size: 16px; font-weight: 800; }
+
+/* Tabs */
+.planning-tabs {
+  display: flex; overflow-x: auto; gap: 4px;
+  padding: 10px 12px 6px; background: white;
+  border-bottom: 1px solid var(--border-light);
+  -webkit-overflow-scrolling: touch;
+}
+.planning-tabs::-webkit-scrollbar { display: none; }
+.planning-tab {
+  padding: 8px 14px; border-radius: 8px; border: none;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; font-family: inherit;
+  background: #f1f5f9; color: var(--text2);
+  transition: all 0.15s ease;
+}
+.planning-tab.active {
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  color: white; box-shadow: 0 2px 8px rgba(30,64,175,0.3);
+}
+
+#planningTabContent {
+  padding: 12px; min-height: 300px;
+  background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 100%);
+}
+
+/* ===== Month Grid ===== */
+.planning-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 4px; margin-bottom: 8px;
+}
+.planning-nav-title {
+  font-size: 15px; font-weight: 800; color: var(--text);
+  text-transform: capitalize;
+}
+.planning-nav-btn {
+  border: none; background: white; border-radius: 8px;
+  padding: 8px 14px; font-size: 12px; font-weight: 700;
+  cursor: pointer; color: var(--text2); box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: all 0.15s ease;
+}
+.planning-nav-btn:hover { background: #f1f5f9; }
+
+.planning-grid-container {
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  border-radius: 12px; box-shadow: 0 2px 12px rgba(30,64,175,0.1);
+}
+
+.planning-grid {
+  border-collapse: collapse; width: 100%; min-width: 700px;
+  background: white; border-radius: 12px; overflow: hidden;
+}
+.planning-grid th {
+  padding: 6px 4px; font-size: 9px; font-weight: 700;
+  color: var(--text3); text-transform: uppercase;
+  text-align: center; background: #f8fafc;
+  border: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 2;
+}
+.planning-grid th.weekend { background: #fef2f2; color: #dc2626; }
+.planning-grid th.today { background: #dbeafe; color: #1e40af; }
+
+.planning-grid td {
+  padding: 0; border: 1px solid #e2e8f0;
+  text-align: center; height: 36px; min-width: 28px;
+  cursor: pointer; transition: background 0.1s ease;
+  position: relative;
+}
+.planning-grid td:hover { background: #f0f9ff; }
+.planning-grid td.agent-name {
+  position: sticky; left: 0; z-index: 1;
+  background: white; text-align: left; padding: 4px 8px;
+  font-size: 11px; font-weight: 600; color: var(--text);
+  white-space: nowrap; min-width: 100px; max-width: 120px;
+  overflow: hidden; text-overflow: ellipsis; cursor: default;
+}
+.planning-grid td.agent-name:hover { background: white; }
+.planning-grid td.weekend { background: #fef9f9; }
+
+/* Cell content — shift badge */
+.planning-cell {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; font-size: 14px; line-height: 1;
+  border-radius: 4px; position: relative;
+}
+.planning-cell-shift {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 6px;
+  font-size: 13px; color: white; font-weight: 700;
+}
+.planning-cell-leave {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Compliance alert dot */
+.planning-alert-dot {
+  position: absolute; top: 1px; right: 1px;
+  width: 7px; height: 7px; border-radius: 50%;
+}
+.planning-alert-dot.error { background: #ef4444; }
+.planning-alert-dot.warning { background: #f59e0b; }
+
+/* ===== Legend ===== */
+.planning-legend {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 10px 4px; margin-top: 8px;
+}
+.planning-legend-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; color: var(--text2);
+}
+.planning-legend-dot {
+  width: 14px; height: 14px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+}
+
+/* ===== Week View ===== */
+.planning-week-grid {
+  border-collapse: collapse; width: 100%;
+  background: white; border-radius: 12px; overflow: hidden;
+}
+.planning-week-grid th {
+  padding: 8px 6px; font-size: 11px; font-weight: 700;
+  color: var(--text3); text-align: center;
+  background: #f8fafc; border: 1px solid #e2e8f0;
+}
+.planning-week-grid th.weekend { background: #fef2f2; color: #dc2626; }
+.planning-week-grid th.today { background: #dbeafe; color: #1e40af; }
+.planning-week-grid td {
+  padding: 8px 4px; border: 1px solid #e2e8f0;
+  text-align: center; vertical-align: top; min-width: 80px;
+  cursor: pointer; transition: background 0.1s ease;
+}
+.planning-week-grid td:hover { background: #f0f9ff; }
+.planning-week-grid td.agent-name {
+  text-align: left; padding: 8px 10px;
+  font-size: 12px; font-weight: 600; color: var(--text);
+  white-space: nowrap; cursor: default; min-width: 110px;
+  background: white;
+}
+.planning-week-grid td.agent-name:hover { background: white; }
+.planning-week-grid td.total-col {
+  font-size: 12px; font-weight: 800; color: var(--text);
+  cursor: default; min-width: 50px;
+}
+.planning-week-grid td.total-col.over48 { color: #ef4444; }
+
+.planning-week-shift {
+  font-size: 11px; font-weight: 700; padding: 4px 6px;
+  border-radius: 6px; color: white; margin-bottom: 2px;
+}
+.planning-week-hours {
+  font-size: 9px; color: var(--text3); font-weight: 500;
+}
+
+/* ===== Shift picker popup ===== */
+.planning-picker-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+  z-index: 100; display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+.planning-picker {
+  background: white; border-radius: 16px; padding: 16px;
+  width: 300px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.planning-picker-title {
+  font-size: 14px; font-weight: 800; color: var(--text);
+  margin-bottom: 12px; text-align: center;
+}
+.planning-picker-list {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.planning-picker-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+  cursor: pointer; transition: all 0.15s ease; background: white;
+}
+.planning-picker-item:hover { border-color: #3b82f6; background: #f0f9ff; }
+.planning-picker-item.selected { border-color: #1e40af; background: #dbeafe; }
+.planning-picker-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: white;
+}
+.planning-picker-label {
+  flex: 1; font-size: 13px; font-weight: 600; color: var(--text);
+}
+.planning-picker-hours {
+  font-size: 11px; color: var(--text3); font-weight: 500;
+}
+.planning-picker-actions {
+  display: flex; gap: 8px; margin-top: 12px;
+}
+.planning-picker-actions button {
+  flex: 1; padding: 10px; border-radius: 10px; border: none;
+  font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.planning-picker-btn-clear {
+  background: #fef2f2; color: #dc2626;
+}
+.planning-picker-btn-cancel {
+  background: #f1f5f9; color: var(--text2);
+}
+
+/* ===== Cycles Tab ===== */
+.planning-card {
+  background: white; border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 10px; box-shadow: 0 2px 12px rgba(30,64,175,0.08);
+  border: 1px solid rgba(30,64,175,0.1);
+}
+.planning-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.planning-card-title {
+  font-size: 14px; font-weight: 700; color: var(--text);
+}
+.planning-card-sub {
+  font-size: 11px; color: var(--text3); font-weight: 500;
+}
+
+.planning-cycle-preview {
+  display: flex; gap: 3px; flex-wrap: wrap; margin-top: 8px;
+}
+.planning-cycle-day {
+  width: 22px; height: 22px; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: white;
+}
+.planning-cycle-day.repos {
+  background: #e2e8f0; color: #94a3b8;
+}
+
+/* ===== Leaves Tab ===== */
+.planning-leave-card {
+  background: white; border-radius: 12px; padding: 12px 14px;
+  margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border-left: 4px solid #22c55e;
+  display: flex; align-items: center; gap: 10px;
+}
+.planning-leave-icon { font-size: 24px; flex-shrink: 0; }
+.planning-leave-info { flex: 1; }
+.planning-leave-agent { font-size: 13px; font-weight: 700; color: var(--text); }
+.planning-leave-dates { font-size: 11px; color: var(--text3); font-weight: 500; margin-top: 1px; }
+.planning-leave-motif { font-size: 11px; color: var(--text2); margin-top: 2px; font-style: italic; }
+.planning-leave-status {
+  font-size: 10px; font-weight: 700; padding: 3px 10px;
+  border-radius: 6px; white-space: nowrap;
+}
+.planning-leave-status.en_attente { background: #fef3c7; color: #92400e; }
+.planning-leave-status.approuve { background: #dcfce7; color: #166534; }
+.planning-leave-status.refuse { background: #fef2f2; color: #991b1b; }
+
+.planning-leave-actions {
+  display: flex; gap: 4px;
+}
+.planning-leave-btn {
+  border: none; padding: 6px 10px; border-radius: 6px;
+  font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.planning-leave-btn.approve { background: #dcfce7; color: #166534; }
+.planning-leave-btn.refuse { background: #fef2f2; color: #991b1b; }
+.planning-leave-btn.delete { background: #f1f5f9; color: #64748b; }
+
+/* ===== Counters Tab ===== */
+.planning-counter-card {
+  background: white; border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 10px; box-shadow: 0 2px 12px rgba(30,64,175,0.08);
+  border: 1px solid rgba(30,64,175,0.1);
+}
+.planning-counter-agent {
+  font-size: 14px; font-weight: 700; color: var(--text);
+  margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+}
+.planning-counter-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 0; font-size: 12px;
+}
+.planning-counter-label { color: var(--text2); font-weight: 500; }
+.planning-counter-value { font-weight: 700; color: var(--text); }
+.planning-counter-value.over { color: #ef4444; }
+.planning-counter-value.ok { color: #16a34a; }
+
+.planning-alert-list { margin-top: 8px; }
+.planning-alert-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 8px; margin-bottom: 4px;
+  font-size: 11px; font-weight: 600;
+}
+.planning-alert-item.error { background: #fef2f2; color: #991b1b; }
+.planning-alert-item.warning { background: #fffbeb; color: #92400e; }
+
+/* ===== Buttons ===== */
+.planning-btn {
+  border: none; padding: 10px 16px; border-radius: 10px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all 0.15s ease;
+}
+.planning-btn-primary {
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  color: white; box-shadow: 0 2px 8px rgba(30,64,175,0.25);
+}
+.planning-btn-primary:hover { box-shadow: 0 4px 12px rgba(30,64,175,0.35); }
+.planning-btn-secondary {
+  background: #f1f5f9; color: var(--text2);
+}
+.planning-btn-secondary:hover { background: #e2e8f0; }
+.planning-btn-danger {
+  background: #fef2f2; color: #dc2626;
+}
+.planning-btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 8px; }
+
+/* Form fields */
+.planning-field { margin-bottom: 10px; }
+.planning-field label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--text2); margin-bottom: 4px; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.planning-field input, .planning-field select, .planning-field textarea {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; font-size: 13px; font-family: inherit;
+  transition: all 0.15s ease; box-sizing: border-box;
+}
+.planning-field input:focus, .planning-field select:focus {
+  outline: none; border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+}
+
+/* Empty state */
+.planning-empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--text3); font-size: 13px; font-weight: 500;
+}
+.planning-empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+/* Section title */
+.planning-section-title {
+  font-size: 12px; font-weight: 700; color: var(--text2);
+  text-transform: uppercase; padding: 10px 0 6px; letter-spacing: 0.8px;
+  display: flex; align-items: center; gap: 8px;
+}

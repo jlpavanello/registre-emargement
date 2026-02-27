@@ -27,6 +27,10 @@ import { saveAuditLog } from '../domains/audit-log.js';
 import { saveIncidents } from '../domains/incidents.js';
 import { saveVocalReports } from '../domains/vocal-data.js';
 import { savePageNumber } from '../domains/page-number.js';
+import { savePlanningEntries } from '../domains/planning.js';
+import { savePlanningShifts } from '../domains/planning-shifts.js';
+import { savePlanningCycles } from '../domains/planning-cycles.js';
+import { savePlanningLeaves } from '../domains/planning-leaves.js';
 
 // ── Status callback ────────────────────────────────────────
 let _onStatusChange = null;
@@ -100,6 +104,11 @@ function buildStateSnapshot() {
     chatMessages: state.chatMessages,
     auditLog: state.auditLog,
     incidents: state.incidents,
+    // Planning
+    planningEntries: state.planningEntries,
+    planningShifts: state.planningShifts,
+    planningCycles: state.planningCycles,
+    planningLeaves: state.planningLeaves,
   };
 }
 
@@ -155,6 +164,12 @@ function applyRemoteState(data) {
   if (data.chatMessages) { setState('chatMessages', data.chatMessages); saveChatMessages(); }
   if (data.auditLog) { setState('auditLog', data.auditLog); saveAuditLog(); }
   if (data.incidents) { setState('incidents', data.incidents); saveIncidents(); }
+
+  // Planning
+  if (data.planningEntries) { setState('planningEntries', data.planningEntries); savePlanningEntries(); }
+  if (data.planningShifts) { setState('planningShifts', data.planningShifts); savePlanningShifts(); }
+  if (data.planningCycles) { setState('planningCycles', data.planningCycles); savePlanningCycles(); }
+  if (data.planningLeaves) { setState('planningLeaves', data.planningLeaves); savePlanningLeaves(); }
 
   console.log('✅ État distant appliqué localement');
 }

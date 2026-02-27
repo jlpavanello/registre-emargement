@@ -51,6 +51,11 @@ const state = {
   auditLog: [],
   // Incidents
   incidents: [],
+  // Planning
+  planningEntries: {},
+  planningShifts: [],
+  planningCycles: [],
+  planningLeaves: [],
   // Canvas state
   isDrawing: false,
   sigCtx: null,

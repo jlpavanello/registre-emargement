@@ -136,6 +136,7 @@ export async function syncPushAll(storageAdapter) {
     'reg_previsions_tir', 'reg_fournisseurs', 'reg_commandes',
     'reg_pv_templates', 'reg_pv_documents',
     'reg_chat_messages',
+    'reg_planning_entries', 'reg_planning_shifts', 'reg_planning_cycles', 'reg_planning_leaves',
   ];
 
   const rows = [];

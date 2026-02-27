@@ -29,6 +29,10 @@ import { loadChatMessages } from './chat-data.js';
 import { onChatDataUpdated } from '../ui/chat-widget.js';
 import { loadAuditLog } from './audit-log.js';
 import { loadIncidents } from './incidents.js';
+import { loadPlanningEntries } from './planning.js';
+import { loadPlanningShifts } from './planning-shifts.js';
+import { loadPlanningCycles } from './planning-cycles.js';
+import { loadPlanningLeaves } from './planning-leaves.js';
 
 let _callbacks = {};
 export function bindInitCallbacks(callbacks) {
@@ -79,6 +83,10 @@ export async function init() {
   loadChatMessages();
   loadAuditLog();
   loadIncidents();
+  loadPlanningShifts();
+  loadPlanningEntries();
+  loadPlanningCycles();
+  loadPlanningLeaves();
   populateVisaSignerSelect();
 
   const { team } = getState();
@@ -203,6 +211,18 @@ function _reloadFromStorage(key) {
       break;
     case 'reg_incidents':
       loadIncidents();
+      break;
+    case 'reg_planning_entries':
+      loadPlanningEntries();
+      break;
+    case 'reg_planning_shifts':
+      loadPlanningShifts();
+      break;
+    case 'reg_planning_cycles':
+      loadPlanningCycles();
+      break;
+    case 'reg_planning_leaves':
+      loadPlanningLeaves();
       break;
     default:
       return; // Unknown key, skip UI refresh

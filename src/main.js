@@ -22,6 +22,7 @@ import './styles/stock.css';
 import './styles/pv.css';
 import './styles/chat.css';
 import './styles/audit.css';
+import './styles/planning.css';
 
 // --- Module Imports ---
 // Domains
@@ -41,7 +42,7 @@ import { openVisaSign, updateVisaButtonState, bindVisaCallbacks } from './module
 
 // Actions
 import { resetSignatures, fullReset, bindResetCallbacks } from './modules/actions/reset.js';
-import { exportAllData, importAllData, bindExportImportCallbacks } from './modules/actions/export-import.js';
+import { bindExportImportCallbacks } from './modules/actions/export-import.js';
 
 // --- Lazy-loaded modules (code-splitting) ---
 // PDF, Vocal, Stock, PV, Chat sont chargés à la demande pour réduire le bundle initial
@@ -116,6 +117,16 @@ async function getAuditModule() {
 async function openAuditPanel() { (await getAuditModule()).openAuditPanel(); }
 async function closeAuditPanel() { (await getAuditModule()).closeAuditPanel(); }
 async function switchAuditTab(tab) { (await getAuditModule()).switchAuditTab(tab); }
+
+// Planning — lazy
+let _planningModule = null;
+async function getPlanningModule() {
+  if (!_planningModule) _planningModule = await import('./modules/ui/planning-panel.js');
+  return _planningModule;
+}
+async function openPlanning() { (await getPlanningModule()).openPlanning(); }
+async function closePlanning() { (await getPlanningModule()).closePlanning(); }
+async function switchPlanningTab(tab) { (await getPlanningModule()).switchPlanningTab(tab); }
 
 // Phase 4: Sync engine
 import { initSyncEngine, schedulePush } from './modules/supabase/sync-engine.js';
@@ -255,10 +266,6 @@ document.getElementById('btnAddCat').addEventListener('click', addCategory);
 document.getElementById('btnAddMach').addEventListener('click', () => addItem('mach'));
 document.getElementById('configArmurierSelect').addEventListener('change', onArmurierSelectChange);
 
-// Export / Import (inside config panel)
-document.getElementById('btnExportAll').addEventListener('click', exportAllData);
-document.getElementById('btnImportAll').addEventListener('click', () => document.getElementById('fileImportAll').click());
-document.getElementById('fileImportAll').addEventListener('change', importAllData);
 
 // Full reset (inside config panel)
 document.getElementById('btnFullReset').addEventListener('click', fullReset);
@@ -286,6 +293,13 @@ document.getElementById('btnOpenPV').addEventListener('click', openPV);
 document.getElementById('btnClosePV').addEventListener('click', closePV);
 document.querySelectorAll('#pvPanel .pv-tab').forEach(tab => {
   tab.addEventListener('click', () => switchPvTab(tab.dataset.tab));
+});
+
+// Planning panel
+document.getElementById('btnOpenPlanning').addEventListener('click', openPlanning);
+document.getElementById('btnClosePlanning').addEventListener('click', closePlanning);
+document.querySelectorAll('#planningPanel .planning-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchPlanningTab(tab.dataset.tab));
 });
 
 // Stock & Logistique panel
@@ -598,6 +612,7 @@ async function bootstrap() {
     'previsionsTir', 'fournisseurs', 'commandes',
     'pvTemplates', 'pvDocuments',
     'vocalReports', 'chatMessages', 'auditLog', 'incidents',
+    'planningEntries', 'planningShifts', 'planningCycles', 'planningLeaves',
   ];
   syncKeys.forEach(key => subscribe(key, () => schedulePush()));
 
