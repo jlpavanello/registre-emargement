@@ -36,38 +36,6 @@ async function generatePDF() {
 }
 
 
-// Stock & Logistique
-let _stockModule = null;
-async function getStockModule() {
-  if (!_stockModule) _stockModule = await import('../ui/stock-panel.js');
-  return _stockModule;
-}
-async function openStock() { (await getStockModule()).openStock(); }
-async function closeStock() { (await getStockModule()).closeStock(); }
-async function switchStockTab(tab) { (await getStockModule()).switchStockTab(tab); }
-
-// PV (Proces-Verbaux)
-let _pvModule = null;
-async function getPvModule() {
-  if (!_pvModule) _pvModule = await import('../ui/pv-panel.js');
-  return _pvModule;
-}
-async function openPV() { (await getPvModule()).openPV(); }
-async function closePV() { (await getPvModule()).closePV(); }
-async function switchPvTab(tab) { (await getPvModule()).switchPvTab(tab); }
-
-
-
-// Planning
-let _planningModule = null;
-async function getPlanningModule() {
-  if (!_planningModule) _planningModule = await import('../ui/planning-panel.js');
-  return _planningModule;
-}
-async function openPlanning() { (await getPlanningModule()).openPlanning(); }
-async function closePlanning() { (await getPlanningModule()).closePlanning(); }
-async function switchPlanningTab(tab) { (await getPlanningModule()).switchPlanningTab(tab); }
-
 // =============================================
 // Fonctions specifiques au registre
 // =============================================
@@ -202,26 +170,6 @@ function updateCrewPromptStats() {
     statEquip.textContent = activeCrews + ' \u00e9quipage' + (activeCrews > 1 ? 's' : '');
   }
 }
-
-// =============================================
-// Overlay auto-open (phase de transition)
-// =============================================
-
-let _pendingOverlay = null;
-
-/**
- * Marque un overlay a ouvrir apres le mount du registre.
- * Utilise par les routes /config, /vocal, etc.
- */
-export function setPendingOverlay(overlayId) {
-  _pendingOverlay = overlayId;
-}
-
-const OVERLAY_MAP = {
-  stock: openStock,
-  pv: openPV,
-  planning: openPlanning,
-};
 
 // =============================================
 // Template HTML
@@ -409,42 +357,6 @@ function getTemplate() {
 </div>
 
 
-<!-- PV (PROCES-VERBAUX) -->
-<div class="pv-overlay" id="pvPanel">
-  <div class="pv-header">
-    <h2>\uD83D\uDCCB Proc\u00e8s-Verbaux</h2>
-    <button class="header-btn" id="btnClosePV" style="background:rgba(255,255,255,0.2);">Fermer</button>
-  </div>
-  <div class="pv-tabs">
-    <button class="pv-tab active" data-tab="templates">Mod\u00e8les</button>
-    <button class="pv-tab" data-tab="mespv">Mes PV</button>
-    <button class="pv-tab" data-tab="editor" style="display:none;">\u00c9diteur</button>
-  </div>
-  <div id="pvTabContent"></div>
-  <div style="height:20px;"></div>
-</div>
-
-<!-- STOCK & LOGISTIQUE -->
-<div class="stock-overlay" id="stockPanel">
-  <div class="stock-header">
-    <h2>\uD83D\uDCE6 Stock & Logistique</h2>
-    <button class="header-btn" id="btnCloseStock" style="background:rgba(255,255,255,0.2);">Fermer</button>
-  </div>
-  <div class="stock-tabs">
-    <button class="stock-tab active" data-tab="munitions">Configuration des Munitions</button>
-    <button class="stock-tab" data-tab="armes">\u00c9tat des Armes</button>
-    <button class="stock-tab" data-tab="previsions">Programmation des exercices de tir</button>
-    <button class="stock-tab" data-tab="fournisseurs">Cr\u00e9ation des fournisseurs</button>
-    <button class="stock-tab" data-tab="commandes">Devis Commande</button>
-  </div>
-  <div class="stock-tabs stock-tabs-center">
-    <button class="stock-tab" data-tab="dashboard">Dashboard</button>
-  </div>
-  <div id="stockTabContent"></div>
-  <div style="height:20px;"></div>
-</div>
-
-
 <!-- CHAT D'EQUIPE (Widget flottant) -->
 <button class="chat-fab" id="chatFab" title="Chat d'\u00e9quipe">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -452,22 +364,6 @@ function getTemplate() {
 </button>
 
 
-<!-- PLANNING -->
-<div class="planning-overlay" id="planningPanel">
-  <div class="planning-header">
-    <h2>\uD83D\uDCC5 Planning</h2>
-    <button class="header-btn" id="btnClosePlanning" style="background:rgba(255,255,255,0.2);">Fermer</button>
-  </div>
-  <div class="planning-tabs">
-    <button class="planning-tab active" data-tab="month">\uD83D\uDCC6 Mois</button>
-    <button class="planning-tab" data-tab="week">\uD83D\uDCCB Semaine</button>
-    <button class="planning-tab" data-tab="cycles">\uD83D\uDD04 Cycles</button>
-    <button class="planning-tab" data-tab="leaves">\uD83C\uDF34 Cong\u00e9s</button>
-    <button class="planning-tab" data-tab="counters">\uD83D\uDCCA Compteurs</button>
-  </div>
-  <div id="planningTabContent"></div>
-  <div style="height:20px;"></div>
-</div>
 `;
 }
 
@@ -502,26 +398,10 @@ function bindEvents() {
   // Equipages — navigue vers la page dédiée
   document.getElementById('btnCrewShortcut').addEventListener('click', () => navigate('/equipages'));
 
-  // PV panel
-  document.getElementById('btnOpenPV').addEventListener('click', openPV);
-  document.getElementById('btnClosePV').addEventListener('click', closePV);
-  document.querySelectorAll('#pvPanel .pv-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchPvTab(tab.dataset.tab));
-  });
-
-  // Planning panel
-  document.getElementById('btnOpenPlanning').addEventListener('click', openPlanning);
-  document.getElementById('btnClosePlanning').addEventListener('click', closePlanning);
-  document.querySelectorAll('#planningPanel .planning-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchPlanningTab(tab.dataset.tab));
-  });
-
-  // Stock panel
-  document.getElementById('btnOpenStock').addEventListener('click', openStock);
-  document.getElementById('btnCloseStock').addEventListener('click', closeStock);
-  document.querySelectorAll('#stockPanel .stock-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchStockTab(tab.dataset.tab));
-  });
+  // Outils — naviguent vers les pages dédiées
+  document.getElementById('btnOpenPV').addEventListener('click', () => navigate('/pv'));
+  document.getElementById('btnOpenPlanning').addEventListener('click', () => navigate('/planning'));
+  document.getElementById('btnOpenStock').addEventListener('click', () => navigate('/stock'));
 
   // Audit — navigue vers la page dédiée
   document.getElementById('btnOpenAudit').addEventListener('click', () => navigate('/audit'));
@@ -611,14 +491,6 @@ function mount(container) {
   container.innerHTML = getTemplate();
   bindEvents();
   initRegistreUI();
-
-  // Auto-open overlay si on arrive d'une tuile outil
-  if (_pendingOverlay && OVERLAY_MAP[_pendingOverlay]) {
-    const openFn = OVERLAY_MAP[_pendingOverlay];
-    _pendingOverlay = null;
-    // Petit delai pour que le DOM soit pret
-    setTimeout(() => openFn(), 50);
-  }
 }
 
 function unmount() {

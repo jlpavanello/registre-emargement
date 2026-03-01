@@ -59,7 +59,7 @@ import { isPushSupported, getPushPermission, subscribeToPush } from './modules/p
 // Routeur & Pages
 import { initRouter, registerRoute } from './modules/router.js';
 import { homepage } from './modules/pages/homepage.js';
-import { registre, setPendingOverlay } from './modules/pages/registre.js';
+import { registre } from './modules/pages/registre.js';
 
 // =============================================
 // Late-binding callbacks (generiques, sans ref registre)
@@ -229,25 +229,31 @@ function registerRoutes() {
     unmount() {},
   });
 
-  // Routes outils — montent le registre avec auto-open overlay
-  const overlayRoutes = [
-    { path: '/stock', title: 'Stock & Armement', overlay: 'stock' },
-    { path: '/planning', title: 'Planning', overlay: 'planning' },
-    { path: '/pv', title: 'Proc\u00e8s-Verbaux', overlay: 'pv' },
-  ];
-
-  for (const route of overlayRoutes) {
-    registerRoute(route.path, {
-      title: route.title,
-      mount(container) {
-        setPendingOverlay(route.overlay);
-        registre.mount(container);
-      },
-      unmount() {
-        registre.unmount();
-      },
-    });
-  }
+  // Pages à onglets (lazy-loaded)
+  registerRoute('/stock', {
+    title: 'Stock & Armement',
+    async mount(container) {
+      const { stockPage } = await import('./modules/pages/stock-page.js');
+      await stockPage.mount(container);
+    },
+    unmount() {},
+  });
+  registerRoute('/pv', {
+    title: 'Procès-Verbaux',
+    async mount(container) {
+      const { pvPage } = await import('./modules/pages/pv-page.js');
+      await pvPage.mount(container);
+    },
+    unmount() {},
+  });
+  registerRoute('/planning', {
+    title: 'Planning',
+    async mount(container) {
+      const { planningPage } = await import('./modules/pages/planning-page.js');
+      await planningPage.mount(container);
+    },
+    unmount() {},
+  });
 }
 
 // =============================================
