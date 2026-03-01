@@ -1,6 +1,6 @@
 /* =============================================
    homepage.css — Page d'accueil "Caisse à outils"
-   Grille de tuiles par catégorie
+   Présentation par priorité d'usage
    ============================================= */
 
 .homepage {
@@ -81,44 +81,127 @@
   margin-top: -8px;
 }
 
-/* Catégorie */
-.tool-category {
-  margin-bottom: 12px;
+/* =============================================
+   HERO — Présence (tuile large prioritaire)
+   ============================================= */
+
+.homepage-hero {
+  display: block;
+  text-decoration: none;
+  margin-bottom: 16px;
+  animation: heroIn 0.35s ease backwards;
 }
-.tool-category-title {
+
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hero-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 16px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+  color: white;
+  position: relative;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.hero-tile:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.hero-icon {
+  font-size: 36px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.hero-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-label {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-top: 3px;
+}
+
+.hero-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.hero-badge:empty {
+  display: none;
+}
+
+.hero-arrow {
+  flex-shrink: 0;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+}
+
+/* =============================================
+   SECTION — Titre "Outils" avec dot
+   ============================================= */
+
+.homepage-section {
+  margin-bottom: 14px;
+}
+
+.homepage-section-title {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
+  color: #64748b;
   padding: 8px 4px 6px;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.tool-category-title--blue { color: var(--dark2); }
-.tool-category-title--green { color: #166534; }
-.tool-category-title--purple { color: #5b21b6; }
-.tool-category-title--orange { color: #92400e; }
-.tool-category-title--red { color: #991b1b; }
-.tool-category-title--teal { color: #115e59; }
-.tool-category-title--slate { color: #475569; }
 
-/* Indicateur de catégorie */
-.tool-category-dot {
+.homepage-section-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  background: #64748b;
   flex-shrink: 0;
 }
-.tool-category-dot--blue { background: var(--dark2); }
-.tool-category-dot--green { background: #166534; }
-.tool-category-dot--purple { background: #5b21b6; }
-.tool-category-dot--orange { background: #92400e; }
-.tool-category-dot--red { background: #991b1b; }
-.tool-category-dot--teal { background: #115e59; }
-.tool-category-dot--slate { background: #475569; }
 
-/* Grille de tuiles (colonnes dynamiques via --grid-cols) */
+/* =============================================
+   GRILLE D'OUTILS (6 tuiles, colonnes dynamiques)
+   ============================================= */
+
 .tool-grid {
   display: grid;
   grid-template-columns: repeat(var(--grid-cols, 3), 1fr);
@@ -214,7 +297,104 @@
   pointer-events: none;
 }
 
-/* FAB Chat sur la homepage */
+/* =============================================
+   SETTINGS — Config (tuile style liste)
+   ============================================= */
+
+.homepage-settings {
+  margin-top: 16px;
+  margin-bottom: 12px;
+}
+
+.settings-tile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: white;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--border-light);
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: tileIn 0.3s ease backwards;
+  animation-delay: 0.2s;
+}
+.settings-tile:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.settings-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.settings-arrow {
+  flex-shrink: 0;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+}
+
+/* =============================================
+   SECONDARY — Audit (petit, centré, discret)
+   ============================================= */
+
+.homepage-secondary {
+  text-align: center;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.secondary-tile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  text-decoration: none;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: tileIn 0.3s ease backwards;
+  animation-delay: 0.25s;
+}
+.secondary-tile:active {
+  transform: scale(0.96);
+  background: #e2e8f0;
+}
+
+.secondary-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.secondary-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =============================================
+   FAB Chat sur la homepage
+   ============================================= */
+
 .homepage-chat-fab {
   position: fixed;
   bottom: 24px;
@@ -271,7 +451,10 @@
   z-index: 30;
 }
 
-/* Animation d'entrée des tuiles */
+/* =============================================
+   Animations d'entrée
+   ============================================= */
+
 @keyframes tileIn {
   from {
     opacity: 0;
@@ -286,10 +469,16 @@
   animation: tileIn 0.3s ease backwards;
 }
 .tool-tile:nth-child(1) { animation-delay: 0.02s; }
-.tool-tile:nth-child(2) { animation-delay: 0.06s; }
-.tool-tile:nth-child(3) { animation-delay: 0.1s; }
+.tool-tile:nth-child(2) { animation-delay: 0.05s; }
+.tool-tile:nth-child(3) { animation-delay: 0.08s; }
+.tool-tile:nth-child(4) { animation-delay: 0.11s; }
+.tool-tile:nth-child(5) { animation-delay: 0.14s; }
+.tool-tile:nth-child(6) { animation-delay: 0.17s; }
 
-/* Responsive : tablette */
+/* =============================================
+   Responsive : tablette
+   ============================================= */
+
 @media (min-width: 600px) {
   .homepage-tools {
     max-width: 520px;
@@ -304,5 +493,14 @@
   }
   .tool-label {
     font-size: 12px;
+  }
+  .hero-tile {
+    padding: 22px 20px;
+  }
+  .hero-label {
+    font-size: 20px;
+  }
+  .settings-tile {
+    padding: 16px 20px;
   }
 }

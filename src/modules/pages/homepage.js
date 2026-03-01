@@ -1,6 +1,6 @@
 // =============================================
 // homepage.js — Page d'accueil "Caisse à outils"
-// Grille de tuiles organisées par catégorie
+// Présentation par priorité d'usage
 // =============================================
 
 import { getState, subscribe } from '../state.js';
@@ -15,25 +15,28 @@ let _unsubs = [];
 // =============================================
 
 const TOOLS = [
-  // --- JOURNÉE ---
-  {
-    id: 'registre', icon: '📋', label: 'Registre\nd\'attribution',
-    route: '/registre', color: 'blue', category: 'journee',
-    roles: ['responsable', 'agent'],
-  },
+  // --- HERO : action prioritaire ---
   {
     id: 'presence', icon: '✅', label: 'Présence',
-    route: '/presence', color: 'blue', category: 'journee',
+    subtitle: 'Pointer les agents du jour',
+    route: '/presence', color: 'blue', section: 'hero',
     roles: ['responsable'],
     badge: () => {
       const { presentToday } = getState();
       return presentToday.length > 0 ? presentToday.length : '';
     },
     badgeColor: 'green',
+    badgeLabel: 'présents',
+  },
+  // --- OUTILS : grille 3×2 ---
+  {
+    id: 'registre', icon: '📋', label: 'Registre\nd\'attribution',
+    route: '/registre', color: 'blue', section: 'tools',
+    roles: ['responsable', 'agent'],
   },
   {
     id: 'equipages', icon: '🚗', label: 'Constitution\ndes Équipages',
-    route: '/equipages', color: 'blue', category: 'journee',
+    route: '/equipages', color: 'blue', section: 'tools',
     roles: ['responsable'],
     badge: () => {
       const { crewAssignments } = getState();
@@ -42,46 +45,38 @@ const TOOLS = [
     },
     badgeColor: 'purple',
   },
-  // --- LOGISTIQUE & ORGANISATION ---
   {
     id: 'stock', icon: '📦', label: 'Stock Armes\n& Munitions',
-    route: '/stock', color: 'green', category: 'logorg',
+    route: '/stock', color: 'green', section: 'tools',
     roles: ['responsable'],
   },
   {
     id: 'planning', icon: '📅', label: 'Planning',
-    route: '/planning', color: 'green', category: 'logorg',
+    route: '/planning', color: 'green', section: 'tools',
     roles: ['responsable'],
   },
-  // --- DOCUMENTS ---
   {
     id: 'pv', icon: '📋', label: 'Procès-\nVerbaux',
-    route: '/pv', color: 'orange', category: 'documents',
+    route: '/pv', color: 'orange', section: 'tools',
     roles: ['responsable'],
   },
   {
     id: 'vocal', icon: '🎙️', label: 'Comptes-rendus\nde mission',
-    route: '/vocal', color: 'orange', category: 'documents',
+    route: '/vocal', color: 'orange', section: 'tools',
     roles: ['responsable', 'agent'],
   },
-  // --- SUIVI & ADMIN ---
+  // --- SETTINGS ---
   {
-    id: 'audit', icon: '🛡️', label: 'Audit &\nIncidents',
-    route: '/audit', color: 'slate', category: 'admin',
+    id: 'config', icon: '⚙️', label: 'Configuration',
+    route: '/config', color: 'slate', section: 'settings',
     roles: ['responsable'],
   },
+  // --- SECONDARY ---
   {
-    id: 'config', icon: '⚙️', label: 'Config',
-    route: '/config', color: 'slate', category: 'admin',
+    id: 'audit', icon: '🛡️', label: 'Audit & Incidents',
+    route: '/audit', color: 'slate', section: 'secondary',
     roles: ['responsable'],
   },
-];
-
-const CATEGORIES = [
-  { id: 'journee',   label: 'Opérations du jour',        color: 'blue' },
-  { id: 'logorg',    label: 'Logistique & Organisation',  color: 'green' },
-  { id: 'documents', label: 'Documents',                  color: 'orange' },
-  { id: 'admin',     label: 'Suivi & Administration',     color: 'slate' },
 ];
 
 // =============================================
@@ -112,10 +107,17 @@ function getTemplate() {
 
       <div class="homepage-tools">`;
 
-  // Générer les catégories
-  for (const cat of CATEGORIES) {
-    html += renderCategory(cat, isAgent);
-  }
+  // 1. Hero — Présence (responsable uniquement)
+  html += renderHeroSection(isAgent);
+
+  // 2. Grille d'outils (6 tuiles en 3×2)
+  html += renderToolsGrid(isAgent);
+
+  // 3. Config — style settings (responsable uniquement)
+  html += renderSettingsSection(isAgent);
+
+  // 4. Audit — secondaire, petit (responsable uniquement)
+  html += renderSecondarySection(isAgent);
 
   html += `
       </div>
@@ -130,30 +132,62 @@ function getTemplate() {
   return html;
 }
 
-function renderCategory(cat, isAgent) {
-  const tools = TOOLS.filter(t => t.category === cat.id);
-  // Si agent et aucun outil visible dans cette catégorie, masquer
+// =============================================
+// Sections de la homepage
+// =============================================
+
+/**
+ * Hero — Présence : tuile large en haut, gradient bleu, badge "X présents"
+ */
+function renderHeroSection(isAgent) {
+  const tool = TOOLS.find(t => t.section === 'hero');
+  if (!tool) return '';
+  // Agent n'a pas accès à Présence
+  if (isAgent && !tool.roles.includes('agent')) return '';
+
+  const badgeValue = tool.badge ? tool.badge() : '';
+  const badgeText = badgeValue !== '' ? `${badgeValue} ${tool.badgeLabel || ''}` : '';
+
+  return `
+    <a href="#${tool.route}" class="homepage-hero" data-tool="${tool.id}">
+      <div class="hero-tile">
+        <span class="hero-icon">${tool.icon}</span>
+        <div class="hero-content">
+          <span class="hero-label">${tool.label}</span>
+          <span class="hero-subtitle">${tool.subtitle || ''}</span>
+        </div>
+        ${badgeText ? `<span class="hero-badge" id="homeBadge_${tool.id}">${badgeText}</span>` : `<span class="hero-badge" id="homeBadge_${tool.id}" style="display:none;"></span>`}
+        <span class="hero-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+      </div>
+    </a>`;
+}
+
+/**
+ * Grille d'outils — 6 tuiles en 3 colonnes (2 lignes)
+ */
+function renderToolsGrid(isAgent) {
+  const tools = TOOLS.filter(t => t.section === 'tools');
   const visibleTools = isAgent ? tools.filter(t => t.roles.includes('agent')) : tools;
   if (visibleTools.length === 0) return '';
 
-  // Colonnes basées sur le nombre total d'outils (les désactivés restent dans la grille)
-  const cols = Math.min(3, tools.length);
+  const cols = Math.min(3, visibleTools.length);
 
   let html = `
-    <div class="tool-category">
-      <div class="tool-category-title tool-category-title--${cat.color}">
-        <span class="tool-category-dot tool-category-dot--${cat.color}"></span>
-        ${cat.label}
+    <div class="homepage-section">
+      <div class="homepage-section-title">
+        <span class="homepage-section-dot"></span>
+        Outils
       </div>
       <div class="tool-grid" style="--grid-cols: ${cols}">`;
 
-  for (const tool of tools) {
-    const disabled = isAgent && !tool.roles.includes('agent');
+  for (const tool of visibleTools) {
     const badgeValue = tool.badge ? tool.badge() : '';
     const badgeColorClass = tool.badgeColor ? ` tool-badge--${tool.badgeColor}` : '';
 
     html += `
-      <a href="#${tool.route}" class="tool-tile tool-tile--${tool.color}${disabled ? ' tool-tile--disabled' : ''}" data-tool="${tool.id}">
+      <a href="#${tool.route}" class="tool-tile tool-tile--${tool.color}" data-tool="${tool.id}">
         <span class="tool-icon">${tool.icon}</span>
         <span class="tool-label">${tool.label.replace(/\n/g, '<br>')}</span>
         ${badgeValue !== '' ? `<span class="tool-badge${badgeColorClass}" id="homeBadge_${tool.id}" data-count="${badgeValue}">${badgeValue}</span>` : `<span class="tool-badge${badgeColorClass}" id="homeBadge_${tool.id}" data-count="0" style="display:none;"></span>`}
@@ -166,6 +200,43 @@ function renderCategory(cat, isAgent) {
   return html;
 }
 
+/**
+ * Settings — Config : tuile style liste horizontale avec flèche
+ */
+function renderSettingsSection(isAgent) {
+  const tool = TOOLS.find(t => t.section === 'settings');
+  if (!tool) return '';
+  if (isAgent && !tool.roles.includes('agent')) return '';
+
+  return `
+    <div class="homepage-settings">
+      <a href="#${tool.route}" class="settings-tile" data-tool="${tool.id}">
+        <span class="settings-icon">${tool.icon}</span>
+        <span class="settings-label">${tool.label}</span>
+        <span class="settings-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 18l6-6-6-6"/></svg>
+        </span>
+      </a>
+    </div>`;
+}
+
+/**
+ * Secondary — Audit : petit bouton centré, discret
+ */
+function renderSecondarySection(isAgent) {
+  const tool = TOOLS.find(t => t.section === 'secondary');
+  if (!tool) return '';
+  if (isAgent && !tool.roles.includes('agent')) return '';
+
+  return `
+    <div class="homepage-secondary">
+      <a href="#${tool.route}" class="secondary-tile" data-tool="${tool.id}">
+        <span class="secondary-icon">${tool.icon}</span>
+        <span class="secondary-label">${tool.label}</span>
+      </a>
+    </div>`;
+}
+
 // =============================================
 // Badges live
 // =============================================
@@ -176,17 +247,24 @@ function updateBadges() {
     const el = document.getElementById('homeBadge_' + tool.id);
     if (!el) continue;
     const val = tool.badge();
-    el.textContent = val;
-    el.dataset.count = val || '0';
-    el.style.display = val !== '' ? '' : 'none';
+
+    if (tool.section === 'hero') {
+      // Hero badge : format "X présents"
+      const text = val !== '' ? `${val} ${tool.badgeLabel || ''}` : '';
+      el.textContent = text;
+      el.style.display = text ? '' : 'none';
+    } else {
+      // Badge standard (nombre seul)
+      el.textContent = val;
+      el.dataset.count = val || '0';
+      el.style.display = val !== '' ? '' : 'none';
+    }
   }
 }
 
 function updateChatBadge() {
   const el = document.getElementById('homeChatBadge');
   if (!el) return;
-  // Pour l'instant on ne compte pas les non-lus (sera ajouté plus tard)
-  // On pourrait utiliser chatMessages.length comme indicateur
   el.textContent = '';
   el.dataset.count = '0';
 }
