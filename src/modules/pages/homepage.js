@@ -42,16 +42,15 @@ const TOOLS = [
     },
     badgeColor: 'purple',
   },
-  // --- LOGISTIQUE ---
+  // --- LOGISTIQUE & ORGANISATION ---
   {
     id: 'stock', icon: '📦', label: 'Stock &\nArmement',
-    route: '/stock', color: 'green', category: 'logistique',
+    route: '/stock', color: 'green', category: 'logorg',
     roles: ['responsable'],
   },
-  // --- ORGANISATION ---
   {
     id: 'planning', icon: '📅', label: 'Planning',
-    route: '/planning', color: 'purple', category: 'organisation',
+    route: '/planning', color: 'green', category: 'logorg',
     roles: ['responsable'],
   },
   // --- DOCUMENTS ---
@@ -65,13 +64,12 @@ const TOOLS = [
     route: '/vocal', color: 'orange', category: 'documents',
     roles: ['responsable', 'agent'],
   },
-  // --- SUIVI ---
+  // --- SUIVI & ADMIN ---
   {
     id: 'audit', icon: '🛡️', label: 'Audit &\nIncidents',
-    route: '/audit', color: 'red', category: 'suivi',
+    route: '/audit', color: 'slate', category: 'admin',
     roles: ['responsable'],
   },
-  // --- ADMIN ---
   {
     id: 'config', icon: '⚙️', label: 'Config',
     route: '/config', color: 'slate', category: 'admin',
@@ -80,14 +78,10 @@ const TOOLS = [
 ];
 
 const CATEGORIES = [
-  { id: 'journee', label: 'Opérations du jour', color: 'blue' },
-  { id: 'logistique_organisation', label: null, color: null, dual: true,
-    left: { id: 'logistique', label: 'Logistique', color: 'green' },
-    right: { id: 'organisation', label: 'Organisation', color: 'purple' },
-  },
-  { id: 'documents', label: 'Documents', color: 'orange' },
-  { id: 'suivi', label: 'Suivi', color: 'red' },
-  { id: 'admin', label: 'Administration', color: 'slate' },
+  { id: 'journee',   label: 'Opérations du jour',        color: 'blue' },
+  { id: 'logorg',    label: 'Logistique & Organisation',  color: 'green' },
+  { id: 'documents', label: 'Documents',                  color: 'orange' },
+  { id: 'admin',     label: 'Suivi & Administration',     color: 'slate' },
 ];
 
 // =============================================
@@ -120,15 +114,7 @@ function getTemplate() {
 
   // Générer les catégories
   for (const cat of CATEGORIES) {
-    if (cat.dual) {
-      // Deux catégories côte à côte (Logistique + Organisation)
-      html += `<div class="tool-categories-row">`;
-      html += renderCategory(cat.left, isAgent);
-      html += renderCategory(cat.right, isAgent);
-      html += `</div>`;
-    } else {
-      html += renderCategory(cat, isAgent);
-    }
+    html += renderCategory(cat, isAgent);
   }
 
   html += `
@@ -150,13 +136,16 @@ function renderCategory(cat, isAgent) {
   const visibleTools = isAgent ? tools.filter(t => t.roles.includes('agent')) : tools;
   if (visibleTools.length === 0) return '';
 
+  // Colonnes basées sur le nombre total d'outils (les désactivés restent dans la grille)
+  const cols = Math.min(3, tools.length);
+
   let html = `
     <div class="tool-category">
       <div class="tool-category-title tool-category-title--${cat.color}">
         <span class="tool-category-dot tool-category-dot--${cat.color}"></span>
         ${cat.label}
       </div>
-      <div class="tool-grid">`;
+      <div class="tool-grid" style="--grid-cols: ${cols}">`;
 
   for (const tool of tools) {
     const disabled = isAgent && !tool.roles.includes('agent');
