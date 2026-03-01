@@ -88,19 +88,6 @@ function onMainArmurierChange() {
   });
 }
 
-/** Mettre a jour les badges des raccourcis config */
-function updateShortcutCounts() {
-  const { team, vehicles, categories, machines } = getState();
-  const agentEl = document.getElementById('shortcutAgentCount');
-  const vehiculeEl = document.getElementById('shortcutVehiculeCount');
-  const categorieEl = document.getElementById('shortcutCategorieCount');
-  const armeEl = document.getElementById('shortcutArmeCount');
-  if (agentEl) agentEl.textContent = team.filter(t => t.nom).length;
-  if (vehiculeEl) vehiculeEl.textContent = vehicles.length;
-  if (categorieEl) categorieEl.textContent = categories.length;
-  if (armeEl) armeEl.textContent = machines.filter(m => m.nom).length;
-}
-
 /** Mettre a jour le sous-titre presence + badges PM/ASVP */
 function updatePresenceShortcutSub() {
   const { presentToday, team } = getState();
@@ -228,41 +215,6 @@ function getTemplate() {
   </div>
   <input type="hidden" id="refChantier" value="">
   <input type="hidden" id="adresseChantier" value="">
-</div>
-
-<!-- CONFIGURATION RAPIDE -->
-<div class="section config-shortcuts" id="sectionConfigMoyens">
-  <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Configuration des moyens</h2>
-  <div class="config-shortcut-grid">
-    <button class="config-shortcut-btn" id="btnShortcutAgents" data-section="agents">
-      <div class="shortcut-icon agent-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      </div>
-      <span class="shortcut-label">Agents</span>
-      <span class="shortcut-count" id="shortcutAgentCount">0</span>
-    </button>
-    <button class="config-shortcut-btn" id="btnShortcutVehicules" data-section="vehicules">
-      <div class="shortcut-icon vehicule-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.4 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-      </div>
-      <span class="shortcut-label">V\u00e9hicules</span>
-      <span class="shortcut-count" id="shortcutVehiculeCount">0</span>
-    </button>
-    <button class="config-shortcut-btn" id="btnShortcutCategories" data-section="categories">
-      <div class="shortcut-icon categorie-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-      </div>
-      <span class="shortcut-label">Cat\u00e9gories Arme</span>
-      <span class="shortcut-count" id="shortcutCategorieCount">0</span>
-    </button>
-    <button class="config-shortcut-btn" id="btnShortcutArmes" data-section="armes">
-      <div class="shortcut-icon arme-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
-      </div>
-      <span class="shortcut-label">Armes</span>
-      <span class="shortcut-count" id="shortcutArmeCount">0</span>
-    </button>
-  </div>
 </div>
 
 <!-- TEXTE JOURNEE -->
@@ -395,12 +347,6 @@ function bindEvents() {
   // Chat — navigue vers la page dédiée
   document.getElementById('chatFab').addEventListener('click', () => navigate('/chat'));
 
-  // Config shortcuts — naviguent vers la page config dédiée
-  document.getElementById('btnShortcutAgents').addEventListener('click', () => navigate('/config'));
-  document.getElementById('btnShortcutVehicules').addEventListener('click', () => navigate('/config'));
-  document.getElementById('btnShortcutCategories').addEventListener('click', () => navigate('/config'));
-  document.getElementById('btnShortcutArmes').addEventListener('click', () => navigate('/config'));
-
   // Presence — navigue vers la page dédiée
   document.getElementById('btnPresenceShortcut').addEventListener('click', () => navigate('/presence'));
 
@@ -428,7 +374,6 @@ function initRegistreUI() {
     updateCounts,
     afterSave: () => {
       populateMainArmurierSelect();
-      updateShortcutCounts();
     },
   });
 
@@ -461,7 +406,6 @@ function initRegistreUI() {
   populateVisaSignerSelect();
 
   // Update registre-specific displays
-  updateShortcutCounts();
   updatePresenceShortcutSub();
   updateCrewPromptStats();
   updateDayConfigLabel();

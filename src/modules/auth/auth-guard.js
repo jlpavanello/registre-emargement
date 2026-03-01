@@ -36,9 +36,6 @@ export function applyRoleGuards() {
   // Header config button (registre)
   toggleElement('btnOpenConfig', ACCESS.canViewConfig());
 
-  // Configuration shortcuts: responsable only
-  toggleElement('sectionConfigMoyens', ACCESS.canViewConfig());
-
   // Présents du jour + Équipages: responsable only
   toggleElement('presencePromptBox', ACCESS.canViewConfig());
   toggleElement('crewPromptBox', ACCESS.canViewConfig());
