@@ -60,7 +60,7 @@ const TOOLS = [
     roles: ['responsable'],
   },
   {
-    id: 'vocal', icon: '🎙️', label: 'Comptes-\nrendus',
+    id: 'vocal', icon: '🎙️', label: 'Comptes-rendus\nde mission',
     route: '/vocal', color: 'orange', category: 'documents',
     roles: ['responsable', 'agent'],
   },
