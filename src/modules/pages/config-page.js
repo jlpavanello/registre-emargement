@@ -15,7 +15,7 @@ import { onArmurierSelectChange } from '../domains/responsables.js';
 
 function getTemplate() {
   return `
-<div class="config-overlay active" id="configPanel">
+<div class="config-overlay" id="configPanel">
   <div class="config-header">
     <h2>Configuration</h2>
     <button class="header-btn" id="btnCloseConfig" style="background:rgba(255,255,255,0.2);">Fermer</button>

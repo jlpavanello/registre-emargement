@@ -23,7 +23,7 @@ async function generateVocalPDF(report) {
 
 function getTemplate() {
   return `
-<div class="vocal-overlay active" id="vocalPanel">
+<div class="vocal-overlay" id="vocalPanel">
   <div class="vocal-header">
     <h2>\uD83C\uDFA4 Compte-rendu de mission</h2>
     <button class="header-btn" id="btnCloseVocal" style="background:rgba(255,255,255,0.2);">Fermer</button>

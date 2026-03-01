@@ -17,7 +17,7 @@ async function getAuditModule() {
 
 function getTemplate() {
   return `
-<div class="audit-overlay active" id="auditPanel">
+<div class="audit-overlay" id="auditPanel">
   <div class="audit-header">
     <h2>\uD83D\uDEE1\uFE0F Audit & Incidents</h2>
     <button class="header-btn" id="btnCloseAudit" style="background:rgba(255,255,255,0.2);">Fermer</button>

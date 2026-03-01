@@ -17,7 +17,7 @@ async function getPlanningModule() {
 
 function getTemplate() {
   return `
-<div class="planning-overlay active" id="planningPanel">
+<div class="planning-overlay" id="planningPanel">
   <div class="planning-header">
     <h2>\uD83D\uDCC5 Planning</h2>
     <button class="header-btn" id="btnClosePlanning" style="background:rgba(255,255,255,0.2);">Fermer</button>

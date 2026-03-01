@@ -2,20 +2,12 @@
    Audit & Incidents Panel Styles
    ============================================= */
 
-/* Overlay — fond opaque solide comme les autres panels */
+/* Page Audit & Incidents */
 .audit-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
   background: linear-gradient(135deg, #eef2ff 0%, #e8ecf5 100%);
-  z-index: 900;
   overflow-y: auto;
   padding-bottom: 40px;
-}
-
-.audit-overlay.active {
-  display: block;
-  animation: fadeIn 0.2s ease;
+  min-height: 100vh;
 }
 
 .audit-header {

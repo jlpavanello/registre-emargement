@@ -18,7 +18,7 @@ async function getStockModule() {
 
 function getTemplate() {
   return `
-<div class="stock-overlay active" id="stockPanel">
+<div class="stock-overlay" id="stockPanel">
   <div class="stock-header">
     <h2>\uD83D\uDCE6 Stock & Logistique</h2>
     <button class="header-btn" id="btnCloseStock" style="background:rgba(255,255,255,0.2);">Fermer</button>

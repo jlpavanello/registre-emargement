@@ -13,7 +13,7 @@ import {
 
 function getTemplate() {
   return `
-<div class="presence-overlay active" id="presencePanel">
+<div class="presence-overlay" id="presencePanel">
   <div class="presence-header">
     <h2>Pr\u00e9sents du jour</h2>
     <button class="header-btn" id="btnClosePresence" style="background:rgba(255,255,255,0.2);">Fermer</button>

@@ -1,16 +1,14 @@
-/* ===== Planning Panel ===== */
+/* ===== Planning Page ===== */
 .planning-overlay {
-  display: none; position: fixed; inset: 0;
   background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  z-index: 50; overflow-y: auto; padding-bottom: 20px;
+  overflow-y: auto; padding-bottom: 20px; min-height: 100vh;
 }
-.planning-overlay.active { display: block; animation: fadeIn 0.2s ease; }
 
 .planning-header {
   background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
   color: white; padding: 16px 18px;
   display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 51;
+  position: sticky; top: 0; z-index: 10;
   box-shadow: 0 4px 20px rgba(30,64,175,0.25);
 }
 .planning-header h2 { font-size: 16px; font-weight: 800; }

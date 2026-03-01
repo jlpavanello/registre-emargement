@@ -17,7 +17,7 @@ async function getChatModule() {
 
 function getTemplate() {
   return `
-<div class="chat-overlay active" id="chatPanel">
+<div class="chat-overlay" id="chatPanel">
   <div class="chat-widget">
     <div class="chat-header">
       <span class="chat-header-title">\uD83D\uDCAC Chat d'\u00e9quipe</span>

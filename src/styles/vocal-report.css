@@ -1,15 +1,8 @@
-/* ===== VOCAL REPORT PANEL ===== */
+/* ===== VOCAL REPORT PAGE ===== */
 .vocal-overlay {
-  position: fixed; inset: 0;
-  background: #f1f5f9;
   background: var(--bg, #f1f5f9);
-  z-index: 1100;
   overflow-y: auto;
-  transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-}
-.vocal-overlay.active {
-  transform: translateX(0);
+  min-height: 100vh;
 }
 .vocal-header {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);

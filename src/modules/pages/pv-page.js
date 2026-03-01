@@ -17,7 +17,7 @@ async function getPvModule() {
 
 function getTemplate() {
   return `
-<div class="pv-overlay active" id="pvPanel">
+<div class="pv-overlay" id="pvPanel">
   <div class="pv-header">
     <h2>\uD83D\uDCCB Proc\u00e8s-Verbaux</h2>
     <button class="header-btn" id="btnClosePV" style="background:rgba(255,255,255,0.2);">Fermer</button>
