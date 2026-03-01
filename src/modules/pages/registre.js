@@ -295,7 +295,7 @@ function getTemplate() {
 
 <div class="bottom-bar">
   <button class="btn-secondary btn-danger" id="btnReset">Effacer</button>
-  <button class="btn-main" id="btnPDF">G\u00e9n\u00e9rer le PDF</button>
+  <button class="btn-main" id="btnPDF">G\u00e9n\u00e9rer le Registre d'attribution en PDF</button>
 </div>
 
 
