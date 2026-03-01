@@ -1,101 +1,163 @@
 /* =============================================
-   homepage.css — Page d'accueil "Caisse à outils"
-   Présentation par priorité d'usage
+   homepage.css — Version premium
+   Police Municipale — Gestion Opérationnelle
    ============================================= */
+
+/* ─── Page & Background ─── */
 
 .homepage {
   min-height: 100vh;
-  background: linear-gradient(180deg, #1e3a8a 0%, #2563eb 180px, #f1f5f9 180px);
-  padding-bottom: 100px;
+  position: relative;
+  overflow: hidden;
+  background: #0c1a3d;
 }
 
-/* Header de la homepage */
+/* Gradient background */
+.homepage-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(165deg, #0f2157 0%, #1a3a7a 35%, #1e4690 60%, #e8edf5 60%, #f4f6fa 100%);
+  z-index: 0;
+}
+
+/* Decorative blurred orbs for depth */
+.homepage-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.3;
+}
+.homepage-bg-orb--1 {
+  width: 220px;
+  height: 220px;
+  background: #3b82f6;
+  top: -40px;
+  right: -60px;
+}
+.homepage-bg-orb--2 {
+  width: 180px;
+  height: 180px;
+  background: #6366f1;
+  top: 80px;
+  left: -80px;
+  opacity: 0.2;
+}
+
+/* ─── Header ─── */
+
 .homepage-header {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 20px 18px 24px;
+  justify-content: space-between;
+  padding: 22px 20px 8px;
   color: white;
 }
+.homepage-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
 .homepage-logo {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   object-fit: contain;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   padding: 4px;
   flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .homepage-title-group {
   flex: 1;
   min-width: 0;
 }
 .homepage-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.2px;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 .homepage-subtitle {
-  font-size: 12px;
-  opacity: 0.7;
-  font-weight: 500;
-  margin-top: 2px;
-}
-.homepage-date {
   font-size: 11px;
-  opacity: 0.5;
+  opacity: 0.55;
   font-weight: 500;
-  margin-top: 2px;
+  margin-top: 3px;
+  letter-spacing: 0.2px;
 }
 
-/* Bouton profil */
+/* Profile button — circle, glass */
 .homepage-role-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 5px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 700;
   cursor: pointer;
-  font-family: inherit;
-  transition: all var(--transition);
+  transition: all 0.2s ease;
   flex-shrink: 0;
+  font-family: inherit;
+  padding: 0;
 }
-.homepage-role-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+.homepage-role-btn:active {
+  transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.2);
 }
 .homepage-role-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
 }
 
-/* Zone des tuiles */
-.homepage-tools {
-  padding: 0 14px;
-  margin-top: -8px;
+/* Date bar */
+.homepage-date-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 20px 18px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: capitalize;
 }
 
-/* =============================================
-   HERO — Présence (tuile large prioritaire)
-   ============================================= */
+/* ─── Content area ─── */
 
-.homepage-hero {
+.homepage-content {
+  position: relative;
+  z-index: 1;
+  padding: 0 16px 100px;
+}
+
+/* ─── HERO — Présence ─── */
+
+.hero {
   display: block;
   text-decoration: none;
-  margin-bottom: 16px;
-  animation: heroIn 0.35s ease backwards;
+  margin-bottom: 20px;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  animation: heroIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 @keyframes heroIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.97);
+    transform: translateY(16px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -103,104 +165,123 @@
   }
 }
 
-.hero-tile {
+/* Subtle animated glow behind the hero */
+.hero-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6);
+  background-size: 200% 200%;
+  animation: glowShift 4s ease infinite;
+  opacity: 0.6;
+  z-index: 0;
+}
+
+@keyframes glowShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px 16px;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+  padding: 20px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.95) 0%, rgba(37, 99, 235, 0.92) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: white;
-  position: relative;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-.hero-tile:active {
-  transform: scale(0.98);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 }
 
-.hero-icon {
-  font-size: 36px;
-  line-height: 1;
+.hero-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
+.hero-icon {
+  font-size: 26px;
+  line-height: 1;
+}
 
-.hero-content {
+.hero-body {
   flex: 1;
   min-width: 0;
 }
-
 .hero-label {
   display: block;
   font-size: 18px;
   font-weight: 800;
-  letter-spacing: 0.3px;
-  line-height: 1.2;
+  letter-spacing: -0.2px;
+  line-height: 1.15;
 }
-
 .hero-subtitle {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  opacity: 0.75;
+  opacity: 0.6;
   margin-top: 3px;
 }
 
+.hero-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .hero-badge {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
   font-size: 12px;
-  font-weight: 800;
-  padding: 4px 12px;
+  font-weight: 700;
+  padding: 5px 12px;
   border-radius: 20px;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 .hero-badge:empty {
   display: none;
 }
 
-.hero-arrow {
-  flex-shrink: 0;
-  opacity: 0.5;
+.hero-chevron {
+  opacity: 0.35;
+}
+
+/* ─── Section title ─── */
+
+.section {
+  margin-bottom: 16px;
+}
+
+.section-head {
   display: flex;
   align-items: center;
+  gap: 10px;
+  padding: 6px 0 10px;
 }
-
-/* =============================================
-   SECTION — Titre "Outils" avec dot
-   ============================================= */
-
-.homepage-section {
-  margin-bottom: 14px;
-}
-
-.homepage-section-title {
+.section-title {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #64748b;
-  padding: 8px 4px 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  letter-spacing: 1.5px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
 }
 
-.homepage-section-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #64748b;
-  flex-shrink: 0;
-}
-
-/* =============================================
-   GRILLE D'OUTILS (6 tuiles, colonnes dynamiques)
-   ============================================= */
+/* ─── Tool Grid ─── */
 
 .tool-grid {
   display: grid;
@@ -208,64 +289,82 @@
   gap: 10px;
 }
 
-/* Tuile individuelle */
-.tool-tile {
+/* ─── Tile ─── */
+
+.tile {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 18px 8px 14px;
-  border-radius: var(--radius);
+  gap: 4px;
+  padding: 16px 6px 12px;
+  border-radius: 16px;
   background: white;
-  box-shadow: var(--shadow);
-  border: 1.5px solid var(--border-light);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.04);
   text-decoration: none;
   color: var(--text);
-  transition: all 0.2s ease;
   position: relative;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-}
-.tool-tile:active {
-  transform: scale(0.96);
-  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+
+  /* Staggered animation using --delay custom property */
+  animation: tileIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(var(--delay, 0) * 0.06s + 0.1s);
 }
 
-/* Bordure colorée en haut */
-.tool-tile::before {
+.tile:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Colored accent bar at top */
+.tile::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 12px;
-  right: 12px;
+  left: 0;
+  right: 0;
   height: 3px;
-  border-radius: 0 0 3px 3px;
 }
-.tool-tile--blue::before { background: var(--dark2); }
-.tool-tile--green::before { background: #166534; }
-.tool-tile--purple::before { background: #5b21b6; }
-.tool-tile--orange::before { background: #92400e; }
-.tool-tile--red::before { background: #991b1b; }
-.tool-tile--teal::before { background: #115e59; }
-.tool-tile--slate::before { background: #475569; }
+.tile--blue::before    { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.tile--indigo::before  { background: linear-gradient(90deg, #4f46e5, #6366f1); }
+.tile--emerald::before { background: linear-gradient(90deg, #059669, #10b981); }
+.tile--sky::before     { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+.tile--amber::before   { background: linear-gradient(90deg, #d97706, #fbbf24); }
+.tile--rose::before    { background: linear-gradient(90deg, #e11d48, #fb7185); }
+.tile--green::before   { background: linear-gradient(90deg, #059669, #10b981); }
+.tile--orange::before  { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.tile--slate::before   { background: linear-gradient(90deg, #475569, #94a3b8); }
 
-/* Icône */
-.tool-icon {
+.tile-icon {
   font-size: 28px;
   line-height: 1;
+  margin-bottom: 2px;
 }
 
-/* Label */
-.tool-label {
-  font-size: 11px;
+.tile-label {
+  font-size: 11.5px;
   font-weight: 700;
   text-align: center;
   line-height: 1.2;
   color: var(--text);
 }
 
-/* Badge (compteur) */
+.tile-desc {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+/* Badge */
 .tool-badge {
   position: absolute;
   top: 6px;
@@ -280,147 +379,153 @@
   text-align: center;
   line-height: 1.3;
 }
-.tool-badge--green { background: var(--green); }
+.tool-badge--green  { background: var(--green); }
 .tool-badge--purple { background: var(--purple); }
 .tool-badge--orange { background: var(--orange-dark); }
-.tool-badge--red { background: var(--red); }
-
-/* Badge vide : cacher */
+.tool-badge--red    { background: var(--red); }
 .tool-badge:empty,
 .tool-badge[data-count="0"] {
   display: none;
 }
 
-/* Tuile désactivée (agent sans accès) */
-.tool-tile--disabled {
-  opacity: 0.35;
-  pointer-events: none;
-}
+/* ─── Config row ─── */
 
-/* =============================================
-   SETTINGS — Config (tuile style liste)
-   ============================================= */
-
-.homepage-settings {
-  margin-top: 16px;
-  margin-bottom: 12px;
-}
-
-.settings-tile {
+.config-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   padding: 14px 16px;
-  border-radius: var(--radius);
+  margin-top: 14px;
+  border-radius: 14px;
   background: white;
-  box-shadow: var(--shadow);
-  border: 1.5px solid var(--border-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.04);
   text-decoration: none;
   color: var(--text);
-  transition: all 0.2s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  animation: tileIn 0.3s ease backwards;
-  animation-delay: 0.2s;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: tileIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: 0.5s;
 }
-.settings-tile:active {
+.config-row:active {
   transform: scale(0.98);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-.settings-icon {
+.config-icon {
   font-size: 22px;
   line-height: 1;
   flex-shrink: 0;
 }
 
-.settings-label {
+.config-body {
   flex: 1;
+  min-width: 0;
+}
+.config-label {
+  display: block;
   font-size: 14px;
   font-weight: 700;
   color: var(--text);
+  line-height: 1.2;
 }
-
-.settings-arrow {
-  flex-shrink: 0;
+.config-desc {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
   color: #94a3b8;
-  display: flex;
-  align-items: center;
+  margin-top: 2px;
 }
 
-/* =============================================
-   SECONDARY — Audit (petit, centré, discret)
-   ============================================= */
+.config-chevron {
+  flex-shrink: 0;
+  color: #cbd5e1;
+}
 
-.homepage-secondary {
+/* ─── Secondary (Audit) ─── */
+
+.secondary-wrap {
   text-align: center;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: 16px;
+  animation: tileIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: 0.55s;
 }
 
-.secondary-tile {
+.secondary-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--radius);
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: transparent;
+  border: 1px solid #d1d5db;
   text-decoration: none;
-  color: #64748b;
+  color: #6b7280;
   font-size: 12px;
   font-weight: 600;
-  transition: all 0.2s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  animation: tileIn 0.3s ease backwards;
-  animation-delay: 0.25s;
+  transition: all 0.15s ease;
 }
-.secondary-tile:active {
-  transform: scale(0.96);
-  background: #e2e8f0;
+.secondary-btn:active {
+  transform: scale(0.95);
+  background: #f3f4f6;
 }
 
 .secondary-icon {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
 }
 
-.secondary-label {
-  font-size: 12px;
-  font-weight: 600;
-}
+/* ─── FAB Chat ─── */
 
-/* =============================================
-   FAB Chat sur la homepage
-   ============================================= */
-
-.homepage-chat-fab {
+.homepage-fab {
   position: fixed;
   bottom: 24px;
   right: 18px;
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d9488 0%, #115e59 100%);
+  background: linear-gradient(135deg, #0d9488, #0f766e);
   color: white;
   border: none;
-  box-shadow: 0 6px 24px rgba(13, 148, 136, 0.4);
+  box-shadow:
+    0 4px 14px rgba(13, 148, 136, 0.4),
+    0 0 0 0 rgba(13, 148, 136, 0);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 40;
   transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
-.homepage-chat-fab:active {
-  transform: scale(0.92);
+.homepage-fab:active {
+  transform: scale(0.9);
 }
-.homepage-chat-fab svg {
-  width: 26px;
-  height: 26px;
+.homepage-fab svg {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  z-index: 1;
 }
-.homepage-chat-fab-badge {
+
+/* Subtle ring pulse */
+.homepage-fab-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(13, 148, 136, 0.3);
+  animation: fabPulse 3s ease-in-out infinite;
+}
+
+@keyframes fabPulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.08); opacity: 0; }
+}
+
+.homepage-fab-badge {
   position: absolute;
   top: -2px;
   right: -2px;
@@ -436,71 +541,54 @@
   justify-content: center;
   padding: 0 5px;
   box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+  z-index: 2;
 }
-.homepage-chat-fab-badge:empty,
-.homepage-chat-fab-badge[data-count="0"] {
+.homepage-fab-badge:empty,
+.homepage-fab-badge[data-count="0"] {
   display: none;
 }
 
-/* Sync status intégré */
-.homepage-sync {
-  position: fixed;
-  bottom: 90px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
+/* ─── Tile disabled (agent) ─── */
+
+.tile--disabled {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
-/* =============================================
-   Animations d'entrée
-   ============================================= */
+/* ─── Animations ─── */
 
 @keyframes tileIn {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.95);
+    transform: translateY(16px) scale(0.94);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
-.tool-tile {
-  animation: tileIn 0.3s ease backwards;
-}
-.tool-tile:nth-child(1) { animation-delay: 0.02s; }
-.tool-tile:nth-child(2) { animation-delay: 0.05s; }
-.tool-tile:nth-child(3) { animation-delay: 0.08s; }
-.tool-tile:nth-child(4) { animation-delay: 0.11s; }
-.tool-tile:nth-child(5) { animation-delay: 0.14s; }
-.tool-tile:nth-child(6) { animation-delay: 0.17s; }
 
-/* =============================================
-   Responsive : tablette
-   ============================================= */
+/* ─── Responsive : tablette ─── */
 
 @media (min-width: 600px) {
-  .homepage-tools {
+  .homepage-content {
     max-width: 520px;
     margin-left: auto;
     margin-right: auto;
   }
-  .tool-tile {
-    padding: 22px 12px 18px;
+  .tile {
+    padding: 22px 10px 16px;
   }
-  .tool-icon {
+  .tile-icon {
     font-size: 32px;
   }
-  .tool-label {
-    font-size: 12px;
+  .tile-label {
+    font-size: 12.5px;
   }
-  .hero-tile {
-    padding: 22px 20px;
+  .hero-inner {
+    padding: 24px 20px;
   }
   .hero-label {
     font-size: 20px;
-  }
-  .settings-tile {
-    padding: 16px 20px;
   }
 }

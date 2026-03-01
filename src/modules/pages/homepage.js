@@ -1,6 +1,6 @@
 // =============================================
 // homepage.js — Page d'accueil "Caisse à outils"
-// Présentation par priorité d'usage
+// Version premium — présentation par priorité
 // =============================================
 
 import { getState, subscribe } from '../state.js';
@@ -31,12 +31,14 @@ const TOOLS = [
   // --- OUTILS : grille 3×2 ---
   {
     id: 'registre', icon: '📋', label: 'Registre\nd\'attribution',
+    desc: 'Armes & munitions',
     route: '/registre', color: 'blue', section: 'tools',
     roles: ['responsable', 'agent'],
   },
   {
-    id: 'equipages', icon: '🚗', label: 'Constitution\ndes Équipages',
-    route: '/equipages', color: 'blue', section: 'tools',
+    id: 'equipages', icon: '🚗', label: 'Équipages',
+    desc: 'Véhicules & agents',
+    route: '/equipages', color: 'indigo', section: 'tools',
     roles: ['responsable'],
     badge: () => {
       const { crewAssignments } = getState();
@@ -46,28 +48,33 @@ const TOOLS = [
     badgeColor: 'purple',
   },
   {
-    id: 'stock', icon: '📦', label: 'Stock Armes\n& Munitions',
-    route: '/stock', color: 'green', section: 'tools',
+    id: 'stock', icon: '📦', label: 'Stock',
+    desc: 'Armes & munitions',
+    route: '/stock', color: 'emerald', section: 'tools',
     roles: ['responsable'],
   },
   {
     id: 'planning', icon: '📅', label: 'Planning',
-    route: '/planning', color: 'green', section: 'tools',
+    desc: 'Cycles & congés',
+    route: '/planning', color: 'sky', section: 'tools',
     roles: ['responsable'],
   },
   {
-    id: 'pv', icon: '📋', label: 'Procès-\nVerbaux',
-    route: '/pv', color: 'orange', section: 'tools',
+    id: 'pv', icon: '📝', label: 'Procès-\nVerbaux',
+    desc: '60+ modèles',
+    route: '/pv', color: 'amber', section: 'tools',
     roles: ['responsable'],
   },
   {
-    id: 'vocal', icon: '🎙️', label: 'Comptes-rendus\nde mission',
-    route: '/vocal', color: 'orange', section: 'tools',
+    id: 'vocal', icon: '🎙️', label: 'Comptes-\nrendus',
+    desc: 'Dictée & mission',
+    route: '/vocal', color: 'rose', section: 'tools',
     roles: ['responsable', 'agent'],
   },
   // --- SETTINGS ---
   {
     id: 'config', icon: '⚙️', label: 'Configuration',
+    desc: 'Équipe, armes, véhicules',
     route: '/config', color: 'slate', section: 'settings',
     roles: ['responsable'],
   },
@@ -92,40 +99,52 @@ function getTemplate() {
 
   let html = `
     <div class="homepage">
+      <!-- Arrière-plan décoratif -->
+      <div class="homepage-bg">
+        <div class="homepage-bg-orb homepage-bg-orb--1"></div>
+        <div class="homepage-bg-orb homepage-bg-orb--2"></div>
+      </div>
+
       <div class="homepage-header">
-        <img src="/logo-police-municipale.png" alt="" class="homepage-logo" onerror="this.style.display='none'">
-        <div class="homepage-title-group">
-          <h1 class="homepage-title">GESTION OPÉRATIONNELLE PM</h1>
-          <div class="homepage-subtitle">Police Municipale de Monistrol-sur-Loire</div>
-          <div class="homepage-date">${today}</div>
+        <div class="homepage-header-left">
+          <img src="/logo-police-municipale.png" alt="" class="homepage-logo" onerror="this.style.display='none'">
+          <div class="homepage-title-group">
+            <h1 class="homepage-title">Gestion Opérationnelle</h1>
+            <div class="homepage-subtitle">Police Municipale de Monistrol-sur-Loire</div>
+          </div>
         </div>
-        <button class="homepage-role-btn" id="btnHomeRole">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
-          Profil
+        <button class="homepage-role-btn" id="btnHomeRole" title="Changer de profil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
         </button>
       </div>
 
-      <div class="homepage-tools">`;
+      <div class="homepage-date-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span>${today}</span>
+      </div>
 
-  // 1. Hero — Présence (responsable uniquement)
+      <div class="homepage-content">`;
+
+  // 1. Hero — Présence
   html += renderHeroSection(isAgent);
 
-  // 2. Grille d'outils (6 tuiles en 3×2)
+  // 2. Grille d'outils
   html += renderToolsGrid(isAgent);
 
-  // 3. Config — style settings (responsable uniquement)
+  // 3. Config
   html += renderSettingsSection(isAgent);
 
-  // 4. Audit — secondaire, petit (responsable uniquement)
+  // 4. Audit
   html += renderSecondarySection(isAgent);
 
   html += `
       </div>
 
       <!-- FAB Chat -->
-      <button class="homepage-chat-fab" id="btnHomeChat" title="Chat d'équipe">
+      <button class="homepage-fab" id="btnHomeChat" title="Chat d'équipe">
+        <span class="homepage-fab-ring"></span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span class="homepage-chat-fab-badge" id="homeChatBadge"></span>
+        <span class="homepage-fab-badge" id="homeChatBadge"></span>
       </button>
     </div>`;
 
@@ -133,40 +152,36 @@ function getTemplate() {
 }
 
 // =============================================
-// Sections de la homepage
+// Sections
 // =============================================
 
-/**
- * Hero — Présence : tuile large en haut, gradient bleu, badge "X présents"
- */
 function renderHeroSection(isAgent) {
   const tool = TOOLS.find(t => t.section === 'hero');
   if (!tool) return '';
-  // Agent n'a pas accès à Présence
   if (isAgent && !tool.roles.includes('agent')) return '';
 
   const badgeValue = tool.badge ? tool.badge() : '';
   const badgeText = badgeValue !== '' ? `${badgeValue} ${tool.badgeLabel || ''}` : '';
 
   return `
-    <a href="#${tool.route}" class="homepage-hero" data-tool="${tool.id}">
-      <div class="hero-tile">
-        <span class="hero-icon">${tool.icon}</span>
-        <div class="hero-content">
+    <a href="#${tool.route}" class="hero" data-tool="${tool.id}">
+      <div class="hero-glow"></div>
+      <div class="hero-inner">
+        <div class="hero-icon-wrap">
+          <span class="hero-icon">${tool.icon}</span>
+        </div>
+        <div class="hero-body">
           <span class="hero-label">${tool.label}</span>
           <span class="hero-subtitle">${tool.subtitle || ''}</span>
         </div>
-        ${badgeText ? `<span class="hero-badge" id="homeBadge_${tool.id}">${badgeText}</span>` : `<span class="hero-badge" id="homeBadge_${tool.id}" style="display:none;"></span>`}
-        <span class="hero-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M9 18l6-6-6-6"/></svg>
-        </span>
+        <div class="hero-right">
+          ${badgeText ? `<span class="hero-badge" id="homeBadge_${tool.id}">${badgeText}</span>` : `<span class="hero-badge" id="homeBadge_${tool.id}" style="display:none;"></span>`}
+          <svg class="hero-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
       </div>
     </a>`;
 }
 
-/**
- * Grille d'outils — 6 tuiles en 3 colonnes (2 lignes)
- */
 function renderToolsGrid(isAgent) {
   const tools = TOOLS.filter(t => t.section === 'tools');
   const visibleTools = isAgent ? tools.filter(t => t.roles.includes('agent')) : tools;
@@ -175,21 +190,24 @@ function renderToolsGrid(isAgent) {
   const cols = Math.min(3, visibleTools.length);
 
   let html = `
-    <div class="homepage-section">
-      <div class="homepage-section-title">
-        <span class="homepage-section-dot"></span>
-        Outils
+    <div class="section">
+      <div class="section-head">
+        <span class="section-line"></span>
+        <span class="section-title">Outils</span>
+        <span class="section-line"></span>
       </div>
       <div class="tool-grid" style="--grid-cols: ${cols}">`;
 
-  for (const tool of visibleTools) {
+  for (let i = 0; i < visibleTools.length; i++) {
+    const tool = visibleTools[i];
     const badgeValue = tool.badge ? tool.badge() : '';
     const badgeColorClass = tool.badgeColor ? ` tool-badge--${tool.badgeColor}` : '';
 
     html += `
-      <a href="#${tool.route}" class="tool-tile tool-tile--${tool.color}" data-tool="${tool.id}">
-        <span class="tool-icon">${tool.icon}</span>
-        <span class="tool-label">${tool.label.replace(/\n/g, '<br>')}</span>
+      <a href="#${tool.route}" class="tile tile--${tool.color}" data-tool="${tool.id}" style="--delay: ${i}">
+        <span class="tile-icon">${tool.icon}</span>
+        <span class="tile-label">${tool.label.replace(/\n/g, '<br>')}</span>
+        <span class="tile-desc">${tool.desc || ''}</span>
         ${badgeValue !== '' ? `<span class="tool-badge${badgeColorClass}" id="homeBadge_${tool.id}" data-count="${badgeValue}">${badgeValue}</span>` : `<span class="tool-badge${badgeColorClass}" id="homeBadge_${tool.id}" data-count="0" style="display:none;"></span>`}
       </a>`;
   }
@@ -200,39 +218,32 @@ function renderToolsGrid(isAgent) {
   return html;
 }
 
-/**
- * Settings — Config : tuile style liste horizontale avec flèche
- */
 function renderSettingsSection(isAgent) {
   const tool = TOOLS.find(t => t.section === 'settings');
   if (!tool) return '';
   if (isAgent && !tool.roles.includes('agent')) return '';
 
   return `
-    <div class="homepage-settings">
-      <a href="#${tool.route}" class="settings-tile" data-tool="${tool.id}">
-        <span class="settings-icon">${tool.icon}</span>
-        <span class="settings-label">${tool.label}</span>
-        <span class="settings-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 18l6-6-6-6"/></svg>
-        </span>
-      </a>
-    </div>`;
+    <a href="#${tool.route}" class="config-row" data-tool="${tool.id}">
+      <span class="config-icon">${tool.icon}</span>
+      <div class="config-body">
+        <span class="config-label">${tool.label}</span>
+        <span class="config-desc">${tool.desc || ''}</span>
+      </div>
+      <svg class="config-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 18l6-6-6-6"/></svg>
+    </a>`;
 }
 
-/**
- * Secondary — Audit : petit bouton centré, discret
- */
 function renderSecondarySection(isAgent) {
   const tool = TOOLS.find(t => t.section === 'secondary');
   if (!tool) return '';
   if (isAgent && !tool.roles.includes('agent')) return '';
 
   return `
-    <div class="homepage-secondary">
-      <a href="#${tool.route}" class="secondary-tile" data-tool="${tool.id}">
+    <div class="secondary-wrap">
+      <a href="#${tool.route}" class="secondary-btn" data-tool="${tool.id}">
         <span class="secondary-icon">${tool.icon}</span>
-        <span class="secondary-label">${tool.label}</span>
+        ${tool.label}
       </a>
     </div>`;
 }
@@ -249,12 +260,10 @@ function updateBadges() {
     const val = tool.badge();
 
     if (tool.section === 'hero') {
-      // Hero badge : format "X présents"
       const text = val !== '' ? `${val} ${tool.badgeLabel || ''}` : '';
       el.textContent = text;
       el.style.display = text ? '' : 'none';
     } else {
-      // Badge standard (nombre seul)
       el.textContent = val;
       el.dataset.count = val || '0';
       el.style.display = val !== '' ? '' : 'none';
@@ -276,7 +285,6 @@ function updateChatBadge() {
 export function mount(container) {
   container.innerHTML = getTemplate();
 
-  // Bindings
   const btnRole = document.getElementById('btnHomeRole');
   if (btnRole) {
     btnRole.addEventListener('click', () => {
@@ -289,23 +297,19 @@ export function mount(container) {
     btnChat.addEventListener('click', () => navigate('/chat'));
   }
 
-  // Badges live : écouter les changements de state
   _unsubs.push(subscribe('presentToday', updateBadges));
   _unsubs.push(subscribe('crewAssignments', updateBadges));
   _unsubs.push(subscribe('chatMessages', updateChatBadge));
 
-  // Mise à jour initiale
   updateBadges();
   updateChatBadge();
 }
 
 export function unmount() {
-  // Cleanup subscriptions
   _unsubs.forEach(fn => fn());
   _unsubs = [];
 }
 
-// Export pour le routeur
 export const homepage = {
   mount,
   unmount,
