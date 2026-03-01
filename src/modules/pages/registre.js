@@ -180,27 +180,19 @@ function updateCrewPromptStats() {
 function getTemplate() {
   return `
 <header>
-  <h1>GESTION OP\u00c9RATIONNELLE PM</h1>
+  <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+    <button class="header-btn" id="btnBackHome" title="Retour accueil" style="font-size:16px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </button>
+    <h1 style="margin:0;font-size:14px;">REGISTRE D'\u00c9MARGEMENT</h1>
+  </div>
   <div style="display:flex;align-items:center;gap:6px;">
     <button class="header-btn" id="btnChangeRole" title="Changer de profil" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
       Profil
     </button>
-    <button class="header-btn" id="btnOpenAudit" title="Audit & Incidents" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
-      \uD83D\uDEE1\uFE0F
-    </button>
-    <button class="header-btn" id="btnOpenPV" title="Proc\u00e8s-Verbaux" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
-      \uD83D\uDCCB PV
-    </button>
-    <button class="header-btn" id="btnOpenPlanning" title="Planning" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
-      \uD83D\uDCC5 Planning
-    </button>
-    <button class="header-btn" id="btnOpenStock" title="Stock & Logistique" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
-      \uD83D\uDCE6 Stock
-    </button>
-    <button class="header-btn" id="btnOpenConfig">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-      Config
+    <button class="header-btn" id="btnOpenConfig" title="Configuration" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
     </button>
   </div>
 </header>
@@ -374,6 +366,9 @@ function getTemplate() {
 // =============================================
 
 function bindEvents() {
+  // Header — Retour accueil
+  document.getElementById('btnBackHome').addEventListener('click', () => navigate('/'));
+
   // Header — Config navigue vers la page dédiée
   document.getElementById('btnOpenConfig').addEventListener('click', () => navigate('/config'));
   document.getElementById('btnChangeRole').addEventListener('click', () => {
@@ -399,14 +394,6 @@ function bindEvents() {
 
   // Equipages — navigue vers la page dédiée
   document.getElementById('btnCrewShortcut').addEventListener('click', () => navigate('/equipages'));
-
-  // Outils — naviguent vers les pages dédiées
-  document.getElementById('btnOpenPV').addEventListener('click', () => navigate('/pv'));
-  document.getElementById('btnOpenPlanning').addEventListener('click', () => navigate('/planning'));
-  document.getElementById('btnOpenStock').addEventListener('click', () => navigate('/stock'));
-
-  // Audit — navigue vers la page dédiée
-  document.getElementById('btnOpenAudit').addEventListener('click', () => navigate('/audit'));
 
   // Chat — navigue vers la page dédiée
   document.getElementById('chatFab').addEventListener('click', () => navigate('/chat'));

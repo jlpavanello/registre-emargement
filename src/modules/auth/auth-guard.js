@@ -33,12 +33,8 @@ export function applyRoleGuards() {
 
   // === Éléments du registre (null-guardés — no-op si page non montée) ===
 
-  // Header nav buttons (registre)
+  // Header config button (registre)
   toggleElement('btnOpenConfig', ACCESS.canViewConfig());
-  toggleElement('btnOpenStock', ACCESS.canViewStock());
-  toggleElement('btnOpenPV', ACCESS.canViewPV());
-  toggleElement('btnOpenPlanning', ACCESS.canViewConfig());
-  toggleElement('btnOpenAudit', ACCESS.canViewConfig());
 
   // Configuration shortcuts: responsable only
   toggleElement('sectionConfigMoyens', ACCESS.canViewConfig());
