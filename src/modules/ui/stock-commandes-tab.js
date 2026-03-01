@@ -4,6 +4,8 @@ import { createCommande, updateCommande, addLigne, removeLigne, changeStatut, de
 import { getActiveMachines, getMachineName } from '../domains/machines.js';
 import { findMunRefForWeapon } from '../domains/stock-munitions.js';
 import { generateOrderPDF } from '../actions/stock-pdf.js';
+import { showToast } from '../utils/toast.js';
+import { showConfirm } from '../utils/confirm-dialog.js';
 
 let _filter = 'demande_devis';
 
@@ -29,8 +31,8 @@ export function renderCommandesTab(container) {
 
   let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
     <div style="display:flex;gap:4px;">
-      <button class="stock-tab ${_filter === 'demande_devis' ? 'active' : ''}" id="btnFilterDevis">Demandes de devis</button>
-      <button class="stock-tab ${_filter === 'commande' ? 'active' : ''}" id="btnFilterCommande">Commandes</button>
+      <button class="stock-sub-tab ${_filter === 'demande_devis' ? 'active' : ''}" id="btnFilterDevis">Demandes de devis</button>
+      <button class="stock-sub-tab ${_filter === 'commande' ? 'active' : ''}" id="btnFilterCommande">Commandes</button>
     </div>
     <button class="stock-btn stock-btn-primary stock-btn-sm" id="btnNewCommande">+ ${isDemandeDevis ? 'Nouvelle demande' : 'Nouvelle commande'}</button>
   </div>`;
@@ -84,7 +86,10 @@ export function renderCommandesTab(container) {
   container.querySelectorAll('.btn-cmd-pdf').forEach(btn => {
     btn.addEventListener('click', () => {
       const c = getCommandeById(btn.dataset.id);
-      if (c) generateOrderPDF(c);
+      if (c) {
+        generateOrderPDF(c);
+        showToast('PDF généré');
+      }
     });
   });
 
@@ -92,15 +97,24 @@ export function renderCommandesTab(container) {
   container.querySelectorAll('.btn-cmd-status').forEach(btn => {
     btn.addEventListener('click', () => {
       changeStatut(btn.dataset.id, btn.dataset.status);
+      showToast('Statut mis à jour');
       renderCommandesTab(container);
     });
   });
 
   // Delete
   container.querySelectorAll('.btn-cmd-delete').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (!confirm('Supprimer ce document ?')) return;
+    btn.addEventListener('click', async () => {
+      const confirmed = await showConfirm({
+        title: 'Supprimer ce document ?',
+        message: 'Cette action est irréversible.',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true,
+      });
+      if (!confirmed) return;
       deleteCommande(btn.dataset.id);
+      showToast('Document supprimé');
       renderCommandesTab(container);
     });
   });
@@ -108,7 +122,6 @@ export function renderCommandesTab(container) {
 
 function renderLignesTable(c, isDemandeDevis) {
   if (isDemandeDevis) {
-    // Demande de devis: seulement désignation + quantité (pas de prix)
     return `
       <table class="ligne-table">
         <thead><tr><th>Désignation</th><th>Quantité demandée</th></tr></thead>
@@ -117,7 +130,6 @@ function renderLignesTable(c, isDemandeDevis) {
         </tr>`).join('')}</tbody>
       </table>`;
   } else {
-    // Commande: toutes les colonnes avec prix
     return `
       <table class="ligne-table">
         <thead><tr><th>Désignation</th><th>Qté</th><th>P.U. HT</th><th>Total HT</th></tr></thead>
@@ -133,15 +145,13 @@ function renderLignesTable(c, isDemandeDevis) {
 
 function renderStatusButtons(c, isDemandeDevis) {
   if (isDemandeDevis) {
-    // Demande de devis workflow: brouillon → envoyée → répondu
-    if (c.statut === 'brouillon') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="envoye" style="background:#dbeafe;color:#1e40af;">→ Envoyée</button>`;
-    if (c.statut === 'envoye') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="repondu" style="background:#dcfce7;color:#166534;">→ Répondu</button>`;
+    if (c.statut === 'brouillon') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="envoye" style="background:#dbeafe;color:#1e40af;">Envoyée</button>`;
+    if (c.statut === 'envoye') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="repondu" style="background:#dcfce7;color:#166534;">Répondu</button>`;
     return '';
   } else {
-    // Commande workflow: brouillon → envoyée → accepté → livré
-    if (c.statut === 'brouillon') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="envoye" style="background:#dbeafe;color:#1e40af;">→ Envoyée</button>`;
-    if (c.statut === 'envoye') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="accepte" style="background:#dcfce7;color:#166534;">→ Accepté</button>`;
-    if (c.statut === 'accepte') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="livre" style="background:#f0fdf4;color:#14532d;">→ Livré</button>`;
+    if (c.statut === 'brouillon') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="envoye" style="background:#dbeafe;color:#1e40af;">Envoyée</button>`;
+    if (c.statut === 'envoye') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="accepte" style="background:#dcfce7;color:#166534;">Accepté</button>`;
+    if (c.statut === 'accepte') return `<button class="stock-btn stock-btn-sm btn-cmd-status" data-id="${c.id}" data-status="livre" style="background:#f0fdf4;color:#14532d;">Livré</button>`;
     return '';
   }
 }
@@ -154,41 +164,41 @@ function showCommandeForm(container) {
   const isDemandeDevis = _filter === 'demande_devis';
   const fourOpts = fournisseurs.map(f => `<option value="${f.id}" data-nom="${f.nom}">${f.nom}</option>`).join('');
 
-  // Build list of weapons with stock info for quick add
   const activeMachines = getActiveMachines();
 
   form.style.display = 'block';
-  form.innerHTML = `
-    <div class="stock-card">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;">${isDemandeDevis ? '📋 Nouvelle demande de devis' : '📦 Nouvelle commande'}</div>
-      ${isDemandeDevis ? `<div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;background:#f0fdf4;padding:10px;border-radius:8px;border:1px solid #bbf7d0;">
-        Ce document sera envoyé aux fournisseurs pour obtenir une offre de prix. Renseignez les armes et/ou munitions dont vous avez besoin.
-      </div>` : ''}
-      <div class="stock-field"><label>Fournisseur ${isDemandeDevis ? '(optionnel si envoi à plusieurs)' : ''}</label>
-        <select id="cmdFournisseur">
-          <option value="">${isDemandeDevis ? '— Tous fournisseurs —' : '— Choisir un fournisseur —'}</option>
-          ${fourOpts}
-        </select>
+  form.innerHTML = `<div class="stock-form-active">
+    <div class="stock-form-header">${isDemandeDevis ? 'Nouvelle demande de devis' : 'Nouvelle commande'}</div>
+    ${isDemandeDevis ? `<div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;background:#f0fdf4;padding:10px;border-radius:8px;border:1px solid #bbf7d0;">
+      Ce document sera envoyé aux fournisseurs pour obtenir une offre de prix.
+    </div>` : ''}
+    <div class="stock-field"><label>Fournisseur ${isDemandeDevis ? '(optionnel si envoi à plusieurs)' : ''}</label>
+      <select id="cmdFournisseur">
+        <option value="">${isDemandeDevis ? '— Tous fournisseurs —' : '— Choisir un fournisseur —'}</option>
+        ${fourOpts}
+      </select>
+    </div>
+    ${isDemandeDevis && activeMachines.length > 0 ? `
+      <div class="stock-section-title" style="padding-top:4px;">Ajout rapide depuis les armes configurées</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;" id="quickAddArmes">
+        ${activeMachines.map(m => {
+          const munRef = findMunRefForWeapon(m.idx);
+          const stockInfo = munRef ? ` (stock: ${munRef.stockActuel} ${munRef.unite}s)` : '';
+          return `<button class="stock-chip" data-idx="${m.idx}" data-nom="${m.nom}" data-ref="${m.ref || ''}">${m.nom}${stockInfo}</button>`;
+        }).join('')}
       </div>
-      ${isDemandeDevis && activeMachines.length > 0 ? `
-        <div class="stock-section-title" style="padding-top:4px;">Ajout rapide depuis les armes configurées</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;" id="quickAddArmes">
-          ${activeMachines.map(m => {
-            const munRef = findMunRefForWeapon(m.idx);
-            const stockInfo = munRef ? ` (stock: ${munRef.stockActuel} ${munRef.unite}s)` : '';
-            return `<button class="stock-chip" data-idx="${m.idx}" data-nom="${m.nom}" data-ref="${m.ref || ''}">${m.nom}${stockInfo}</button>`;
-          }).join('')}
-        </div>
-        <div id="quickAddLines" style="margin-bottom:10px;"></div>
-      ` : ''}
-      <div class="stock-field"><label>Notes / Précisions</label>
-        <textarea id="cmdNotes" rows="2" placeholder="${isDemandeDevis ? 'Précisions sur le besoin, délai souhaité...' : 'Notes internes...'}"></textarea>
-      </div>
-      <div style="display:flex;gap:6px;">
-        <button class="stock-btn stock-btn-primary" id="cmdConfirm">Créer</button>
-        <button class="stock-btn stock-btn-secondary" id="cmdCancel">Annuler</button>
-      </div>
-    </div>`;
+      <div id="quickAddLines" style="margin-bottom:10px;"></div>
+    ` : ''}
+    <div class="stock-field"><label>Notes / Précisions</label>
+      <textarea id="cmdNotes" rows="2" placeholder="${isDemandeDevis ? 'Précisions sur le besoin, délai souhaité...' : 'Notes internes...'}"></textarea>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="stock-btn stock-btn-primary" id="cmdConfirm">Créer</button>
+      <button class="stock-btn stock-btn-secondary" id="cmdCancel">Annuler</button>
+    </div>
+  </div>`;
+
+  form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   // Quick add buttons for armes
   const quickLines = [];
@@ -252,11 +262,12 @@ function showCommandeForm(container) {
     });
 
     if (isDemandeDevis && lignes.length === 0) {
-      alert('Veuillez sélectionner au moins une arme ou munition.');
+      showToast('Sélectionnez au moins une arme ou munition', 'error');
       return;
     }
 
     createCommande({ type: _filter, fournisseurId, fournisseurNom, lignes, notes });
+    showToast(isDemandeDevis ? 'Demande de devis créée' : 'Commande créée');
     renderCommandesTab(container);
   });
   document.getElementById('cmdCancel')?.addEventListener('click', () => { form.style.display = 'none'; });
@@ -270,8 +281,8 @@ function showEditLignes(container, commandeId) {
   const isDemandeDevis = c.type === 'demande_devis';
 
   area.style.display = 'block';
-  area.innerHTML = `
-    <div class="stock-section-title" style="padding-top:0;">Ajouter un article</div>
+  area.innerHTML = `<div class="stock-form-active">
+    <div class="stock-form-header">Ajouter un article</div>
     <div class="stock-field"><label>Désignation</label><input type="text" id="ligneDesign_${commandeId}" placeholder="${isDemandeDevis ? 'Ex: Munitions 9mm, Pistolet SIG SP2022...' : 'Ex: Cartouches 9mm'}"></div>
     <div style="display:flex;gap:8px;">
       <div class="stock-field" style="flex:1;"><label>Quantité</label><input type="number" id="ligneQty_${commandeId}" value="1" min="1" inputmode="numeric"></div>
@@ -280,15 +291,19 @@ function showEditLignes(container, commandeId) {
     <div style="display:flex;gap:6px;">
       <button class="stock-btn stock-btn-primary stock-btn-sm" id="ligneAdd_${commandeId}">Ajouter</button>
       <button class="stock-btn stock-btn-secondary stock-btn-sm" id="ligneClose_${commandeId}">Fermer</button>
-    </div>`;
+    </div>
+  </div>`;
+
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   document.getElementById(`ligneAdd_${commandeId}`).addEventListener('click', () => {
     const designation = document.getElementById(`ligneDesign_${commandeId}`).value.trim();
-    if (!designation) { alert('Veuillez saisir une désignation'); return; }
+    if (!designation) { showToast('Veuillez saisir une désignation', 'error'); return; }
     const quantite = parseInt(document.getElementById(`ligneQty_${commandeId}`).value) || 1;
     const prixEl = document.getElementById(`lignePrix_${commandeId}`);
     const prixUnitaire = prixEl ? parseFloat(prixEl.value) || 0 : 0;
     addLigne(commandeId, { designation, quantite, prixUnitaire });
+    showToast('Article ajouté');
     renderCommandesTab(container);
   });
   document.getElementById(`ligneClose_${commandeId}`).addEventListener('click', () => { area.style.display = 'none'; });

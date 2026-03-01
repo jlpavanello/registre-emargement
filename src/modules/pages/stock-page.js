@@ -1,7 +1,7 @@
 // =============================================
 // stock-page.js — Page Stock & Logistique
-// Munitions, Armes, Exercices de tir,
-// Fournisseurs, Commandes, Dashboard
+// Navigation par onglets icônes + labels courts
+// Dashboard en page d'entrée
 // =============================================
 
 import { navigate } from '../router.js';
@@ -20,19 +20,35 @@ function getTemplate() {
   return `
 <div class="stock-overlay" id="stockPanel">
   <div class="stock-header">
-    <h2>\uD83D\uDCE6 Stock & Logistique</h2>
+    <h2>📦 Stock & Logistique</h2>
     <button class="header-btn" id="btnCloseStock" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
-  <div class="stock-tabs">
-    <button class="stock-tab active" data-tab="munitions">Configuration des Munitions</button>
-    <button class="stock-tab" data-tab="armes">\u00c9tat des Armes</button>
-    <button class="stock-tab" data-tab="previsions">Programmation des exercices de tir</button>
-    <button class="stock-tab" data-tab="fournisseurs">Cr\u00e9ation des fournisseurs</button>
-    <button class="stock-tab" data-tab="commandes">Devis Commande</button>
-  </div>
-  <div class="stock-tabs stock-tabs-center">
-    <button class="stock-tab" data-tab="dashboard">Dashboard</button>
-  </div>
+  <nav class="stock-nav" role="tablist">
+    <button class="stock-nav-tab active" data-tab="dashboard" role="tab">
+      <span class="stock-nav-icon">📊</span>
+      <span class="stock-nav-label">Accueil</span>
+    </button>
+    <button class="stock-nav-tab" data-tab="munitions" role="tab">
+      <span class="stock-nav-icon">🔫</span>
+      <span class="stock-nav-label">Munitions</span>
+    </button>
+    <button class="stock-nav-tab" data-tab="armes" role="tab">
+      <span class="stock-nav-icon">🛡️</span>
+      <span class="stock-nav-label">Armes</span>
+    </button>
+    <button class="stock-nav-tab" data-tab="previsions" role="tab">
+      <span class="stock-nav-icon">🎯</span>
+      <span class="stock-nav-label">Tir</span>
+    </button>
+    <button class="stock-nav-tab" data-tab="fournisseurs" role="tab">
+      <span class="stock-nav-icon">🏪</span>
+      <span class="stock-nav-label">Fournisseurs</span>
+    </button>
+    <button class="stock-nav-tab" data-tab="commandes" role="tab">
+      <span class="stock-nav-icon">📋</span>
+      <span class="stock-nav-label">Commandes</span>
+    </button>
+  </nav>
   <div id="stockTabContent"></div>
   <div style="height:20px;"></div>
 </div>
@@ -43,7 +59,7 @@ function getTemplate() {
 
 function bindEvents() {
   document.getElementById('btnCloseStock').addEventListener('click', () => navigate('/'));
-  document.querySelectorAll('#stockPanel .stock-tab').forEach(tab => {
+  document.querySelectorAll('#stockPanel .stock-nav-tab').forEach(tab => {
     tab.addEventListener('click', async () => {
       (await getStockModule()).switchStockTab(tab.dataset.tab);
     });

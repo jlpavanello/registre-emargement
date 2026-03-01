@@ -12,27 +12,85 @@
 }
 .stock-header h2 { font-size: 16px; font-weight: 800; }
 
-/* Onglets stock */
-.stock-tabs {
-  display: flex; overflow-x: auto; gap: 4px;
-  padding: 10px 12px 6px; background: white;
+/* Navigation onglets stock */
+.stock-nav {
+  display: flex;
+  overflow-x: auto;
+  gap: 2px;
+  padding: 8px 8px 6px;
+  background: white;
   border-bottom: 1px solid var(--border-light);
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
-.stock-tabs::-webkit-scrollbar { display: none; }
-.stock-tabs-center {
+.stock-nav::-webkit-scrollbar { display: none; }
+.stock-nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 54px;
+  flex: 1;
+  padding: 6px 4px 8px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  color: var(--text3);
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.stock-nav-tab:active {
+  transform: scale(0.95);
+}
+.stock-nav-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.stock-nav-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.stock-nav-tab.active {
+  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(22,101,52,0.3);
+}
+.stock-nav-tab.active .stock-nav-label {
+  color: white;
+}
+/* Badge alerte sur onglet dashboard */
+.stock-nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #dc2626;
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  border-bottom: none;
-  padding-top: 2px;
+  padding: 0 4px;
+  line-height: 1;
 }
-.stock-tab {
+/* Sub-filter tabs (inside Commandes) */
+.stock-sub-tab {
   padding: 8px 14px; border-radius: 8px; border: none;
   font-size: 11px; font-weight: 700; cursor: pointer;
   white-space: nowrap; font-family: inherit;
   background: #f1f5f9; color: var(--text2);
   transition: all 0.15s ease;
 }
-.stock-tab.active {
+.stock-sub-tab.active {
   background: linear-gradient(135deg, #166534 0%, #14532d 100%);
   color: white; box-shadow: 0 2px 8px rgba(22,101,52,0.3);
 }
@@ -150,6 +208,8 @@
   border: none; padding: 10px 16px; border-radius: 10px;
   font-size: 12px; font-weight: 700; cursor: pointer;
   font-family: inherit; transition: all 0.15s ease;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
 }
 .stock-btn-primary {
   background: linear-gradient(135deg, #166534 0%, #14532d 100%);
@@ -165,7 +225,8 @@
 }
 .stock-btn-danger:hover { background: #fee2e2; }
 .stock-btn-sm {
-  padding: 6px 12px; font-size: 11px; border-radius: 8px;
+  padding: 10px 16px; font-size: 11px; border-radius: 8px;
+  min-height: 44px;
 }
 
 /* Form fields dans stock */
@@ -333,9 +394,10 @@
 }
 .stock-chip {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 6px 12px; border-radius: 8px; font-size: 12px;
+  padding: 10px 14px; border-radius: 8px; font-size: 12px;
   font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
   background: white; color: var(--text2); transition: all 0.15s ease;
+  min-height: 44px;
 }
 .stock-chip.selected {
   background: #dcfce7; border-color: #16a34a; color: #166534;
@@ -377,7 +439,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 10px 14px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
@@ -386,6 +448,7 @@
   background: white;
   color: var(--text2);
   transition: all 0.15s ease;
+  min-height: 44px;
 }
 .mun-arme-toggle:has(input:checked) {
   background: #dcfce7;
@@ -467,4 +530,138 @@
   font-size: 14px;
   font-weight: 600;
   color: #64748b;
+}
+
+/* ===== Carte munition — summary line (collapsed) ===== */
+.mun-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease;
+  border-radius: 14px;
+}
+.mun-summary:active {
+  background: #f8fafc;
+}
+.mun-status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.mun-status-dot.ok { background: #22c55e; }
+.mun-status-dot.alerte { background: #f59e0b; }
+.mun-status-dot.critique {
+  background: #ef4444;
+  animation: dotPulse 1.5s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+}
+.mun-summary-info {
+  flex: 1;
+  min-width: 0;
+}
+.mun-summary-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
+.mun-summary-sub {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 500;
+}
+.mun-summary-stock {
+  font-size: 18px;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mun-summary-stock.ok { color: #16a34a; }
+.mun-summary-stock.alerte { color: #d97706; }
+.mun-summary-stock.critique { color: #dc2626; }
+.mun-summary-unit {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text3);
+  margin-left: 2px;
+}
+.mun-summary-chevron {
+  font-size: 16px;
+  color: var(--text3);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  margin-left: 4px;
+}
+.mun-card-expanded .mun-summary-chevron {
+  transform: rotate(180deg);
+}
+
+/* Détails munition (collapsible) */
+.mun-details {
+  display: none;
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border-light);
+  margin-top: 0;
+}
+.mun-card-expanded .mun-details {
+  display: block;
+}
+
+/* Zone danger (delete dans le formulaire d'édition) */
+.stock-danger-zone {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 2px dashed #fca5a5;
+}
+.stock-danger-zone-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #dc2626;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+/* Formulaires améliorés */
+.stock-form-active {
+  background: #f8fafc;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(22,101,52,0.08);
+  animation: formSlideIn 0.25s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes formSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stock-form-header {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Carte munition sans padding interne (le summary a son propre padding) */
+.mun-card {
+  background: white;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(22,101,52,0.1);
+  border: 1px solid rgba(22,101,52,0.12);
+  overflow: hidden;
 }

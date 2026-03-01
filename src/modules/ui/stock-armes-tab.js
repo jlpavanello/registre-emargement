@@ -1,12 +1,13 @@
-// Stock — Onglet État des Armes (groupé par catégorie)
+// Stock — Onglet Armes (groupé par catégorie)
 import { getState } from '../state.js';
 import { ensureWeaponStatus, updateWeaponStatus, ETATS_ARME, saveStockArmes } from '../domains/stock-armes.js';
 import { getCatById } from '../domains/categories.js';
+import { showToast } from '../utils/toast.js';
 
 export function renderArmesTab(container) {
   const { machines, stockArmes, categories } = getState();
 
-  let html = `<div class="stock-section-title">🛡️ État des armes</div>`;
+  let html = `<div class="stock-section-title">Armes</div>`;
   const activeMachines = machines.map((m, idx) => ({ ...m, idx })).filter(m => m.nom);
 
   if (activeMachines.length === 0) {
@@ -80,7 +81,8 @@ function showEditForm(container, idx) {
     `<option value="${key}" ${status.etat === key ? 'selected' : ''}>${val.label}</option>`
   ).join('');
 
-  area.innerHTML = `
+  area.innerHTML = `<div class="stock-form-active">
+    <div class="stock-form-header">Modifier l'état</div>
     <div class="stock-field"><label>État</label>
       <select id="armeEtat_${idx}">${etatOptions}</select>
     </div>
@@ -93,13 +95,17 @@ function showEditForm(container, idx) {
     <div style="display:flex;gap:6px;">
       <button class="stock-btn stock-btn-primary stock-btn-sm" id="armeConfirm_${idx}">Enregistrer</button>
       <button class="stock-btn stock-btn-secondary stock-btn-sm" id="armeCancel_${idx}">Annuler</button>
-    </div>`;
+    </div>
+  </div>`;
+
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   document.getElementById(`armeConfirm_${idx}`).addEventListener('click', () => {
     const etat = document.getElementById(`armeEtat_${idx}`).value;
     const dateRevision = document.getElementById(`armeRevision_${idx}`).value;
     const notes = document.getElementById(`armeNotes_${idx}`).value;
     updateWeaponStatus(idx, etat, dateRevision, notes);
+    showToast('État mis à jour');
     renderArmesTab(container);
   });
   document.getElementById(`armeCancel_${idx}`).addEventListener('click', () => {

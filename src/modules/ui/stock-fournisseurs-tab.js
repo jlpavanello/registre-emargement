@@ -1,12 +1,14 @@
 // Stock — Onglet Fournisseurs
 import { getState } from '../state.js';
 import { addFournisseur, updateFournisseur, deleteFournisseur, addProduit, updateProduit, deleteProduit } from '../domains/fournisseurs.js';
+import { showToast } from '../utils/toast.js';
+import { showConfirm } from '../utils/confirm-dialog.js';
 
 export function renderFournisseursTab(container) {
   const { fournisseurs } = getState();
 
   let html = `<div style="display:flex;align-items:center;justify-content:space-between;">
-    <div class="stock-section-title">🏪 Fournisseurs</div>
+    <div class="stock-section-title">Fournisseurs</div>
     <button class="stock-btn stock-btn-primary stock-btn-sm" id="btnAddFournisseur">+ Ajouter</button>
   </div>`;
 
@@ -71,9 +73,17 @@ export function renderFournisseursTab(container) {
 
   // Delete fournisseur
   container.querySelectorAll('.btn-four-delete').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (!confirm('Supprimer ce fournisseur et son catalogue ?')) return;
+    btn.addEventListener('click', async () => {
+      const confirmed = await showConfirm({
+        title: 'Supprimer ce fournisseur ?',
+        message: 'Le fournisseur et tout son catalogue seront supprimés.',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true,
+      });
+      if (!confirmed) return;
       deleteFournisseur(btn.dataset.id);
+      showToast('Fournisseur supprimé');
       renderFournisseursTab(container);
     });
   });
@@ -85,8 +95,17 @@ export function renderFournisseursTab(container) {
 
   // Delete produit
   container.querySelectorAll('.btn-prod-delete').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
+      const confirmed = await showConfirm({
+        title: 'Retirer ce produit ?',
+        message: 'Le produit sera retiré du catalogue de ce fournisseur.',
+        confirmText: 'Retirer',
+        cancelText: 'Annuler',
+        danger: true,
+      });
+      if (!confirmed) return;
       deleteProduit(btn.dataset.fid, btn.dataset.pid);
+      showToast('Produit retiré');
       renderFournisseursTab(container);
     });
   });
@@ -96,23 +115,25 @@ function showFournisseurForm(container) {
   const form = document.getElementById('fournisseurForm');
   if (!form) return;
   form.style.display = 'block';
-  form.innerHTML = `
-    <div class="stock-card">
-      <div class="stock-field"><label>Nom</label><input type="text" id="fourNom" placeholder="Nom du fournisseur"></div>
-      <div class="stock-field"><label>Contact</label><input type="text" id="fourContact" placeholder="Nom du contact"></div>
-      <div class="stock-field"><label>Téléphone</label><input type="tel" id="fourTel" placeholder="06 12 34 56 78"></div>
-      <div class="stock-field"><label>Email</label><input type="email" id="fourEmail" placeholder="contact@fournisseur.fr"></div>
-      <div class="stock-field"><label>Adresse</label><input type="text" id="fourAdresse" placeholder="Adresse postale"></div>
-      <div class="stock-field"><label>Notes</label><textarea id="fourNotes" rows="2" placeholder="Notes..."></textarea></div>
-      <div style="display:flex;gap:6px;">
-        <button class="stock-btn stock-btn-primary" id="fourConfirm">Ajouter</button>
-        <button class="stock-btn stock-btn-secondary" id="fourCancel">Annuler</button>
-      </div>
-    </div>`;
+  form.innerHTML = `<div class="stock-form-active">
+    <div class="stock-form-header">Nouveau fournisseur</div>
+    <div class="stock-field"><label>Nom</label><input type="text" id="fourNom" placeholder="Nom du fournisseur"></div>
+    <div class="stock-field"><label>Contact</label><input type="text" id="fourContact" placeholder="Nom du contact"></div>
+    <div class="stock-field"><label>Téléphone</label><input type="tel" id="fourTel" placeholder="06 12 34 56 78"></div>
+    <div class="stock-field"><label>Email</label><input type="email" id="fourEmail" placeholder="contact@fournisseur.fr"></div>
+    <div class="stock-field"><label>Adresse</label><input type="text" id="fourAdresse" placeholder="Adresse postale"></div>
+    <div class="stock-field"><label>Notes</label><textarea id="fourNotes" rows="2" placeholder="Notes..."></textarea></div>
+    <div style="display:flex;gap:6px;">
+      <button class="stock-btn stock-btn-primary" id="fourConfirm">Ajouter</button>
+      <button class="stock-btn stock-btn-secondary" id="fourCancel">Annuler</button>
+    </div>
+  </div>`;
+
+  form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   document.getElementById('fourConfirm').addEventListener('click', () => {
     const nom = document.getElementById('fourNom').value.trim();
-    if (!nom) { alert('Veuillez saisir un nom'); return; }
+    if (!nom) { showToast('Veuillez saisir un nom', 'error'); return; }
     addFournisseur({
       nom,
       contact: document.getElementById('fourContact').value,
@@ -121,6 +142,7 @@ function showFournisseurForm(container) {
       adresse: document.getElementById('fourAdresse').value,
       notes: document.getElementById('fourNotes').value,
     });
+    showToast('Fournisseur ajouté');
     renderFournisseursTab(container);
   });
   document.getElementById('fourCancel').addEventListener('click', () => { form.style.display = 'none'; });
@@ -133,7 +155,8 @@ function showEditFournisseur(container, id) {
   const area = document.getElementById(`fourAction_${id}`);
   if (!area) return;
   area.style.display = 'block';
-  area.innerHTML = `
+  area.innerHTML = `<div class="stock-form-active">
+    <div class="stock-form-header">Modifier le fournisseur</div>
     <div class="stock-field"><label>Nom</label><input type="text" id="fourEditNom_${id}" value="${f.nom}"></div>
     <div class="stock-field"><label>Contact</label><input type="text" id="fourEditContact_${id}" value="${f.contact || ''}"></div>
     <div class="stock-field"><label>Téléphone</label><input type="tel" id="fourEditTel_${id}" value="${f.telephone || ''}"></div>
@@ -143,7 +166,10 @@ function showEditFournisseur(container, id) {
     <div style="display:flex;gap:6px;">
       <button class="stock-btn stock-btn-primary stock-btn-sm" id="fourEditConfirm_${id}">Enregistrer</button>
       <button class="stock-btn stock-btn-secondary stock-btn-sm" id="fourEditCancel_${id}">Annuler</button>
-    </div>`;
+    </div>
+  </div>`;
+
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   document.getElementById(`fourEditConfirm_${id}`).addEventListener('click', () => {
     updateFournisseur(id, {
@@ -154,6 +180,7 @@ function showEditFournisseur(container, id) {
       adresse: document.getElementById(`fourEditAdresse_${id}`).value,
       notes: document.getElementById(`fourEditNotes_${id}`).value,
     });
+    showToast('Fournisseur modifié');
     renderFournisseursTab(container);
   });
   document.getElementById(`fourEditCancel_${id}`).addEventListener('click', () => { area.style.display = 'none'; });
@@ -163,7 +190,8 @@ function showAddProduit(container, fournisseurId) {
   const area = document.getElementById(`fourAction_${fournisseurId}`);
   if (!area) return;
   area.style.display = 'block';
-  area.innerHTML = `
+  area.innerHTML = `<div class="stock-form-active">
+    <div class="stock-form-header">Ajouter un produit</div>
     <div class="stock-field"><label>Désignation</label><input type="text" id="prodDesign_${fournisseurId}" placeholder="Ex: Cartouches 9mm"></div>
     <div class="stock-field"><label>Prix unitaire (€)</label><input type="number" id="prodPrix_${fournisseurId}" value="0" step="0.01" min="0" inputmode="decimal"></div>
     <div class="stock-field"><label>Conditionnement</label><input type="text" id="prodCond_${fournisseurId}" placeholder="Ex: Boîte de 50"></div>
@@ -172,11 +200,14 @@ function showAddProduit(container, fournisseurId) {
     <div style="display:flex;gap:6px;">
       <button class="stock-btn stock-btn-primary stock-btn-sm" id="prodConfirm_${fournisseurId}">Ajouter</button>
       <button class="stock-btn stock-btn-secondary stock-btn-sm" id="prodCancel_${fournisseurId}">Annuler</button>
-    </div>`;
+    </div>
+  </div>`;
+
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   document.getElementById(`prodConfirm_${fournisseurId}`).addEventListener('click', () => {
     const designation = document.getElementById(`prodDesign_${fournisseurId}`).value.trim();
-    if (!designation) { alert('Veuillez saisir une désignation'); return; }
+    if (!designation) { showToast('Veuillez saisir une désignation', 'error'); return; }
     addProduit(fournisseurId, {
       designation,
       prixUnitaire: parseFloat(document.getElementById(`prodPrix_${fournisseurId}`).value) || 0,
@@ -184,6 +215,7 @@ function showAddProduit(container, fournisseurId) {
       prixBoite: parseFloat(document.getElementById(`prodPrixBoite_${fournisseurId}`).value) || 0,
       delaiJours: parseInt(document.getElementById(`prodDelai_${fournisseurId}`).value) || 0,
     });
+    showToast('Produit ajouté');
     renderFournisseursTab(container);
   });
   document.getElementById(`prodCancel_${fournisseurId}`).addEventListener('click', () => { area.style.display = 'none'; });

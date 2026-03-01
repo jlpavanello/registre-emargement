@@ -1,13 +1,15 @@
-// Stock — Onglet Prévisions de tir
+// Stock — Onglet Exercices de tir
 import { getState } from '../state.js';
 import { addPrevision, updatePrevision, markRealise, cancelPrevision, deletePrevision, checkStockImpact } from '../domains/previsions-tir.js';
 import { getMachineName } from '../domains/machines.js';
+import { showToast } from '../utils/toast.js';
+import { showConfirm } from '../utils/confirm-dialog.js';
 
 export function renderPrevisionsTab(container) {
   const { previsionsTir, team, machines, presentToday } = getState();
 
   let html = `<div style="display:flex;align-items:center;justify-content:space-between;">
-    <div class="stock-section-title">🎯 Exercices de tir</div>
+    <div class="stock-section-title">Exercices de tir</div>
     <button class="stock-btn stock-btn-primary stock-btn-sm" id="btnAddPrevision">+ Planifier</button>
   </div>`;
 
@@ -47,10 +49,10 @@ export function renderPrevisionsTab(container) {
           <div class="stock-impact">
             <div class="stock-impact-row"><span>Stock actuel:</span><span>${impact.stockActuel}</span></div>
             <div class="stock-impact-row"><span>Après exercice:</span><span${impact.stockApres < 0 ? ' class="stock-impact-deficit"' : ''}>${impact.stockApres}</span></div>
-            ${impact.deficit > 0 ? `<div class="stock-impact-row stock-impact-deficit"><span>⚠️ Déficit:</span><span>-${impact.deficit}</span></div>` : ''}
+            ${impact.deficit > 0 ? `<div class="stock-impact-row stock-impact-deficit"><span>Déficit:</span><span>-${impact.deficit}</span></div>` : ''}
           </div>
           <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
-            <button class="stock-btn stock-btn-primary stock-btn-sm btn-prev-realise" data-id="${p.id}">✅ Marquer réalisé</button>
+            <button class="stock-btn stock-btn-primary stock-btn-sm btn-prev-realise" data-id="${p.id}">✅ Réalisé</button>
             <button class="stock-btn stock-btn-secondary stock-btn-sm btn-prev-edit" data-id="${p.id}">✏️ Modifier</button>
             <button class="stock-btn stock-btn-danger stock-btn-sm btn-prev-cancel" data-id="${p.id}">Annuler</button>
             <button class="stock-btn stock-btn-secondary stock-btn-sm btn-prev-delete" data-id="${p.id}">🗑️</button>
@@ -72,19 +74,20 @@ export function renderPrevisionsTab(container) {
 
   // Bind action buttons
   container.querySelectorAll('.btn-prev-realise').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      const p = previsionsTir.find(p => p.id === id);
-      const consommees = prompt('Munitions réellement consommées:', p ? String(p.totalPrevu) : '0');
-      if (consommees === null) return;
-      markRealise(id, parseInt(consommees) || 0);
-      renderPrevisionsTab(container);
-    });
+    btn.addEventListener('click', () => showRealiseForm(container, btn.dataset.id));
   });
   container.querySelectorAll('.btn-prev-cancel').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (!confirm('Annuler cet exercice ?')) return;
+    btn.addEventListener('click', async () => {
+      const confirmed = await showConfirm({
+        title: 'Annuler cet exercice ?',
+        message: 'L\'exercice sera marqué comme annulé. Aucune munition ne sera décomptée.',
+        confirmText: 'Annuler l\'exercice',
+        cancelText: 'Retour',
+        danger: true,
+      });
+      if (!confirmed) return;
       cancelPrevision(btn.dataset.id);
+      showToast('Exercice annulé');
       renderPrevisionsTab(container);
     });
   });
@@ -94,11 +97,61 @@ export function renderPrevisionsTab(container) {
     });
   });
   container.querySelectorAll('.btn-prev-delete').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (!confirm('Supprimer cette prévision ?')) return;
+    btn.addEventListener('click', async () => {
+      const confirmed = await showConfirm({
+        title: 'Supprimer cet exercice ?',
+        message: 'Cette action est irréversible.',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true,
+      });
+      if (!confirmed) return;
       deletePrevision(btn.dataset.id);
+      showToast('Exercice supprimé');
       renderPrevisionsTab(container);
     });
+  });
+}
+
+// --- Realise form (replaces prompt) ---
+
+function showRealiseForm(container, prevId) {
+  const { previsionsTir } = getState();
+  const p = previsionsTir.find(p => p.id === prevId);
+  if (!p) return;
+
+  // Find or create an action area
+  const card = container.querySelector(`.btn-prev-realise[data-id="${prevId}"]`)?.closest('.prevision-card');
+  if (!card) return;
+
+  let area = card.querySelector('.prev-realise-area');
+  if (!area) {
+    area = document.createElement('div');
+    area.className = 'prev-realise-area';
+    card.appendChild(area);
+  }
+
+  area.innerHTML = `<div class="stock-form-active" style="margin-top:10px;">
+    <div class="stock-form-header">Marquer comme réalisé</div>
+    <div class="stock-field"><label>Munitions réellement consommées</label>
+      <input type="number" id="realiseQty_${prevId}" value="${p.totalPrevu}" min="0" inputmode="numeric">
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="stock-btn stock-btn-primary stock-btn-sm" id="realiseConfirm_${prevId}">Valider</button>
+      <button class="stock-btn stock-btn-secondary stock-btn-sm" id="realiseCancel_${prevId}">Annuler</button>
+    </div>
+  </div>`;
+
+  area.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  document.getElementById('realiseConfirm_' + prevId).addEventListener('click', () => {
+    const qty = parseInt(document.getElementById('realiseQty_' + prevId).value) || 0;
+    markRealise(prevId, qty);
+    showToast('Exercice marqué comme réalisé');
+    renderPrevisionsTab(container);
+  });
+  document.getElementById('realiseCancel_' + prevId).addEventListener('click', () => {
+    area.innerHTML = '';
   });
 }
 
@@ -120,21 +173,23 @@ function showPrevisionForm(container) {
   ).join('');
 
   form.style.display = 'block';
-  form.innerHTML = `
-    <div class="stock-card">
-      <div class="stock-field"><label>Date</label><input type="date" id="prevDate" value="${today}"></div>
-      <div class="stock-field"><label>Lieu</label><input type="text" id="prevLieu" placeholder="Ex: Stand de tir municipal"></div>
-      <div class="stock-field"><label>Arme</label><select id="prevArme"><option value="">— Choisir —</option>${machOpts}</select></div>
-      <div class="stock-field"><label>Munitions par agent</label><input type="number" id="prevMunParAgent" value="50" min="1" inputmode="numeric"></div>
-      <div class="stock-field"><label>Participants (cliquez pour dé/sélectionner)</label>
-        <div class="stock-chip-list" id="prevParticipants">${agentChips}</div>
-      </div>
-      <div id="prevImpact" style="margin-top:8px;"></div>
-      <div style="display:flex;gap:6px;margin-top:12px;">
-        <button class="stock-btn stock-btn-primary" id="prevConfirm">Créer l'exercice</button>
-        <button class="stock-btn stock-btn-secondary" id="prevCancel">Annuler</button>
-      </div>
-    </div>`;
+  form.innerHTML = `<div class="stock-form-active">
+    <div class="stock-form-header">Planifier un exercice</div>
+    <div class="stock-field"><label>Date</label><input type="date" id="prevDate" value="${today}"></div>
+    <div class="stock-field"><label>Lieu</label><input type="text" id="prevLieu" placeholder="Ex: Stand de tir municipal"></div>
+    <div class="stock-field"><label>Arme</label><select id="prevArme"><option value="">— Choisir —</option>${machOpts}</select></div>
+    <div class="stock-field"><label>Munitions par agent</label><input type="number" id="prevMunParAgent" value="50" min="1" inputmode="numeric"></div>
+    <div class="stock-field"><label>Participants (cliquez pour dé/sélectionner)</label>
+      <div class="stock-chip-list" id="prevParticipants">${agentChips}</div>
+    </div>
+    <div id="prevImpact" style="margin-top:8px;"></div>
+    <div style="display:flex;gap:6px;margin-top:12px;">
+      <button class="stock-btn stock-btn-primary" id="prevConfirm">Créer l'exercice</button>
+      <button class="stock-btn stock-btn-secondary" id="prevCancel">Annuler</button>
+    </div>
+  </div>`;
+
+  form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   // Chip toggle
   form.querySelectorAll('.stock-chip').forEach(chip => {
@@ -159,7 +214,7 @@ function showPrevisionForm(container) {
           <div class="stock-impact-row"><span>Total munitions:</span><span><strong>${total}</strong></span></div>
           <div class="stock-impact-row"><span>Stock actuel:</span><span>${impact.stockActuel}</span></div>
           <div class="stock-impact-row"><span>Stock après:</span><span${impact.stockApres < 0 ? ' class="stock-impact-deficit"' : ''}>${impact.stockApres}</span></div>
-          ${impact.deficit > 0 ? `<div class="stock-impact-row stock-impact-deficit"><span>⚠️ Déficit à combler:</span><span>${impact.deficit}</span></div>` : ''}
+          ${impact.deficit > 0 ? `<div class="stock-impact-row stock-impact-deficit"><span>Déficit:</span><span>${impact.deficit}</span></div>` : ''}
         </div>`;
     }
   };
@@ -174,12 +229,13 @@ function showPrevisionForm(container) {
     const munParAgent = parseInt(document.getElementById('prevMunParAgent').value) || 0;
     const participants = Array.from(form.querySelectorAll('.stock-chip.selected')).map(c => +c.dataset.emp);
 
-    if (!date) { alert('Veuillez saisir une date'); return; }
-    if (isNaN(armeIdx) || armeIdx < 0) { alert('Veuillez choisir une arme'); return; }
-    if (participants.length === 0) { alert('Veuillez sélectionner au moins un participant'); return; }
-    if (munParAgent <= 0) { alert('Veuillez saisir un nombre de munitions par agent'); return; }
+    if (!date) { showToast('Veuillez saisir une date', 'error'); return; }
+    if (isNaN(armeIdx) || armeIdx < 0) { showToast('Veuillez choisir une arme', 'error'); return; }
+    if (participants.length === 0) { showToast('Sélectionnez au moins un participant', 'error'); return; }
+    if (munParAgent <= 0) { showToast('Saisissez un nombre de munitions par agent', 'error'); return; }
 
     addPrevision({ date, lieu, participants, munitionsParAgent: munParAgent, armeIdx });
+    showToast('Exercice planifié');
     renderPrevisionsTab(container);
   });
 
@@ -213,22 +269,21 @@ function showEditPrevisionForm(container, prevId) {
   }).join('');
 
   form.style.display = 'block';
-  form.innerHTML = `
-    <div class="stock-card" style="border:2px solid var(--accent);">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">✏️ Modifier l'exercice</div>
-      <div class="stock-field"><label>Date</label><input type="date" id="prevDate" value="${prev.date}"></div>
-      <div class="stock-field"><label>Lieu</label><input type="text" id="prevLieu" value="${prev.lieu || ''}" placeholder="Ex: Stand de tir municipal"></div>
-      <div class="stock-field"><label>Arme</label><select id="prevArme"><option value="">— Choisir —</option>${machOpts}</select></div>
-      <div class="stock-field"><label>Munitions par agent</label><input type="number" id="prevMunParAgent" value="${prev.munitionsParAgent}" min="1" inputmode="numeric"></div>
-      <div class="stock-field"><label>Participants (cliquez pour dé/sélectionner)</label>
-        <div class="stock-chip-list" id="prevParticipants">${agentChips}</div>
-      </div>
-      <div id="prevImpact" style="margin-top:8px;"></div>
-      <div style="display:flex;gap:6px;margin-top:12px;">
-        <button class="stock-btn stock-btn-primary" id="prevConfirm">Enregistrer</button>
-        <button class="stock-btn stock-btn-secondary" id="prevCancel">Annuler</button>
-      </div>
-    </div>`;
+  form.innerHTML = `<div class="stock-form-active">
+    <div class="stock-form-header">Modifier l'exercice</div>
+    <div class="stock-field"><label>Date</label><input type="date" id="prevDate" value="${prev.date}"></div>
+    <div class="stock-field"><label>Lieu</label><input type="text" id="prevLieu" value="${prev.lieu || ''}" placeholder="Ex: Stand de tir municipal"></div>
+    <div class="stock-field"><label>Arme</label><select id="prevArme"><option value="">— Choisir —</option>${machOpts}</select></div>
+    <div class="stock-field"><label>Munitions par agent</label><input type="number" id="prevMunParAgent" value="${prev.munitionsParAgent}" min="1" inputmode="numeric"></div>
+    <div class="stock-field"><label>Participants (cliquez pour dé/sélectionner)</label>
+      <div class="stock-chip-list" id="prevParticipants">${agentChips}</div>
+    </div>
+    <div id="prevImpact" style="margin-top:8px;"></div>
+    <div style="display:flex;gap:6px;margin-top:12px;">
+      <button class="stock-btn stock-btn-primary" id="prevConfirm">Enregistrer</button>
+      <button class="stock-btn stock-btn-secondary" id="prevCancel">Annuler</button>
+    </div>
+  </div>`;
 
   // Chip toggle
   form.querySelectorAll('.stock-chip').forEach(chip => {
@@ -253,7 +308,7 @@ function showEditPrevisionForm(container, prevId) {
           <div class="stock-impact-row"><span>Total munitions:</span><span><strong>${total}</strong></span></div>
           <div class="stock-impact-row"><span>Stock actuel:</span><span>${impact.stockActuel}</span></div>
           <div class="stock-impact-row"><span>Stock après:</span><span${impact.stockApres < 0 ? ' class="stock-impact-deficit"' : ''}>${impact.stockApres}</span></div>
-          ${impact.deficit > 0 ? `<div class="stock-impact-row stock-impact-deficit"><span>⚠️ Déficit à combler:</span><span>${impact.deficit}</span></div>` : ''}
+          ${impact.deficit > 0 ? `<div class="stock-impact-row stock-impact-deficit"><span>Déficit:</span><span>${impact.deficit}</span></div>` : ''}
         </div>`;
     }
   };
@@ -271,12 +326,13 @@ function showEditPrevisionForm(container, prevId) {
     const munParAgent = parseInt(document.getElementById('prevMunParAgent').value) || 0;
     const participants = Array.from(form.querySelectorAll('.stock-chip.selected')).map(c => +c.dataset.emp);
 
-    if (!date) { alert('Veuillez saisir une date'); return; }
-    if (isNaN(armeIdx) || armeIdx < 0) { alert('Veuillez choisir une arme'); return; }
-    if (participants.length === 0) { alert('Veuillez sélectionner au moins un participant'); return; }
-    if (munParAgent <= 0) { alert('Veuillez saisir un nombre de munitions par agent'); return; }
+    if (!date) { showToast('Veuillez saisir une date', 'error'); return; }
+    if (isNaN(armeIdx) || armeIdx < 0) { showToast('Veuillez choisir une arme', 'error'); return; }
+    if (participants.length === 0) { showToast('Sélectionnez au moins un participant', 'error'); return; }
+    if (munParAgent <= 0) { showToast('Saisissez un nombre de munitions par agent', 'error'); return; }
 
     updatePrevision(prevId, { date, lieu, participants, munitionsParAgent: munParAgent, armeIdx });
+    showToast('Exercice modifié');
     renderPrevisionsTab(container);
   });
 
