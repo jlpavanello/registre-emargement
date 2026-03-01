@@ -179,17 +179,61 @@ function registerRoutes() {
   // Page registre
   registerRoute('/registre', registre);
 
+  // Pages autonomes (lazy-loaded)
+  registerRoute('/vocal', {
+    title: 'Comptes-rendus',
+    async mount(container) {
+      const { vocalPage } = await import('./modules/pages/vocal.js');
+      await vocalPage.mount(container);
+    },
+    unmount() {},
+  });
+  registerRoute('/chat', {
+    title: 'Chat',
+    async mount(container) {
+      const { chatPage } = await import('./modules/pages/chat.js');
+      await chatPage.mount(container);
+    },
+    unmount() {},
+  });
+  registerRoute('/audit', {
+    title: 'Audit & Incidents',
+    async mount(container) {
+      const { auditPage } = await import('./modules/pages/audit.js');
+      await auditPage.mount(container);
+    },
+    unmount() {},
+  });
+  registerRoute('/presence', {
+    title: 'Présence',
+    async mount(container) {
+      const { presencePage } = await import('./modules/pages/presence-page.js');
+      presencePage.mount(container);
+    },
+    unmount() {},
+  });
+  registerRoute('/equipages', {
+    title: '\u00c9quipages',
+    async mount(container) {
+      const { equipagesPage } = await import('./modules/pages/equipages.js');
+      equipagesPage.mount(container);
+    },
+    unmount() {},
+  });
+  registerRoute('/config', {
+    title: 'Configuration',
+    async mount(container) {
+      const { configPage } = await import('./modules/pages/config-page.js');
+      configPage.mount(container);
+    },
+    unmount() {},
+  });
+
   // Routes outils — montent le registre avec auto-open overlay
   const overlayRoutes = [
-    { path: '/presence', title: 'Pr\u00e9sence', overlay: 'presence' },
-    { path: '/equipages', title: '\u00c9quipages', overlay: 'equipages' },
     { path: '/stock', title: 'Stock & Armement', overlay: 'stock' },
     { path: '/planning', title: 'Planning', overlay: 'planning' },
     { path: '/pv', title: 'Proc\u00e8s-Verbaux', overlay: 'pv' },
-    { path: '/vocal', title: 'Comptes-rendus', overlay: 'vocal' },
-    { path: '/audit', title: 'Audit & Incidents', overlay: 'audit' },
-    { path: '/chat', title: 'Chat', overlay: 'chat' },
-    { path: '/config', title: 'Configuration', overlay: 'config' },
   ];
 
   for (const route of overlayRoutes) {

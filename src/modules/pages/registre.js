@@ -3,23 +3,25 @@
 // Signatures matin/soir, armes, visa, PDF
 // =============================================
 
+// --- Imports Router ---
+import { navigate } from '../router.js';
+
 // --- Imports Domains ---
 import { getState } from '../state.js';
-import { addCategory } from '../domains/categories.js';
-import { onArmurierSelectChange, onVisaSignerChange } from '../domains/responsables.js';
-import { openPresenceSelector, closePresenceSelector, selectAllPresence, selectNonePresence, savePresence, removeFromPresent, bindPresenceCallbacks } from '../domains/presence.js';
-import { openCrewSelector, closeCrewSelector, saveCrewAssignments, bindCrewCallbacks, onVehicleSelect, onAgentSelect } from '../domains/crew-assignment.js';
+import { onVisaSignerChange } from '../domains/responsables.js';
+import { bindPresenceCallbacks } from '../domains/presence.js';
+import { bindCrewCallbacks } from '../domains/crew-assignment.js';
 import { saveInfoFields } from '../domains/info-fields.js';
 import { updatePageNumberDisplay } from '../domains/page-number.js';
 
 // --- Imports UI ---
 import { renderEmployees, switchPeriod, updateCounts, updateSoirTabState } from '../ui/renderer.js';
-import { openConfig, closeConfig, addItem, saveConfig, bindConfigCallbacks } from '../ui/config-panel.js';
+import { bindConfigCallbacks } from '../ui/config-panel.js';
 import { openVisaSign, updateVisaButtonState } from '../ui/visa.js';
 import { openSignModal } from '../ui/sign-modal.js';
 
 // --- Imports Actions ---
-import { resetSignatures, fullReset } from '../actions/reset.js';
+import { resetSignatures } from '../actions/reset.js';
 
 // --- Imports Auth ---
 import { showRoleScreen } from '../auth/login-screen.js';
@@ -33,28 +35,6 @@ async function generatePDF() {
   return gen();
 }
 
-// Vocal report
-let _vocalModule = null;
-async function getVocalModule() {
-  if (!_vocalModule) _vocalModule = await import('../ui/vocal-panel.js');
-  return _vocalModule;
-}
-async function openVocalPanel() {
-  const mod = await getVocalModule();
-  mod.bindVocalCallbacks({ generateVocalPDF });
-  mod.openVocalPanel();
-}
-async function closeVocalPanel() { (await getVocalModule()).closeVocalPanel(); }
-async function startRecording() { (await getVocalModule()).startRecording(); }
-async function clearVocalForm() { (await getVocalModule()).clearForm(); }
-async function saveCurrentReport() { (await getVocalModule()).saveCurrentReport(); }
-async function updateSaveButton() { (await getVocalModule()).updateSaveButton(); }
-
-let _vocalPdfModule = null;
-async function generateVocalPDF(report) {
-  if (!_vocalPdfModule) _vocalPdfModule = await import('../actions/vocal-pdf.js');
-  return _vocalPdfModule.generateVocalPDF(report);
-}
 
 // Stock & Logistique
 let _stockModule = null;
@@ -76,27 +56,7 @@ async function openPV() { (await getPvModule()).openPV(); }
 async function closePV() { (await getPvModule()).closePV(); }
 async function switchPvTab(tab) { (await getPvModule()).switchPvTab(tab); }
 
-// Chat d'equipe
-let _chatModule = null;
-async function getChatModule() {
-  if (!_chatModule) _chatModule = await import('../ui/chat-widget.js');
-  return _chatModule;
-}
-async function openChat() { (await getChatModule()).openChat(); }
-async function closeChat() { (await getChatModule()).closeChat(); }
-async function sendChatMessage() { (await getChatModule()).sendChatMessage(); }
-async function initChatKeyboard() { (await getChatModule()).initChatKeyboard(); }
-async function initNotifButton() { (await getChatModule()).initNotifButton(); }
 
-// Audit & Incidents
-let _auditModule = null;
-async function getAuditModule() {
-  if (!_auditModule) _auditModule = await import('../ui/audit-panel.js');
-  return _auditModule;
-}
-async function openAuditPanel() { (await getAuditModule()).openAuditPanel(); }
-async function closeAuditPanel() { (await getAuditModule()).closeAuditPanel(); }
-async function switchAuditTab(tab) { (await getAuditModule()).switchAuditTab(tab); }
 
 // Planning
 let _planningModule = null;
@@ -169,27 +129,6 @@ function updateShortcutCounts() {
   if (vehiculeEl) vehiculeEl.textContent = vehicles.length;
   if (categorieEl) categorieEl.textContent = categories.length;
   if (armeEl) armeEl.textContent = machines.filter(m => m.nom).length;
-}
-
-/** Ouvrir config et scroller a une section */
-function openConfigToSection(section) {
-  openConfig();
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      const panel = document.getElementById('configPanel');
-      let target = null;
-      switch (section) {
-        case 'agents': target = document.getElementById('configEmpList'); break;
-        case 'vehicules': target = document.getElementById('configVehiclesList'); break;
-        case 'categories': target = document.getElementById('configCatList'); break;
-        case 'armes': target = document.getElementById('configMachList'); break;
-      }
-      if (target && panel) {
-        const offset = target.offsetTop - 80;
-        panel.scrollTo({ top: offset, behavior: 'smooth' });
-      }
-    }, 150);
-  });
 }
 
 /** Mettre a jour le sous-titre presence + badges PM/ASVP */
@@ -279,15 +218,9 @@ export function setPendingOverlay(overlayId) {
 }
 
 const OVERLAY_MAP = {
-  config: openConfig,
-  vocal: openVocalPanel,
   stock: openStock,
   pv: openPV,
-  chat: openChat,
-  audit: openAuditPanel,
   planning: openPlanning,
-  presence: openPresenceSelector,
-  equipages: openCrewSelector,
 };
 
 // =============================================
@@ -475,192 +408,6 @@ function getTemplate() {
   <button class="btn-main" id="btnPDF">G\u00e9n\u00e9rer le PDF</button>
 </div>
 
-<!-- SELECTION DES PRESENTS -->
-<div class="presence-overlay" id="presencePanel">
-  <div class="presence-header">
-    <h2>Pr\u00e9sents du jour</h2>
-    <button class="header-btn" id="btnClosePresence" style="background:rgba(255,255,255,0.2);">Fermer</button>
-  </div>
-  <div class="presence-info">Cochez les agents de service aujourd'hui. Seuls les agents s\u00e9lectionn\u00e9s pourront signer et prendre du mat\u00e9riel.</div>
-  <div class="presence-actions">
-    <button class="btn-all" id="btnPresenceAll">Tous</button>
-    <button class="btn-none" id="btnPresenceNone">Aucun</button>
-  </div>
-  <div class="presence-count" id="presenceCount">0 s\u00e9lectionn\u00e9s</div>
-  <div id="presenceList"></div>
-  <div style="height:90px;"></div>
-  <div class="presence-bottom"><button class="btn-presence-save" id="btnPresenceSave">Valider la s\u00e9lection</button></div>
-</div>
-
-<!-- CONFIG -->
-<div class="config-overlay" id="configPanel">
-  <div class="config-header">
-    <h2>Configuration</h2>
-    <button class="header-btn" id="btnCloseConfig" style="background:rgba(255,255,255,0.2);">Fermer</button>
-  </div>
-  <div class="config-info">Configurez votre \u00e9quipe, vos responsables et vos machines. Ces donn\u00e9es sont sauvegard\u00e9es et pr\u00e9-remplies chaque jour.</div>
-  <div class="config-section-title">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-    Responsables / Signataires
-  </div>
-  <div class="config-card">
-    <div class="cnum resp-bg"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:16px;height:16px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-    <div class="fields">
-      <input class="name-input" type="text" placeholder="Nom du Chef d'unit\u00e9" id="configChefUnite">
-      <input class="sub-input" type="text" placeholder="Matricule (optionnel)" id="configChefMat">
-    </div>
-  </div>
-  <div class="config-card">
-    <div class="cnum resp-bg"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:16px;height:16px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-    <div class="fields">
-      <select class="cat-select" id="configArmurierSelect" style="font-weight:600; font-size:13px;">
-        <option value="">— Choisir l'Armurier parmi les agents —</option>
-      </select>
-      <div id="configArmurierInfo" style="font-size:11px; color:#94a3b8; font-weight:500; padding:2px 4px;"></div>
-    </div>
-  </div>
-  <div class="config-section-title" style="margin-top:6px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    Agents
-  </div>
-  <div id="configEmpList"></div>
-  <div class="config-add-row">
-    <button class="config-add-btn" id="btnAddEmp">+ Agent</button>
-  </div>
-  <div class="config-section-title" style="margin-top:6px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-    Cat\u00e9gories d'armes
-  </div>
-  <div class="config-info" style="background:linear-gradient(135deg,#eff6ff,#dbeafe); border-color:#93c5fd; color:#1e40af;">
-    Cr\u00e9ez vos cat\u00e9gories ici. Elles appara\u00eetront dans le menu d\u00e9roulant lors de la signature et dans la config des armes.
-  </div>
-  <div id="configCatList"></div>
-  <div class="config-add-row">
-    <button class="config-add-btn" id="btnAddCat">+ Cat\u00e9gorie</button>
-  </div>
-  <div class="config-section-title" style="margin-top:6px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
-    Armes
-  </div>
-  <div id="configMachList"></div>
-  <div class="config-add-row">
-    <button class="config-add-btn" id="btnAddMach">+ Arme</button>
-  </div>
-  <div class="config-section-title" style="margin-top:6px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C1.4 11.3 1 12.1 1 13v3c0 .6.4 1 1 1h1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-    V\u00e9hicules
-  </div>
-  <div id="configVehiclesList"></div>
-  <div class="config-add-row">
-    <button class="config-add-btn" id="btnAddVeh">+ V\u00e9hicule</button>
-  </div>
-  <div class="config-section-title" style="margin-top:16px; color: var(--red);">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    Zone de remise \u00e0 z\u00e9ro
-  </div>
-  <div style="margin:6px 12px; padding:14px; background:#fef2f2; border:1px solid #fecaca; border-radius:14px;">
-    <p style="font-size:12px; color:#991b1b; margin-bottom:10px; line-height:1.5;">
-      Utilisez ce bouton uniquement lorsque le registre du jour est <strong>finalis\u00e9</strong> (PDF g\u00e9n\u00e9r\u00e9).
-      Cela efface toutes les signatures, les visas, la s\u00e9lection des pr\u00e9sents et remet le compteur de page \u00e0 z\u00e9ro.
-    </p>
-    <button id="btnFullReset" style="width:100%; padding:12px; background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color:white; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 12px rgba(239,68,68,0.3);">
-      Remise \u00e0 z\u00e9ro compl\u00e8te
-    </button>
-  </div>
-  <div style="height:90px;"></div>
-  <div class="config-bottom"><button class="btn-config-save" id="btnSaveConfig">Enregistrer</button></div>
-</div>
-
-<!-- COMPTE-RENDU VOCAL -->
-<div class="vocal-overlay" id="vocalPanel">
-  <div class="vocal-header">
-    <h2>\uD83C\uDFA4 Compte-rendu de mission</h2>
-    <button class="header-btn" id="btnCloseVocal" style="background:rgba(255,255,255,0.2);">Fermer</button>
-  </div>
-  <div class="vocal-form">
-    <label>Lieu de la mission</label>
-    <input type="text" id="vocalLieu" placeholder="Ex: 12 rue de la Paix, Place du march\u00e9...">
-    <label>Objet de la mission</label>
-    <input type="text" id="vocalObjet" placeholder="Ex: Contr\u00f4le routier, Patrouille...">
-    <label>Famille de mission</label>
-    <select id="vocalFamille">
-      <option value="">— Choisir la famille —</option>
-      <option value="Stationnement">Stationnement</option>
-      <option value="Circulation">Circulation</option>
-      <option value="Tranquillit\u00e9 publique">Tranquillit\u00e9 publique</option>
-      <option value="Propret\u00e9 urbaine">Propret\u00e9 urbaine</option>
-      <option value="Animaux">Animaux</option>
-      <option value="Domaine public">Domaine public</option>
-      <option value="March\u00e9s / Commerce">March\u00e9s / Commerce</option>
-      <option value="Arr\u00eat\u00e9s Municipaux">Arr\u00eat\u00e9s Municipaux</option>
-      <option value="Divers">Divers</option>
-    </select>
-    <div style="display:flex;gap:10px;">
-      <div style="flex:1;"><label>Heure de la mission</label><input type="time" id="vocalHeureMission"></div>
-      <div style="flex:1;"><label>Dur\u00e9e</label><input type="text" id="vocalDuree" placeholder="Ex: 2h30, 45 min..."></div>
-    </div>
-    <label>Compte-rendu</label>
-    <div class="vocal-mic-area">
-      <button class="btn-mic" id="btnMic" title="Dicter le rapport">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px;height:28px;">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" y1="19" x2="12" y2="23"/>
-          <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
-      </button>
-      <div>
-        <div class="vocal-mic-status" id="vocalMicStatus">Appuyez pour dicter</div>
-        <div class="vocal-interim" id="vocalInterim"></div>
-      </div>
-    </div>
-    <textarea id="vocalContenu" placeholder="Dictez ou saisissez votre compte-rendu ici..."></textarea>
-    <div class="vocal-form-actions">
-      <button class="btn-vocal-clear" id="btnVocalClear">Effacer</button>
-      <button class="btn-vocal-save" id="btnVocalSave" disabled>Enregistrer le rapport</button>
-    </div>
-  </div>
-  <div class="vocal-section-title" style="margin-top:4px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-      <polyline points="14 2 14 8 20 8"/>
-    </svg>
-    Rapports enregistr\u00e9s
-  </div>
-  <div id="vocalReportsList"></div>
-  <div class="vocal-spacer"></div>
-</div>
-
-<!-- EQUIPAGES (Crew Assignment) -->
-<div class="crew-overlay" id="crewPanel">
-  <div class="crew-header">
-    <h2>\uD83D\uDE97 \u00c9quipages v\u00e9hicules</h2>
-    <button class="header-btn" id="btnCloseCrew" style="background:rgba(255,255,255,0.2);">Fermer</button>
-  </div>
-  <div class="crew-info">Choisissez un v\u00e9hicule, puis ajoutez les agents de l'\u00e9quipage.</div>
-  <div class="crew-select-section">
-    <label class="crew-select-label">V\u00e9hicule</label>
-    <select id="crewVehicleSelect" class="crew-select">
-      <option value="">— Choisir un v\u00e9hicule —</option>
-    </select>
-  </div>
-  <div class="crew-select-section" id="crewAgentSection" style="display:none;">
-    <label class="crew-select-label">Ajouter un agent \u00e0 l'\u00e9quipage</label>
-    <select id="crewAgentSelect" class="crew-select">
-      <option value="">— Choisir un agent —</option>
-    </select>
-  </div>
-  <div id="crewAssignedList" style="display:none;">
-    <div class="crew-assigned-header">
-      <span id="crewAssignedTitle">\u00c9quipage</span>
-      <span class="crew-count" id="crewCount">0 agent</span>
-    </div>
-    <div id="crewAssignedMembers"></div>
-  </div>
-  <div id="crewSummary"></div>
-  <div style="height:90px;"></div>
-  <div class="crew-bottom"><button class="btn-crew-save" id="btnSaveCrew">Valider les \u00e9quipages</button></div>
-</div>
 
 <!-- PV (PROCES-VERBAUX) -->
 <div class="pv-overlay" id="pvPanel">
@@ -697,19 +444,6 @@ function getTemplate() {
   <div style="height:20px;"></div>
 </div>
 
-<!-- AUDIT & INCIDENTS -->
-<div class="audit-overlay" id="auditPanel">
-  <div class="audit-header">
-    <h2>\uD83D\uDEE1\uFE0F Audit & Incidents</h2>
-    <button class="header-btn" id="btnCloseAudit" style="background:rgba(255,255,255,0.2);">Fermer</button>
-  </div>
-  <div class="audit-tabs">
-    <button class="audit-tab active" data-tab="audit">\uD83D\uDCCB Journal</button>
-    <button class="audit-tab" data-tab="incidents">\uD83D\uDEA8 Incidents</button>
-  </div>
-  <div id="auditTabContent"></div>
-  <div style="height:20px;"></div>
-</div>
 
 <!-- CHAT D'EQUIPE (Widget flottant) -->
 <button class="chat-fab" id="chatFab" title="Chat d'\u00e9quipe">
@@ -717,20 +451,6 @@ function getTemplate() {
   <span class="chat-fab-badge" id="chatBadge" style="display:none;">0</span>
 </button>
 
-<div class="chat-overlay" id="chatPanel">
-  <div class="chat-widget">
-    <div class="chat-header">
-      <span class="chat-header-title">\uD83D\uDCAC Chat d'\u00e9quipe</span>
-      <button class="chat-notif-btn notif-default" id="btnChatNotif" title="Activer les notifications">\uD83D\uDD14</button>
-      <button class="chat-header-btn" id="btnCloseChat" title="Fermer">\u2715</button>
-    </div>
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-input-bar">
-      <input type="text" id="chatInput" placeholder="Message..." maxlength="500">
-      <button id="btnSendChat">Envoyer</button>
-    </div>
-  </div>
-</div>
 
 <!-- PLANNING -->
 <div class="planning-overlay" id="planningPanel">
@@ -756,8 +476,8 @@ function getTemplate() {
 // =============================================
 
 function bindEvents() {
-  // Header
-  document.getElementById('btnOpenConfig').addEventListener('click', openConfig);
+  // Header — Config navigue vers la page dédiée
+  document.getElementById('btnOpenConfig').addEventListener('click', () => navigate('/config'));
   document.getElementById('btnChangeRole').addEventListener('click', () => {
     if (confirm('Changer le profil de cet appareil ?')) showRoleScreen();
   });
@@ -766,11 +486,6 @@ function bindEvents() {
   document.getElementById('tabMatin').addEventListener('click', () => switchPeriod('matin'));
   document.getElementById('tabSoir').addEventListener('click', () => switchPeriod('soir'));
 
-  // Presence overlay
-  document.getElementById('btnClosePresence').addEventListener('click', closePresenceSelector);
-  document.getElementById('btnPresenceAll').addEventListener('click', selectAllPresence);
-  document.getElementById('btnPresenceNone').addEventListener('click', selectNonePresence);
-  document.getElementById('btnPresenceSave').addEventListener('click', savePresence);
 
   // Visa
   document.getElementById('visaSignerSelect').addEventListener('change', onVisaSignerChange);
@@ -781,30 +496,11 @@ function bindEvents() {
   document.getElementById('btnReset').addEventListener('click', resetSignatures);
   document.getElementById('btnPDF').addEventListener('click', generatePDF);
 
-  // Config panel
-  document.getElementById('btnCloseConfig').addEventListener('click', closeConfig);
-  document.getElementById('btnSaveConfig').addEventListener('click', saveConfig);
-  document.getElementById('btnAddEmp').addEventListener('click', () => addItem('emp'));
-  document.getElementById('btnAddCat').addEventListener('click', addCategory);
-  document.getElementById('btnAddMach').addEventListener('click', () => addItem('mach'));
-  document.getElementById('configArmurierSelect').addEventListener('change', onArmurierSelectChange);
-  document.getElementById('btnFullReset').addEventListener('click', fullReset);
-  document.getElementById('btnAddVeh').addEventListener('click', () => addItem('veh'));
+  // Vocal — navigue vers la page dédiée
+  document.getElementById('btnOpenVocal').addEventListener('click', () => navigate('/vocal'));
 
-  // Vocal report panel
-  document.getElementById('btnOpenVocal').addEventListener('click', openVocalPanel);
-  document.getElementById('btnCloseVocal').addEventListener('click', closeVocalPanel);
-  document.getElementById('btnMic').addEventListener('click', startRecording);
-  document.getElementById('btnVocalClear').addEventListener('click', clearVocalForm);
-  document.getElementById('btnVocalSave').addEventListener('click', saveCurrentReport);
-  document.getElementById('vocalContenu').addEventListener('input', updateSaveButton);
-
-  // Crew (Equipages) panel
-  document.getElementById('btnCrewShortcut').addEventListener('click', openCrewSelector);
-  document.getElementById('btnCloseCrew').addEventListener('click', closeCrewSelector);
-  document.getElementById('btnSaveCrew').addEventListener('click', saveCrewAssignments);
-  document.getElementById('crewVehicleSelect').addEventListener('change', onVehicleSelect);
-  document.getElementById('crewAgentSelect').addEventListener('change', onAgentSelect);
+  // Equipages — navigue vers la page dédiée
+  document.getElementById('btnCrewShortcut').addEventListener('click', () => navigate('/equipages'));
 
   // PV panel
   document.getElementById('btnOpenPV').addEventListener('click', openPV);
@@ -827,28 +523,20 @@ function bindEvents() {
     tab.addEventListener('click', () => switchStockTab(tab.dataset.tab));
   });
 
-  // Audit panel
-  document.getElementById('btnOpenAudit').addEventListener('click', openAuditPanel);
-  document.getElementById('btnCloseAudit').addEventListener('click', closeAuditPanel);
-  document.querySelectorAll('#auditPanel .audit-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchAuditTab(tab.dataset.tab));
-  });
+  // Audit — navigue vers la page dédiée
+  document.getElementById('btnOpenAudit').addEventListener('click', () => navigate('/audit'));
 
-  // Chat
-  document.getElementById('chatFab').addEventListener('click', openChat);
-  document.getElementById('btnCloseChat').addEventListener('click', closeChat);
-  document.getElementById('btnSendChat').addEventListener('click', sendChatMessage);
-  initChatKeyboard();
-  initNotifButton();
+  // Chat — navigue vers la page dédiée
+  document.getElementById('chatFab').addEventListener('click', () => navigate('/chat'));
 
-  // Config shortcuts
-  document.getElementById('btnShortcutAgents').addEventListener('click', () => openConfigToSection('agents'));
-  document.getElementById('btnShortcutVehicules').addEventListener('click', () => openConfigToSection('vehicules'));
-  document.getElementById('btnShortcutCategories').addEventListener('click', () => openConfigToSection('categories'));
-  document.getElementById('btnShortcutArmes').addEventListener('click', () => openConfigToSection('armes'));
+  // Config shortcuts — naviguent vers la page config dédiée
+  document.getElementById('btnShortcutAgents').addEventListener('click', () => navigate('/config'));
+  document.getElementById('btnShortcutVehicules').addEventListener('click', () => navigate('/config'));
+  document.getElementById('btnShortcutCategories').addEventListener('click', () => navigate('/config'));
+  document.getElementById('btnShortcutArmes').addEventListener('click', () => navigate('/config'));
 
-  // Presence shortcut
-  document.getElementById('btnPresenceShortcut').addEventListener('click', openPresenceSelector);
+  // Presence — navigue vers la page dédiée
+  document.getElementById('btnPresenceShortcut').addEventListener('click', () => navigate('/presence'));
 
   // Armurier du jour
   document.getElementById('armurierDuJour').addEventListener('change', onMainArmurierChange);
@@ -908,10 +596,10 @@ function initRegistreUI() {
   updateSoirTabState();
   updateVisaButtonState();
 
-  // Auto-open presence selector if no one selected (moved from init.js)
+  // Auto-navigate to presence page if no one selected
   const { presentToday, team } = getState();
   if (presentToday.length === 0 && team.some(t => t.nom)) {
-    setTimeout(() => openPresenceSelector(), 500);
+    setTimeout(() => navigate('/presence'), 500);
   }
 }
 
