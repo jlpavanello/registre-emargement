@@ -17,7 +17,7 @@ let _unsubs = [];
 const TOOLS = [
   // --- JOURNÉE ---
   {
-    id: 'registre', icon: '📋', label: 'Registre',
+    id: 'registre', icon: '📋', label: 'Registre\nd\'attribution',
     route: '/registre', color: 'blue', category: 'journee',
     roles: ['responsable', 'agent'],
   },
@@ -32,7 +32,7 @@ const TOOLS = [
     badgeColor: 'green',
   },
   {
-    id: 'equipages', icon: '🚗', label: 'Équipages',
+    id: 'equipages', icon: '🚗', label: 'Constitution\ndes Équipages',
     route: '/equipages', color: 'blue', category: 'journee',
     roles: ['responsable'],
     badge: () => {
@@ -44,7 +44,7 @@ const TOOLS = [
   },
   // --- LOGISTIQUE & ORGANISATION ---
   {
-    id: 'stock', icon: '📦', label: 'Stock &\nArmement',
+    id: 'stock', icon: '📦', label: 'Stock Armes\n& Munitions',
     route: '/stock', color: 'green', category: 'logorg',
     roles: ['responsable'],
   },
@@ -101,7 +101,7 @@ function getTemplate() {
         <img src="/logo-police-municipale.png" alt="" class="homepage-logo" onerror="this.style.display='none'">
         <div class="homepage-title-group">
           <h1 class="homepage-title">GESTION OPÉRATIONNELLE PM</h1>
-          <div class="homepage-subtitle">Police Municipale</div>
+          <div class="homepage-subtitle">Police Municipale de Monistrol-sur-Loire</div>
           <div class="homepage-date">${today}</div>
         </div>
         <button class="homepage-role-btn" id="btnHomeRole">

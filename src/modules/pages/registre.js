@@ -184,7 +184,7 @@ function getTemplate() {
     <button class="header-btn" id="btnBackHome" title="Retour accueil" style="font-size:16px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:8px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </button>
-    <h1 style="margin:0;font-size:14px;">REGISTRE D'\u00c9MARGEMENT</h1>
+    <h1 style="margin:0;font-size:11px;line-height:1.3;">REGISTRE D'ATTRIBUTION<br>DES ARMES ET DES MUNITIONS</h1>
   </div>
   <div style="display:flex;align-items:center;gap:6px;">
     <button class="header-btn" id="btnChangeRole" title="Changer de profil" style="font-size:11px;padding:6px 10px;background:rgba(255,255,255,0.12);">
@@ -201,11 +201,8 @@ function getTemplate() {
   <div class="pm-identity">
     <img src="/logo-police-municipale.png" alt="Police Municipale" class="pm-logo">
     <div class="pm-text">
-      <div class="pm-title">Police Municipale</div>
-      <div class="pm-ville-field">
-        <span>de</span>
-        <input type="text" id="entreprise" placeholder="Nom de la ville" class="pm-ville-input">
-      </div>
+      <div class="pm-title">Police Municipale de Monistrol-sur-Loire</div>
+      <input type="hidden" id="entreprise" value="Monistrol-sur-Loire">
     </div>
   </div>
   <h2 class="info-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Informations du jour</h2>
