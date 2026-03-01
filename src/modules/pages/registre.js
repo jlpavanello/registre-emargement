@@ -295,7 +295,6 @@ function getTemplate() {
 
 <div class="bottom-bar">
   <button class="btn-secondary btn-danger" id="btnReset">Effacer</button>
-  <button class="btn-secondary" id="btnOpenVocal" style="background:linear-gradient(135deg,#059669,#047857);color:white;border:none;">\uD83C\uDFA4 Rapport</button>
   <button class="btn-main" id="btnPDF">G\u00e9n\u00e9rer le PDF</button>
 </div>
 
@@ -337,9 +336,6 @@ function bindEvents() {
   // Bottom bar
   document.getElementById('btnReset').addEventListener('click', resetSignatures);
   document.getElementById('btnPDF').addEventListener('click', generatePDF);
-
-  // Vocal — navigue vers la page dédiée
-  document.getElementById('btnOpenVocal').addEventListener('click', () => navigate('/vocal'));
 
   // Equipages — navigue vers la page dédiée
   document.getElementById('btnCrewShortcut').addEventListener('click', () => navigate('/equipages'));
