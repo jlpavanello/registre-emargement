@@ -26,7 +26,10 @@ export function savePageNumber() {
 }
 
 export function updatePageNumberDisplay() {
-  const ds = document.getElementById('dateJour').value;
+  const dateEl = document.getElementById('dateJour');
+  const textEl = document.getElementById('pageNumberText');
+  if (!dateEl || !textEl) return; // null-guard: registre pas monté
+  const ds = dateEl.value;
   const dateStr = ds ? new Date(ds + 'T00:00:00').toLocaleDateString('fr-FR') : '\u2014';
-  document.getElementById('pageNumberText').textContent = 'Folio n\u00B0 ' + getState().pageNumber + ' \u2014 ' + dateStr;
+  textEl.textContent = 'Folio n\u00B0 ' + getState().pageNumber + ' \u2014 ' + dateStr;
 }

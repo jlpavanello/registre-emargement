@@ -323,7 +323,7 @@
 }
 .crew-prompt-info button {
   display: inline-block;
-  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
   color: #ffffff;
   border: none;
   padding: 10px 20px;
@@ -332,12 +332,12 @@
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 4px 12px rgba(22,101,52,0.3);
+  box-shadow: 0 4px 12px rgba(139,92,246,0.3);
   transition: all 0.2s ease;
   -webkit-appearance: none;
 }
 .crew-prompt-info button:hover {
-  box-shadow: 0 6px 20px rgba(22,101,52,0.4);
+  box-shadow: 0 6px 20px rgba(139,92,246,0.4);
   transform: translateY(-1px);
 }
 .crew-prompt-info button:active {

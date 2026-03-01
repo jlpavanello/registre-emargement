@@ -14,6 +14,7 @@ export function bindRendererCallbacks(callbacks) {
 export function renderEmployees() {
   const { team, currentPeriod, presentToday, dayData, lockedMatinPresents, lockedSoirPresents } = getState();
   const c = document.getElementById('employeesList');
+  if (!c) return; // null-guard: registre pas monte
 
   if (team.every((t) => !t.nom)) {
     c.innerHTML = '<div class="empty-state"><p>Aucun agent configuré</p><button id="emptyConfigBtn">Configurer</button></div>';
@@ -134,16 +135,19 @@ export function switchPeriod(p) {
 }
 
 export function updateCounts() {
+  const el = document.getElementById('countMatin');
+  if (!el) return; // null-guard: registre pas monte
   const { team, presentToday, dayData } = getState();
   const a = presentToday.filter((i) => team[i] && team[i].nom).length;
   const mc = dayData.filter((d, i) => team[i] && team[i].nom && presentToday.includes(i) && d.matin.signature).length;
   const sc = dayData.filter((d, i) => team[i] && team[i].nom && presentToday.includes(i) && d.soir.signature).length;
-  document.getElementById('countMatin').textContent = `${mc} / ${a} signés`;
+  el.textContent = `${mc} / ${a} signés`;
   document.getElementById('countSoir').textContent = `${sc} / ${a} signés`;
 }
 
 export function updateSoirTabState() {
   const soirTab = document.querySelectorAll('.period-tab')[1];
+  if (!soirTab) return; // null-guard: registre pas monte
   if (!isMatinLocked()) {
     soirTab.style.opacity = '0.4';
     soirTab.style.cursor = 'not-allowed';

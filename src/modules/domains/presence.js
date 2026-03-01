@@ -118,6 +118,7 @@ export function updatePresenceBadge() {
   const { presentToday } = getState();
   const area = document.getElementById('presenceBadgeArea');
   const badge = document.getElementById('presenceBadge');
+  if (!area || !badge) return; // null-guard: registre pas monte
   if (presentToday.length > 0) {
     area.style.display = 'block';
     badge.textContent = presentToday.length + ' présent' + (presentToday.length > 1 ? 's' : '') + " aujourd'hui";

@@ -33,6 +33,7 @@ export function updateVisaButtonState() {
   const { visaMatin, visaSoir } = getState();
   const bm = document.getElementById('visaMatinBtn');
   const bs = document.getElementById('visaSoirBtn');
+  if (!bm || !bs) return; // null-guard: registre pas monte
   if (isMatinLocked() && hasUncoveredSignatures('matin')) {
     bm.innerHTML = '\u26A0\uFE0F Re-signer';
     bm.classList.remove('signed');

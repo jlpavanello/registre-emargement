@@ -16,6 +16,100 @@ export function bindSignModalCallbacks(callbacks) {
   _afterConfirm = callbacks;
 }
 
+// =============================================
+// ensureModalDOM — Auto-injection du HTML modal
+// Injecte le DOM de la modal signature dans
+// #global-modal (une seule fois, lazy)
+// =============================================
+
+let _modalDOMReady = false;
+
+export function ensureModalDOM() {
+  if (_modalDOMReady) return;
+
+  const container = document.getElementById('global-modal');
+  if (!container) {
+    console.warn('ensureModalDOM: #global-modal introuvable');
+    return;
+  }
+
+  // Ne pas ré-injecter si le DOM existe déjà (cas legacy)
+  if (document.getElementById('sigModal')) {
+    _modalDOMReady = true;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="modal-overlay" id="sigModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle">Signature</h3>
+          <p id="modalSubtitle"></p>
+        </div>
+        <div id="stepIndicator" class="step-indicator" style="display:none;">
+          <div class="step-dot active" id="step1dot">1</div>
+          <div class="step-line" id="step1line"></div>
+          <div class="step-dot" id="step2dot">2</div>
+          <div class="step-line" id="step2line"></div>
+          <div class="step-dot" id="step3dot">3</div>
+        </div>
+        <div class="modal-body">
+          <!-- ÉTAPE 1 : Sélection machine (matin) -->
+          <div id="machSelectArea" style="display:none;">
+            <label>Catégorie d'arme</label>
+            <select id="catSelect">
+              <option value="">— Choisir une catégorie —</option>
+            </select>
+            <div id="machSelectSub" style="display:none;">
+              <label style="margin-top:6px;">Arme</label>
+              <select id="machineSelect"><option value="">— Choisir —</option></select>
+            </div>
+            <label style="margin-top:6px;">Munitions</label>
+            <div class="qty-selector">
+              <button class="qty-minus" id="btnQtyMinus">\u2212</button>
+              <input type="number" class="qty-value" id="qtyValue" value="0" min="0" inputmode="numeric" pattern="[0-9]*">
+              <button class="qty-plus" id="btnQtyPlus">+</button>
+            </div>
+            <button class="btn-next-step" id="btnAddMachine" disabled>Ajouter cette arme</button>
+          </div>
+          <!-- ÉTAPE 2 : Récap machines ajoutées (matin) -->
+          <div id="machineListArea" style="display:none;">
+            <label>Armes sélectionnées</label>
+            <div id="machineListContent" class="machine-list"></div>
+            <button class="btn-add-another" id="btnAddAnother">+ Ajouter une autre arme</button>
+            <button class="btn-next-step" id="btnGoToSign" style="margin-top:8px;">Passer à la signature \u2192</button>
+          </div>
+          <!-- Zone retours SOIR (multi-machines) -->
+          <div id="soirReturnArea" style="display:none;"></div>
+          <div id="sigCanvasArea">
+            <canvas class="sig-canvas" id="sigCanvas"></canvas>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn cancel" id="btnModalCancel">Annuler</button>
+          <button class="modal-btn clear" id="btnClear">Effacer</button>
+          <button class="modal-btn confirm" id="btnModalConfirm">Valider</button>
+        </div>
+      </div>
+    </div>`;
+
+  // Binding des événements de la modal
+  document.getElementById('btnModalCancel').addEventListener('click', closeModal);
+  document.getElementById('btnClear').addEventListener('click', clearCanvas);
+  document.getElementById('btnModalConfirm').addEventListener('click', confirmSignature);
+  document.getElementById('catSelect').addEventListener('change', onCatChange);
+  document.getElementById('machineSelect').addEventListener('change', onMachineChange);
+  document.getElementById('btnQtyMinus').addEventListener('click', () => changeQty(-1));
+  document.getElementById('btnQtyPlus').addEventListener('click', () => changeQty(+1));
+  document.getElementById('qtyValue').addEventListener('change', function () { onQtyInput(this); });
+  document.getElementById('qtyValue').addEventListener('input', function () { onQtyInput(this); });
+  document.getElementById('btnAddMachine').addEventListener('click', addMachineToList);
+  document.getElementById('btnAddAnother').addEventListener('click', goToAddAnotherMachine);
+  document.getElementById('btnGoToSign').addEventListener('click', goToSignStep);
+
+  _modalDOMReady = true;
+}
+
 export function closeModal() {
   document.getElementById('sigModal').classList.remove('active');
   setState('currentSignTarget', null);
@@ -224,6 +318,9 @@ export function renderSoirReturnArea(empIdx) {
 }
 
 export function openSignModal(index, period) {
+  // Auto-injecter le DOM de la modal si nécessaire
+  ensureModalDOM();
+
   setState('currentSignTarget', { index, period });
   setState('accQty', 0);
   setState('currentStep', 1);

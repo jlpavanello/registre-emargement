@@ -87,9 +87,9 @@ export function renderConfig() {
     });
   });
 
-  // Bind armurier select change
+  // Bind armurier select change (use onchange to avoid duplicate listeners)
   const armSel = document.getElementById('configArmurierSelect');
-  armSel.addEventListener('change', onArmurierSelectChange);
+  armSel.onchange = onArmurierSelectChange;
 
   // Bind boutons Supprimer de suppression individuelle
   document.querySelectorAll('.btn-remove-config').forEach((btn) => {

@@ -1,0 +1,323 @@
+/* =============================================
+   homepage.css — Page d'accueil "Caisse à outils"
+   Grille de tuiles par catégorie
+   ============================================= */
+
+.homepage {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1e3a8a 0%, #2563eb 180px, #f1f5f9 180px);
+  padding-bottom: 100px;
+}
+
+/* Header de la homepage */
+.homepage-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 18px 24px;
+  color: white;
+}
+.homepage-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px;
+  flex-shrink: 0;
+}
+.homepage-title-group {
+  flex: 1;
+  min-width: 0;
+}
+.homepage-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin: 0;
+  line-height: 1.2;
+}
+.homepage-subtitle {
+  font-size: 12px;
+  opacity: 0.7;
+  font-weight: 500;
+  margin-top: 2px;
+}
+.homepage-date {
+  font-size: 11px;
+  opacity: 0.5;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Bouton profil */
+.homepage-role-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.homepage-role-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+.homepage-role-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Zone des tuiles */
+.homepage-tools {
+  padding: 0 14px;
+  margin-top: -8px;
+}
+
+/* Catégorie */
+.tool-category {
+  margin-bottom: 16px;
+}
+.tool-category-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tool-category-title--blue { color: var(--dark2); }
+.tool-category-title--green { color: #166534; }
+.tool-category-title--purple { color: #5b21b6; }
+.tool-category-title--orange { color: #92400e; }
+.tool-category-title--red { color: #991b1b; }
+.tool-category-title--teal { color: #115e59; }
+.tool-category-title--slate { color: #475569; }
+
+/* Indicateur de catégorie */
+.tool-category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tool-category-dot--blue { background: var(--dark2); }
+.tool-category-dot--green { background: #166534; }
+.tool-category-dot--purple { background: #5b21b6; }
+.tool-category-dot--orange { background: #92400e; }
+.tool-category-dot--red { background: #991b1b; }
+.tool-category-dot--teal { background: #115e59; }
+.tool-category-dot--slate { background: #475569; }
+
+/* Grille de tuiles */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* Tuile individuelle */
+.tool-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px 8px 14px;
+  border-radius: var(--radius);
+  background: white;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--border-light);
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.2s ease;
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tool-tile:active {
+  transform: scale(0.96);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Bordure colorée en haut */
+.tool-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+}
+.tool-tile--blue::before { background: var(--dark2); }
+.tool-tile--green::before { background: #166534; }
+.tool-tile--purple::before { background: #5b21b6; }
+.tool-tile--orange::before { background: #92400e; }
+.tool-tile--red::before { background: #991b1b; }
+.tool-tile--teal::before { background: #115e59; }
+.tool-tile--slate::before { background: #475569; }
+
+/* Icône */
+.tool-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* Label */
+.tool-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+/* Badge (compteur) */
+.tool-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: var(--accent);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.3;
+}
+.tool-badge--green { background: var(--green); }
+.tool-badge--purple { background: var(--purple); }
+.tool-badge--orange { background: var(--orange-dark); }
+.tool-badge--red { background: var(--red); }
+
+/* Badge vide : cacher */
+.tool-badge:empty,
+.tool-badge[data-count="0"] {
+  display: none;
+}
+
+/* Tuile désactivée (agent sans accès) */
+.tool-tile--disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Ligne d'outils admin (Chat + Config en bas) */
+.tool-admin-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* Double colonne pour les catégories côte à côte */
+.tool-categories-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* FAB Chat sur la homepage */
+.homepage-chat-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d9488 0%, #115e59 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 6px 24px rgba(13, 148, 136, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+  transition: all 0.2s ease;
+}
+.homepage-chat-fab:active {
+  transform: scale(0.92);
+}
+.homepage-chat-fab svg {
+  width: 26px;
+  height: 26px;
+}
+.homepage-chat-fab-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--red);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+}
+.homepage-chat-fab-badge:empty,
+.homepage-chat-fab-badge[data-count="0"] {
+  display: none;
+}
+
+/* Sync status intégré */
+.homepage-sync {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+}
+
+/* Animation d'entrée des tuiles */
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.tool-tile {
+  animation: tileIn 0.3s ease backwards;
+}
+.tool-tile:nth-child(1) { animation-delay: 0.02s; }
+.tool-tile:nth-child(2) { animation-delay: 0.06s; }
+.tool-tile:nth-child(3) { animation-delay: 0.1s; }
+
+/* Responsive : tablette */
+@media (min-width: 600px) {
+  .homepage-tools {
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .tool-tile {
+    padding: 22px 12px 18px;
+  }
+  .tool-icon {
+    font-size: 32px;
+  }
+  .tool-label {
+    font-size: 12px;
+  }
+}

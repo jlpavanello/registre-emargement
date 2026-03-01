@@ -22,6 +22,7 @@ export function saveResponsables() {
 export function populateVisaSignerSelect() {
   const { responsables } = getState();
   const sel = document.getElementById('visaSignerSelect');
+  if (!sel) return; // null-guard: registre pas monte
   sel.innerHTML = '<option value="">— Choisir le signataire —</option>';
   if (responsables.chef.nom) {
     sel.innerHTML += `<option value="chef">Chef d'unité — ${responsables.chef.nom}</option>`;
@@ -37,6 +38,7 @@ export function populateVisaSignerSelect() {
 export function populateArmurierSelect() {
   const { team, responsables } = getState();
   const sel = document.getElementById('configArmurierSelect');
+  if (!sel) return; // null-guard: config pas monte
   const info = document.getElementById('configArmurierInfo');
   sel.innerHTML = '<option value="">— Choisir l\'Armurier parmi les agents —</option>';
   const active = team.map((t, i) => ({ ...t, idx: i })).filter(t => t.nom);
@@ -80,6 +82,7 @@ export function onArmurierSelectChange() {
 export function getSignerInfo() {
   const { responsables } = getState();
   const sel = document.getElementById('visaSignerSelect');
+  if (!sel) return null;
   const role = sel.value;
   if (!role) return null;
   const r = responsables[role];
