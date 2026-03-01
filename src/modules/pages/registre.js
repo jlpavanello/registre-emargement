@@ -8,11 +8,12 @@ import { navigate } from '../router.js';
 
 // --- Imports Domains ---
 import { getState } from '../state.js';
-import { onVisaSignerChange } from '../domains/responsables.js';
+import { onVisaSignerChange, populateVisaSignerSelect } from '../domains/responsables.js';
 import { bindPresenceCallbacks } from '../domains/presence.js';
 import { bindCrewCallbacks } from '../domains/crew-assignment.js';
-import { saveInfoFields } from '../domains/info-fields.js';
+import { loadInfoFields, saveInfoFields } from '../domains/info-fields.js';
 import { updatePageNumberDisplay } from '../domains/page-number.js';
+import { todayStr } from '../utils/date.js';
 
 // --- Imports UI ---
 import { renderEmployees, switchPeriod, updateCounts, updateSoirTabState } from '../ui/renderer.js';
@@ -25,6 +26,7 @@ import { resetSignatures } from '../actions/reset.js';
 
 // --- Imports Auth ---
 import { showRoleScreen } from '../auth/login-screen.js';
+import { applyRoleGuards } from '../auth/auth-guard.js';
 
 // =============================================
 // Lazy-loaded modules (code-splitting)
@@ -463,18 +465,32 @@ function initRegistreUI() {
     },
   });
 
-  // Populate registre-specific UI
+  // Set today's date (must happen BEFORE other calls that read dateJour)
+  const dateEl = document.getElementById('dateJour');
+  if (dateEl && !dateEl.value) dateEl.value = todayStr();
+
+  // Load saved info fields (entreprise, responsable, etc.)
+  loadInfoFields();
+
+  // Populate selects
   populateMainArmurierSelect();
+  populateVisaSignerSelect();
+
+  // Update registre-specific displays
   updateShortcutCounts();
   updatePresenceShortcutSub();
   updateCrewPromptStats();
   updateDayConfigLabel();
+  updatePageNumberDisplay();
 
   // Render employees and counts (data already loaded by init())
   renderEmployees();
   updateCounts();
   updateSoirTabState();
   updateVisaButtonState();
+
+  // Apply role-based visibility guards
+  applyRoleGuards();
 
   // Auto-navigate to presence page if no one selected
   const { presentToday, team } = getState();

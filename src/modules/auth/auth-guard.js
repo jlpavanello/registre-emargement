@@ -1,65 +1,69 @@
-// Phase 5: Route/feature guards based on user role
-// Applies visibility and interaction restrictions per role
+// =============================================
+// auth-guard.js — Contrôle d'accès par rôle
+// Phase 7 : guards au niveau route + per-element
+// =============================================
 
 import { getCurrentProfile, ACCESS, getDeviceRole } from './auth-state.js';
 
 /**
- * Apply role-based UI restrictions
- * Called after auth init and on auth state changes
+ * Apply role-based UI restrictions.
+ * Called after auth init, on auth state changes, and when pages mount.
+ * All element lookups are null-guarded (safe to call from any page).
  */
 export function applyRoleGuards() {
   const deviceRole = getDeviceRole();
 
-  // Pas de rôle défini → l'écran de sélection s'affichera
+  // Pas de rôle défini → afficher l'écran de sélection (z-index: 2000)
   if (!deviceRole) {
-    hideApp();
+    const roleScreen = document.getElementById('roleSelectScreen');
+    if (roleScreen) roleScreen.style.display = 'flex';
     return;
   }
 
   const profile = getCurrentProfile();
   if (!profile) {
-    hideApp();
+    const roleScreen = document.getElementById('roleSelectScreen');
+    if (roleScreen) roleScreen.style.display = 'flex';
     return;
   }
 
-  showApp();
+  // Cacher l'écran de sélection de rôle
+  const roleScreen = document.getElementById('roleSelectScreen');
+  if (roleScreen) roleScreen.style.display = 'none';
 
-  // Config button: armurier+ only (= responsable en mode local)
+  // === Éléments du registre (null-guardés — no-op si page non montée) ===
+
+  // Header nav buttons (registre)
   toggleElement('btnOpenConfig', ACCESS.canViewConfig());
+  toggleElement('btnOpenStock', ACCESS.canViewStock());
+  toggleElement('btnOpenPV', ACCESS.canViewPV());
+  toggleElement('btnOpenPlanning', ACCESS.canViewConfig());
+  toggleElement('btnOpenAudit', ACCESS.canViewConfig());
 
-  // Configuration des moyens (pavé raccourcis): responsable uniquement
+  // Configuration shortcuts: responsable only
   toggleElement('sectionConfigMoyens', ACCESS.canViewConfig());
 
-  // Présents du jour + Équipages: responsable uniquement
+  // Présents du jour + Équipages: responsable only
   toggleElement('presencePromptBox', ACCESS.canViewConfig());
   toggleElement('crewPromptBox', ACCESS.canViewConfig());
 
-  // Reset button: chef+ only
+  // Reset: chef+ only
   toggleElement('btnReset', ACCESS.canResetDay());
 
-  // PDF generation: chef+ only
+  // PDF: chef+ only
   toggleElement('btnPDF', ACCESS.canResetDay());
 
-  // Full reset button: responsable+ only
+  // Full reset (page config): responsable+ only
   toggleElement('btnFullReset', ACCESS.canFullReset());
 
-  // Visa signing: armurier+ only
+  // Visa: armurier+ only
   toggleElement('visaMatinBtn', ACCESS.canSignVisa());
   toggleElement('visaSoirBtn', ACCESS.canSignVisa());
   toggleElement('visaSignerSelect', ACCESS.canSignVisa());
-
-  // Stock & Logistique: chef+ only (= responsable en mode local)
-  toggleElement('btnOpenStock', ACCESS.canViewStock());
-
-  // PV (Procès-Verbaux): chef+ only (= responsable en mode local)
-  toggleElement('btnOpenPV', ACCESS.canViewPV());
-
-  // Vocal reports: all can create, chef+ can delete others
-  // (deletion guard is in vocal-panel.js)
 }
 
 /**
- * Hide/show an element by ID
+ * Hide/show an element by ID (null-guarded)
  */
 function toggleElement(id, visible) {
   const el = document.getElementById(id);
@@ -74,39 +78,8 @@ function toggleElement(id, visible) {
 }
 
 /**
- * Hide the main app (show role selection screen)
- */
-function hideApp() {
-  const roleScreen = document.getElementById('roleSelectScreen');
-  if (roleScreen) roleScreen.style.display = 'flex';
-
-  // Hide main content sections
-  const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #crewBadgeArea, #lockedBanner, #pageNumberBadge, #presencePromptBox, #crewPromptBox');
-  mainSections.forEach(el => {
-    el.classList.add('hidden-by-role');
-  });
-}
-
-/**
- * Show the main app (hide role selection screen)
- */
-function showApp() {
-  const roleScreen = document.getElementById('roleSelectScreen');
-  if (roleScreen) roleScreen.style.display = 'none';
-
-  // Show main content sections (sauf celles gérées par les gardes de rôle)
-  const guardedIds = ['sectionConfigMoyens', 'presencePromptBox', 'crewPromptBox'];
-  const mainSections = document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #pageNumberBadge, #presencePromptBox, #crewPromptBox');
-  mainSections.forEach(el => {
-    if (!guardedIds.includes(el.id)) {
-      el.classList.remove('hidden-by-role');
-    }
-  });
-}
-
-/**
- * Check guard before executing an action
- * Shows alert if not permitted
+ * Check guard before executing an action.
+ * Shows alert if not permitted.
  * @param {string} action - Action key from ACCESS
  * @returns {boolean} true if allowed
  */

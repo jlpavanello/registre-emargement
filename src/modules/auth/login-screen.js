@@ -96,15 +96,11 @@ function selectRole(role) {
 }
 
 /**
- * Show the role selection screen again (for changing role)
+ * Show the role selection screen again (for changing role).
+ * L'overlay z-index: 2000 couvre toute l'app — pas besoin
+ * de cacher les éléments individuels.
  */
 export function showRoleScreen() {
   const screen = document.getElementById('roleSelectScreen');
-  if (screen) {
-    screen.style.display = 'flex';
-    // Also hide the app behind it
-    document.querySelectorAll('header, .section, .period-tabs, #employeesList, .bottom-bar, #presenceBadgeArea, #crewBadgeArea, #lockedBanner, #pageNumberBadge, #presencePromptBox, #crewPromptBox').forEach(el => {
-      el.classList.add('hidden-by-role');
-    });
-  }
+  if (screen) screen.style.display = 'flex';
 }

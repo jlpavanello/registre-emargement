@@ -46,7 +46,7 @@ import { initSyncEngine, schedulePush } from './modules/supabase/sync-engine.js'
 import { initSyncStatusUI } from './modules/supabase/sync-status.js';
 
 // Auth
-import { initAuth, onAuthStateChange } from './modules/auth/auth-state.js';
+import { initAuth, onAuthStateChange, ACCESS } from './modules/auth/auth-state.js';
 import { applyRoleGuards } from './modules/auth/auth-guard.js';
 import { createLoginScreen } from './modules/auth/login-screen.js';
 
@@ -113,7 +113,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const base = import.meta.env.BASE_URL || '/';
     navigator.serviceWorker
-      .register(base + 'sw.js?v=20')
+      .register(base + 'sw.js?v=21')
       .then((reg) => console.log('SW enregistr\u00e9:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });
@@ -198,6 +198,7 @@ function registerRoutes() {
   });
   registerRoute('/audit', {
     title: 'Audit & Incidents',
+    guard: () => ACCESS.canViewConfig(),
     async mount(container) {
       const { auditPage } = await import('./modules/pages/audit.js');
       await auditPage.mount(container);
@@ -206,6 +207,7 @@ function registerRoutes() {
   });
   registerRoute('/presence', {
     title: 'Présence',
+    guard: () => ACCESS.canViewConfig(),
     async mount(container) {
       const { presencePage } = await import('./modules/pages/presence-page.js');
       presencePage.mount(container);
@@ -214,6 +216,7 @@ function registerRoutes() {
   });
   registerRoute('/equipages', {
     title: '\u00c9quipages',
+    guard: () => ACCESS.canViewConfig(),
     async mount(container) {
       const { equipagesPage } = await import('./modules/pages/equipages.js');
       equipagesPage.mount(container);
@@ -222,6 +225,7 @@ function registerRoutes() {
   });
   registerRoute('/config', {
     title: 'Configuration',
+    guard: () => ACCESS.canViewConfig(),
     async mount(container) {
       const { configPage } = await import('./modules/pages/config-page.js');
       configPage.mount(container);
@@ -229,9 +233,10 @@ function registerRoutes() {
     unmount() {},
   });
 
-  // Pages à onglets (lazy-loaded)
+  // Pages à onglets (lazy-loaded, accès restreint)
   registerRoute('/stock', {
     title: 'Stock & Armement',
+    guard: () => ACCESS.canViewStock(),
     async mount(container) {
       const { stockPage } = await import('./modules/pages/stock-page.js');
       await stockPage.mount(container);
@@ -240,6 +245,7 @@ function registerRoutes() {
   });
   registerRoute('/pv', {
     title: 'Procès-Verbaux',
+    guard: () => ACCESS.canViewPV(),
     async mount(container) {
       const { pvPage } = await import('./modules/pages/pv-page.js');
       await pvPage.mount(container);
@@ -248,6 +254,7 @@ function registerRoutes() {
   });
   registerRoute('/planning', {
     title: 'Planning',
+    guard: () => ACCESS.canViewConfig(),
     async mount(container) {
       const { planningPage } = await import('./modules/pages/planning-page.js');
       await planningPage.mount(container);
