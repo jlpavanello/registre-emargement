@@ -4,8 +4,6 @@
 // Dashboard en page d'entrée
 // =============================================
 
-import { navigate } from '../router.js';
-
 // --- Lazy-loaded module ---
 
 let _stockModule = null;
@@ -21,7 +19,6 @@ function getTemplate() {
 <div class="stock-overlay" id="stockPanel">
   <div class="stock-header">
     <h2>📦 Stock & Logistique</h2>
-    <button class="header-btn" id="btnCloseStock" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
   <nav class="stock-nav" role="tablist">
     <button class="stock-nav-tab active" data-tab="dashboard" role="tab">
@@ -58,7 +55,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnCloseStock').addEventListener('click', () => navigate('/'));
   document.querySelectorAll('#stockPanel .stock-nav-tab').forEach(tab => {
     tab.addEventListener('click', async () => {
       (await getStockModule()).switchStockTab(tab.dataset.tab);

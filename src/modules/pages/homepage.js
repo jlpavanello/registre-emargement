@@ -128,6 +128,9 @@ function getTemplate() {
   // 1. Hero — Présence
   html += renderHeroSection(isAgent);
 
+  // 1b. Dashboard journée
+  if (!isAgent) html += renderDashboard();
+
   // 2. Grille d'outils
   html += renderToolsGrid(isAgent);
 
@@ -180,6 +183,55 @@ function renderHeroSection(isAgent) {
         </div>
       </div>
     </a>`;
+}
+
+function renderDashboard() {
+  const { presentToday, team, crewAssignments, dayData } = getState();
+  const totalTeam = team.filter(t => t.nom).length;
+  const presentCount = presentToday.length;
+  const crewCount = Object.values(crewAssignments).filter(m => m && m.length > 0).length;
+
+  // Count signatures
+  let signedCount = 0;
+  if (dayData) {
+    dayData.forEach((d, i) => {
+      if (presentToday.includes(i) && d.matin && d.matin.signature) signedCount++;
+    });
+  }
+
+  const sigWarning = presentCount > 0 && signedCount < presentCount;
+
+  return `
+    <div class="day-dashboard">
+      <div class="day-dashboard-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Tableau de bord du jour
+      </div>
+      <div class="day-dashboard-grid">
+        <div class="day-dashboard-stat">
+          <div class="day-dashboard-stat-icon">\u2705</div>
+          <div class="day-dashboard-stat-value${presentCount > 0 ? ' success' : ''}">${presentCount}</div>
+          <div class="day-dashboard-stat-label">Pr\u00e9sents</div>
+          ${totalTeam > 0 ? `<div class="day-dashboard-stat-sub">/ ${totalTeam}</div>` : ''}
+        </div>
+        <div class="day-dashboard-stat">
+          <div class="day-dashboard-stat-icon">\u270D\uFE0F</div>
+          <div class="day-dashboard-stat-value${sigWarning ? ' warning' : signedCount > 0 ? ' success' : ''}">${signedCount}</div>
+          <div class="day-dashboard-stat-label">Signatures</div>
+          ${sigWarning ? `<div class="day-dashboard-stat-sub">${presentCount - signedCount} restante${presentCount - signedCount > 1 ? 's' : ''}</div>` : ''}
+        </div>
+        <div class="day-dashboard-stat">
+          <div class="day-dashboard-stat-icon">\uD83D\uDE97</div>
+          <div class="day-dashboard-stat-value${crewCount > 0 ? ' primary' : ''}">${crewCount}</div>
+          <div class="day-dashboard-stat-label">\u00c9quipages</div>
+        </div>
+        <div class="day-dashboard-stat">
+          <div class="day-dashboard-stat-icon">\uD83D\uDCCB</div>
+          <div class="day-dashboard-stat-value primary">${presentCount > 0 ? '\u2713' : '\u2014'}</div>
+          <div class="day-dashboard-stat-label">Registre</div>
+        </div>
+      </div>
+    </div>`;
 }
 
 function renderToolsGrid(isAgent) {

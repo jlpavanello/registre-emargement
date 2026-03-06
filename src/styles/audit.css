@@ -4,7 +4,7 @@
 
 /* Page Audit & Incidents */
 .audit-overlay {
-  background: linear-gradient(135deg, #eef2ff 0%, #e8ecf5 100%);
+  background: var(--color-neutral-50);
   overflow-y: auto;
   padding-bottom: 40px;
   min-height: 100vh;
@@ -18,7 +18,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: linear-gradient(135deg, #312e81, #1e1b4b);
+  background: var(--color-primary);
   color: white;
 }
 
@@ -53,8 +53,8 @@
 }
 
 .audit-tab.active {
-  color: #6366f1;
-  border-bottom-color: #6366f1;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 /* Stats bar */
@@ -78,7 +78,7 @@
 .audit-stat-num {
   font-size: 20px;
   font-weight: 800;
-  color: #6366f1;
+  color: var(--color-primary);
 }
 
 .audit-stat-label {
@@ -112,9 +112,9 @@
 }
 
 .audit-filter-btn.active {
-  background: #6366f1;
+  background: var(--color-primary);
   color: white;
-  border-color: #6366f1;
+  border-color: var(--color-primary);
 }
 
 /* Date separator */

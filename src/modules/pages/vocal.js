@@ -3,8 +3,6 @@
 // Dictée vocale + formulaire + liste rapports
 // =============================================
 
-import { navigate } from '../router.js';
-
 // --- Lazy-loaded modules ---
 
 let _vocalModule = null;
@@ -26,7 +24,6 @@ function getTemplate() {
 <div class="vocal-overlay" id="vocalPanel">
   <div class="vocal-header">
     <h2>\uD83C\uDFA4 Compte-rendu de mission</h2>
-    <button class="header-btn" id="btnCloseVocal" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
   <div class="vocal-form">
     <label>Lieu de la mission</label>
@@ -87,7 +84,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnCloseVocal').addEventListener('click', () => navigate('/'));
   document.getElementById('btnMic').addEventListener('click', async () => {
     (await getVocalModule()).startRecording();
   });

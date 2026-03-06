@@ -160,6 +160,34 @@ function updateCrewPromptStats() {
   }
 }
 
+/** Afficher la banni\u00e8re d'alerte "aucun agent pr\u00e9sent" */
+function showPresenceWarning() {
+  // Remove existing banner if any
+  const existing = document.getElementById('presenceWarningBanner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'presenceWarningBanner';
+  banner.className = 'alert-banner warning';
+  banner.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <div style="flex:1;line-height:1.4;">
+      <strong>Aucun agent s\u00e9lectionn\u00e9</strong><br>
+      <span style="font-weight:500;">S\u00e9lectionnez les pr\u00e9sents avant de remplir le registre.</span>
+    </div>
+    <a href="#/presence">S\u00e9lectionner</a>
+  `;
+
+  // Insert after header
+  const header = document.querySelector('header');
+  if (header && header.nextSibling) {
+    header.parentNode.insertBefore(banner, header.nextSibling);
+  }
+}
+
 // =============================================
 // Template HTML
 // =============================================
@@ -168,9 +196,6 @@ function getTemplate() {
   return `
 <header>
   <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-    <button class="header-btn" id="btnBackHome" title="Retour accueil" style="font-size:16px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:8px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </button>
     <h1 style="margin:0;font-size:11px;line-height:1.3;">REGISTRE D'ATTRIBUTION<br>DES ARMES ET DES MUNITIONS</h1>
   </div>
   <div style="display:flex;align-items:center;gap:6px;">
@@ -294,8 +319,22 @@ function getTemplate() {
 </div>
 
 <div class="bottom-bar">
-  <button class="btn-secondary btn-danger" id="btnReset">Effacer</button>
+  <button class="btn-secondary btn-more" id="btnMoreOptions" title="Plus d'options">\u22EF</button>
+  <button class="btn-secondary btn-danger" id="btnReset" style="display:none;">Effacer les signatures</button>
   <button class="btn-main" id="btnPDF">G\u00e9n\u00e9rer le Registre d'attribution en PDF</button>
+</div>
+
+<!-- Modale de confirmation suppression -->
+<div class="confirm-modal-overlay" id="confirmResetOverlay" style="display:none;">
+  <div class="confirm-modal">
+    <div class="confirm-modal-icon">\u26A0\uFE0F</div>
+    <h3 class="confirm-modal-title">Effacer toutes les signatures ?</h3>
+    <p class="confirm-modal-text">Cette action supprimera toutes les signatures de la journ\u00e9e en cours. Les visas sign\u00e9s ne peuvent pas \u00eatre effac\u00e9s.</p>
+    <div class="confirm-modal-actions">
+      <button class="confirm-modal-cancel" id="btnResetCancel">Annuler</button>
+      <button class="confirm-modal-confirm" id="btnResetConfirm">Oui, effacer</button>
+    </div>
+  </div>
 </div>
 
 
@@ -314,9 +353,6 @@ function getTemplate() {
 // =============================================
 
 function bindEvents() {
-  // Header — Retour accueil
-  document.getElementById('btnBackHome').addEventListener('click', () => navigate('/'));
-
   // Header — Config navigue vers la page dédiée
   document.getElementById('btnOpenConfig').addEventListener('click', () => navigate('/config'));
   document.getElementById('btnChangeRole').addEventListener('click', () => {
@@ -333,8 +369,27 @@ function bindEvents() {
   document.getElementById('visaMatinBtn').addEventListener('click', () => openVisaSign('visaMatin'));
   document.getElementById('visaSoirBtn').addEventListener('click', () => openVisaSign('visaSoir'));
 
-  // Bottom bar
-  document.getElementById('btnReset').addEventListener('click', resetSignatures);
+  // Bottom bar — More options toggle
+  document.getElementById('btnMoreOptions').addEventListener('click', () => {
+    const btn = document.getElementById('btnReset');
+    btn.style.display = btn.style.display === 'none' ? '' : 'none';
+  });
+
+  // Bottom bar — Reset with custom confirmation modal
+  document.getElementById('btnReset').addEventListener('click', () => {
+    document.getElementById('confirmResetOverlay').style.display = 'flex';
+  });
+  document.getElementById('btnResetCancel').addEventListener('click', () => {
+    document.getElementById('confirmResetOverlay').style.display = 'none';
+  });
+  document.getElementById('btnResetConfirm').addEventListener('click', () => {
+    document.getElementById('confirmResetOverlay').style.display = 'none';
+    resetSignatures();
+  });
+  document.getElementById('confirmResetOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+  });
+
   document.getElementById('btnPDF').addEventListener('click', generatePDF);
 
   // Equipages — navigue vers la page dédiée
@@ -416,10 +471,10 @@ function initRegistreUI() {
   // Apply role-based visibility guards
   applyRoleGuards();
 
-  // Auto-navigate to presence page if no one selected
+  // Show warning banner if no agents selected
   const { presentToday, team } = getState();
   if (presentToday.length === 0 && team.some(t => t.nom)) {
-    setTimeout(() => navigate('/presence'), 500);
+    showPresenceWarning();
   }
 }
 

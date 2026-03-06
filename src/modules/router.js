@@ -3,6 +3,8 @@
 // Navigation entre pages via #/route
 // =============================================
 
+import { updateSidebarActive } from './ui/sidebar.js';
+
 const routes = new Map();
 let currentRoute = null;
 let currentPath = null;
@@ -110,6 +112,9 @@ async function handleRoute() {
   } else {
     document.title = 'Gestion Opérationnelle PM';
   }
+
+  // Mettre à jour la sidebar active
+  updateSidebarActive();
 
   // Scroll en haut
   window.scrollTo(0, 0);

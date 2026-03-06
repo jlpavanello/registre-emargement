@@ -3,8 +3,6 @@
 // Mois, Semaine, Cycles, Congés, Compteurs
 // =============================================
 
-import { navigate } from '../router.js';
-
 // --- Lazy-loaded module ---
 
 let _planningModule = null;
@@ -20,7 +18,6 @@ function getTemplate() {
 <div class="planning-overlay" id="planningPanel">
   <div class="planning-header">
     <h2>\uD83D\uDCC5 Planning</h2>
-    <button class="header-btn" id="btnClosePlanning" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
   <div class="planning-tabs">
     <button class="planning-tab active" data-tab="month">\uD83D\uDCC6 Mois</button>
@@ -28,6 +25,7 @@ function getTemplate() {
     <button class="planning-tab" data-tab="cycles">\uD83D\uDD04 Cycles</button>
     <button class="planning-tab" data-tab="leaves">\uD83C\uDF34 Cong\u00e9s</button>
     <button class="planning-tab" data-tab="counters">\uD83D\uDCCA Compteurs</button>
+    <button class="planning-tab" data-tab="config">⚙️ Config</button>
   </div>
   <div id="planningTabContent"></div>
   <div style="height:20px;"></div>
@@ -38,7 +36,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnClosePlanning').addEventListener('click', () => navigate('/'));
   document.querySelectorAll('#planningPanel .planning-tab').forEach(tab => {
     tab.addEventListener('click', async () => {
       (await getPlanningModule()).switchPlanningTab(tab.dataset.tab);

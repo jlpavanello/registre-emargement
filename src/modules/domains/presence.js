@@ -2,6 +2,7 @@ import { getState, setState } from '../state.js';
 import { getActiveTeam } from './team.js';
 import { saveDayData } from './day-data.js';
 import { removeCrewAssignment } from './crew-assignment.js';
+import { showToast } from '../ui/toast.js';
 
 // Late-binding callbacks to avoid circular dependencies
 let _callbacks = {};
@@ -76,7 +77,7 @@ export function updatePresenceCount() {
 
 export function savePresence() {
   const { tempPresenceSelection } = getState();
-  if (tempPresenceSelection.length === 0) { alert('Sélectionnez au moins un agent.'); return; }
+  if (tempPresenceSelection.length === 0) { showToast('S\u00e9lectionnez au moins un agent', 'warning'); return; }
   setState('presentToday', [...tempPresenceSelection].sort((a, b) => a - b));
   saveDayData();
   closePresenceSelector();
@@ -85,6 +86,7 @@ export function savePresence() {
   updatePresenceBadge();
   if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
   if (_callbacks.afterSave) _callbacks.afterSave();
+  showToast(tempPresenceSelection.length + ' agent' + (tempPresenceSelection.length > 1 ? 's' : '') + ' s\u00e9lectionn\u00e9' + (tempPresenceSelection.length > 1 ? 's' : ''), 'success');
 }
 
 export function removeFromPresent(idx) {

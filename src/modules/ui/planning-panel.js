@@ -4,6 +4,7 @@ import { renderWeekTab } from './planning-week-tab.js';
 import { renderCyclesTab } from './planning-cycles-tab.js';
 import { renderLeavesTab } from './planning-leaves-tab.js';
 import { renderCountersTab } from './planning-counters-tab.js';
+import { renderConfigTab } from './planning-config-tab.js';
 
 let _currentTab = 'month';
 
@@ -49,6 +50,9 @@ function renderCurrentTab() {
       break;
     case 'counters':
       renderCountersTab(container);
+      break;
+    case 'config':
+      renderConfigTab(container);
       break;
     default:
       container.innerHTML = '<div class="planning-empty"><div class="planning-empty-icon">🚧</div>Onglet en construction</div>';

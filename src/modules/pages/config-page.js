@@ -18,7 +18,6 @@ function getTemplate() {
 <div class="config-overlay" id="configPanel">
   <div class="config-header">
     <h2>Configuration</h2>
-    <button class="header-btn" id="btnCloseConfig" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
   <div class="config-info">Configurez votre \u00e9quipe, vos responsables et vos machines. Ces donn\u00e9es sont sauvegard\u00e9es et pr\u00e9-remplies chaque jour.</div>
   <div class="config-section-title">
@@ -98,7 +97,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnCloseConfig').addEventListener('click', () => navigate('/'));
   document.getElementById('btnSaveConfig').addEventListener('click', () => {
     saveConfig();
     navigate('/registre');

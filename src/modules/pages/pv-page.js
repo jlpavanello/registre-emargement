@@ -3,8 +3,6 @@
 // Modèles, Mes PV, Éditeur
 // =============================================
 
-import { navigate } from '../router.js';
-
 // --- Lazy-loaded module ---
 
 let _pvModule = null;
@@ -20,7 +18,6 @@ function getTemplate() {
 <div class="pv-overlay" id="pvPanel">
   <div class="pv-header">
     <h2>\uD83D\uDCCB Proc\u00e8s-Verbaux</h2>
-    <button class="header-btn" id="btnClosePV" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
   <div class="pv-tabs">
     <button class="pv-tab active" data-tab="templates">Mod\u00e8les</button>
@@ -36,7 +33,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnClosePV').addEventListener('click', () => navigate('/'));
   document.querySelectorAll('#pvPanel .pv-tab').forEach(tab => {
     tab.addEventListener('click', async () => {
       (await getPvModule()).switchPvTab(tab.dataset.tab);

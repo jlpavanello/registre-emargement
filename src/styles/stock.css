@@ -1,14 +1,14 @@
 /* Stock & Logistique page */
 .stock-overlay {
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  background: var(--color-neutral-50);
   overflow-y: auto; padding-bottom: 90px; min-height: 100vh;
 }
 .stock-header {
-  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+  background: var(--color-primary);
   color: white; padding: 16px 18px;
   display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 10;
-  box-shadow: 0 4px 20px rgba(22,101,52,0.25);
+  box-shadow: 0 4px 20px rgba(30,58,95,0.25);
 }
 .stock-header h2 { font-size: 16px; font-weight: 800; }
 
@@ -57,9 +57,9 @@
   white-space: nowrap;
 }
 .stock-nav-tab.active {
-  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+  background: var(--color-primary);
   color: white;
-  box-shadow: 0 2px 8px rgba(22,101,52,0.3);
+  box-shadow: 0 2px 8px rgba(30,58,95,0.3);
 }
 .stock-nav-tab.active .stock-nav-label {
   color: white;
@@ -91,12 +91,12 @@
   transition: all 0.15s ease;
 }
 .stock-sub-tab.active {
-  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
-  color: white; box-shadow: 0 2px 8px rgba(22,101,52,0.3);
+  background: var(--color-primary);
+  color: white; box-shadow: 0 2px 8px rgba(30,58,95,0.3);
 }
 
 /* Contenu onglet */
-#stockTabContent { padding: 12px; min-height: 300px; background: linear-gradient(180deg, #d1fae5 0%, #dcfce7 100%); }
+#stockTabContent { padding: 12px; min-height: 300px; background: var(--color-neutral-50); }
 
 /* Carte stock générique */
 .stock-card {
@@ -212,8 +212,8 @@
   -webkit-tap-highlight-color: transparent;
 }
 .stock-btn-primary {
-  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
-  color: white; box-shadow: 0 2px 8px rgba(22,101,52,0.25);
+  background: var(--color-primary);
+  color: white; box-shadow: 0 2px 8px rgba(30,58,95,0.25);
 }
 .stock-btn-primary:hover { box-shadow: 0 4px 12px rgba(22,101,52,0.35); }
 .stock-btn-secondary {

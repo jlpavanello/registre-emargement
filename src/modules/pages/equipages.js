@@ -16,7 +16,6 @@ function getTemplate() {
 <div class="crew-overlay" id="crewPanel">
   <div class="crew-header">
     <h2>\uD83D\uDE97 \u00c9quipages v\u00e9hicules</h2>
-    <button class="header-btn" id="btnCloseCrew" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
   <div class="crew-info">Choisissez un v\u00e9hicule, puis ajoutez les agents de l'\u00e9quipage.</div>
   <div class="crew-select-section">
@@ -48,7 +47,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnCloseCrew').addEventListener('click', () => navigate('/'));
   document.getElementById('btnSaveCrew').addEventListener('click', () => {
     saveCrewAssignments();
     navigate('/registre');

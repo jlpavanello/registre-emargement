@@ -3,8 +3,6 @@
 // Journal d'activité + rapports d'incidents
 // =============================================
 
-import { navigate } from '../router.js';
-
 // --- Lazy-loaded module ---
 
 let _auditModule = null;
@@ -20,7 +18,6 @@ function getTemplate() {
 <div class="audit-overlay" id="auditPanel">
   <div class="audit-header">
     <h2>\uD83D\uDEE1\uFE0F Audit & Incidents</h2>
-    <button class="header-btn" id="btnCloseAudit" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
   <div class="audit-tabs">
     <button class="audit-tab active" data-tab="audit">\uD83D\uDCCB Journal</button>
@@ -35,7 +32,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnCloseAudit').addEventListener('click', () => navigate('/'));
   document.querySelectorAll('#auditPanel .audit-tab').forEach(tab => {
     tab.addEventListener('click', async () => {
       (await getAuditModule()).switchAuditTab(tab.dataset.tab);

@@ -1,16 +1,17 @@
 /* =============================================
    Crew (Équipages) — Overlay & Components
+   Unified color palette
    ============================================= */
 
 .crew-overlay {
-  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  background: var(--color-neutral-50);
   overflow-y: auto;
   padding-bottom: 90px;
   min-height: 100vh;
 }
 
 .crew-header {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: var(--color-primary);
   color: white;
   padding: 16px 18px;
   display: flex;
@@ -19,7 +20,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 20px rgba(30,58,95,0.25);
 }
 .crew-header h2 {
   font-size: 16px;
@@ -35,7 +36,7 @@
   font-size: 12px;
   color: var(--text2);
   line-height: 1.5;
-  border: 1px solid #ddd6fe;
+  border: 1px solid var(--color-neutral-200);
 }
 
 .crew-count {
@@ -46,7 +47,7 @@
   margin: 8px 0;
 }
 .crew-count span {
-  color: #7c3aed;
+  color: var(--color-primary);
   font-weight: 800;
   font-size: 16px;
 }
@@ -57,7 +58,7 @@
   background: white;
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  border: 1px solid #ddd6fe;
+  border: 1px solid var(--color-neutral-200);
   overflow: hidden;
 }
 
@@ -66,8 +67,8 @@
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-  border-bottom: 1px solid #ddd6fe;
+  background: var(--color-primary-lighter);
+  border-bottom: 1px solid var(--color-neutral-200);
 }
 
 .crew-vehicle-icon {
@@ -92,7 +93,7 @@
 .crew-vehicle-plate {
   font-size: 12px;
   font-weight: 600;
-  color: #7c3aed;
+  color: var(--color-primary);
   letter-spacing: 0.5px;
 }
 
@@ -106,7 +107,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #7c3aed;
+  background: var(--color-primary);
   color: white;
   font-size: 13px;
   font-weight: 700;
@@ -131,10 +132,10 @@
   transition: all 0.15s ease;
 }
 .crew-member-check:hover {
-  background: #f5f3ff;
+  background: var(--color-primary-lighter);
 }
 .crew-member-check.selected {
-  background: #ede9fe;
+  background: var(--color-primary-lighter);
 }
 .crew-member-check.other-vehicle {
   opacity: 0.5;
@@ -143,7 +144,7 @@
 .crew-check-box {
   width: 22px;
   height: 22px;
-  border: 2px solid #c4b5fd;
+  border: 2px solid var(--color-neutral-200);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -155,8 +156,8 @@
   transition: all 0.15s ease;
 }
 .crew-member-check.selected .crew-check-box {
-  background: #7c3aed;
-  border-color: #7c3aed;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .crew-member-name {
@@ -174,7 +175,7 @@
 
 .crew-member-other {
   font-size: 10px;
-  color: #7c3aed;
+  color: var(--color-primary);
   font-weight: 600;
   font-style: italic;
 }
@@ -196,19 +197,19 @@
   padding: 0;
 }
 .crew-driver-btn:hover {
-  border-color: #7c3aed;
-  color: #7c3aed;
-  background: #f5f3ff;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-lighter);
 }
 .crew-driver-btn.active {
-  border-color: #f59e0b;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-color: var(--color-warning);
+  background: linear-gradient(135deg, #fbbf24, var(--color-warning));
   color: white;
   box-shadow: 0 2px 8px rgba(245,158,11,0.4);
 }
 .crew-member-check.is-driver {
   background: #fef3c7;
-  border-left: 3px solid #f59e0b;
+  border-left: 3px solid var(--color-warning);
 }
 .crew-member-check.is-driver .crew-member-name::after {
   content: ' — Conducteur';
@@ -224,13 +225,13 @@
   padding: 12px 14px;
   background: white;
   border-radius: 14px;
-  border: 1px solid #ddd6fe;
+  border: 1px solid var(--color-neutral-200);
 }
 .crew-select-label {
   display: block;
   font-size: 12px;
   font-weight: 700;
-  color: #6d28d9;
+  color: var(--color-primary);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -241,17 +242,17 @@
   font-size: 14px;
   font-weight: 600;
   font-family: inherit;
-  border: 2px solid #c4b5fd;
+  border: 2px solid var(--color-neutral-200);
   border-radius: 10px;
-  background: #faf5ff;
+  background: var(--color-neutral-50);
   color: var(--text);
   appearance: auto;
   cursor: pointer;
 }
 .crew-select:focus {
   outline: none;
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
 }
 
 /* Assigned agents list for selected vehicle */
@@ -265,7 +266,7 @@
 #crewAssignedTitle {
   font-size: 14px;
   font-weight: 700;
-  color: #4c1d95;
+  color: var(--color-primary);
 }
 .crew-assigned-row {
   display: flex;
@@ -275,13 +276,13 @@
   margin: 4px 12px;
   background: white;
   border-radius: 10px;
-  border: 1px solid #ddd6fe;
+  border: 1px solid var(--color-neutral-200);
   transition: all 0.15s ease;
 }
 .crew-assigned-row.is-driver {
   background: #fef3c7;
-  border-color: #f59e0b;
-  border-left: 4px solid #f59e0b;
+  border-color: var(--color-warning);
+  border-left: 4px solid var(--color-warning);
 }
 .crew-assigned-info {
   display: flex;
@@ -304,7 +305,7 @@
   font-size: 10px;
   font-weight: 700;
   color: white;
-  background: #2563eb;
+  background: var(--color-primary-light);
   padding: 1px 6px;
   border-radius: 8px;
 }
@@ -315,7 +316,7 @@
   background: #fef3c7;
   padding: 2px 8px;
   border-radius: 8px;
-  border: 1px solid #f59e0b;
+  border: 1px solid var(--color-warning);
 }
 .crew-assigned-actions {
   display: flex;
@@ -324,9 +325,9 @@
   flex-shrink: 0;
 }
 .crew-remove-btn {
-  background: #dc2626;
-  color: white;
-  border: none;
+  background: transparent;
+  color: var(--color-neutral-400);
+  border: 1px solid var(--color-neutral-200);
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
@@ -336,7 +337,9 @@
   transition: all 0.15s ease;
 }
 .crew-remove-btn:hover {
-  background: #b91c1c;
+  background: #fef2f2;
+  color: var(--color-danger);
+  border-color: #fecaca;
 }
 .crew-remove-btn:active {
   transform: scale(0.95);
@@ -344,7 +347,7 @@
 .crew-empty-msg {
   text-align: center;
   padding: 16px;
-  color: #a78bfa;
+  color: var(--color-neutral-400);
   font-size: 13px;
   font-weight: 500;
 }
@@ -353,22 +356,22 @@
 .crew-summary-title {
   font-size: 14px;
   font-weight: 800;
-  color: #4c1d95;
+  color: var(--color-primary);
   padding: 14px 14px 6px;
   margin: 6px 12px 0;
-  border-top: 2px solid #ddd6fe;
+  border-top: 2px solid var(--color-neutral-200);
 }
 .crew-summary-card {
   margin: 6px 12px;
   padding: 10px 14px;
   background: white;
   border-radius: 10px;
-  border: 1px solid #ddd6fe;
+  border: 1px solid var(--color-neutral-200);
 }
 .crew-summary-vehicle {
   font-size: 13px;
   font-weight: 700;
-  color: #6d28d9;
+  color: var(--color-primary);
   margin-bottom: 4px;
 }
 .crew-summary-members {
@@ -379,8 +382,8 @@
 .crew-summary-member {
   font-size: 12px;
   font-weight: 600;
-  color: #4c1d95;
-  background: #f5f3ff;
+  color: var(--color-primary);
+  background: var(--color-primary-lighter);
   padding: 2px 8px;
   border-radius: 8px;
 }
@@ -398,7 +401,7 @@
 }
 
 .crew-summary-edit {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -410,16 +413,16 @@
   transition: all 0.15s ease;
 }
 .crew-summary-edit:hover {
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  background: var(--color-primary-light);
 }
 .crew-summary-edit:active {
   transform: scale(0.95);
 }
 
 .crew-summary-delete {
-  background: #dc2626;
-  color: white;
-  border: none;
+  background: transparent;
+  color: var(--color-neutral-400);
+  border: 1px solid var(--color-neutral-200);
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
@@ -429,7 +432,9 @@
   transition: all 0.15s ease;
 }
 .crew-summary-delete:hover {
-  background: #b91c1c;
+  background: #fef2f2;
+  color: var(--color-danger);
+  border-color: #fecaca;
 }
 .crew-summary-delete:active {
   transform: scale(0.95);
@@ -452,7 +457,7 @@
 .btn-crew-save {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--radius-sm);
@@ -460,7 +465,7 @@
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(30,58,95,0.3);
   transition: all var(--transition);
 }
 .btn-crew-save:active {
@@ -476,8 +481,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-  color: #6d28d9;
+  background: var(--color-primary-lighter);
+  color: var(--color-primary);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -489,7 +494,7 @@
   align-items: center;
   gap: 4px;
   border: none;
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: var(--color-primary);
   color: white;
   padding: 6px 14px;
   border-radius: 20px;
@@ -497,7 +502,7 @@
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 2px 6px rgba(30,58,95,0.25);
   transition: all 0.15s ease;
 }
 .btn-edit-crew:active {
@@ -506,11 +511,11 @@
 
 /* Badge on employee card */
 .badge-crew {
-  background: #ede9fe;
-  color: #6d28d9;
+  background: var(--color-primary-lighter);
+  color: var(--color-primary);
 }
 
 /* Vehicle config cards in config panel */
 .cnum.veh-bg {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: var(--color-primary);
 }

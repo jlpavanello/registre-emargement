@@ -16,7 +16,6 @@ function getTemplate() {
 <div class="presence-overlay" id="presencePanel">
   <div class="presence-header">
     <h2>Pr\u00e9sents du jour</h2>
-    <button class="header-btn" id="btnClosePresence" style="background:rgba(255,255,255,0.2);">Fermer</button>
   </div>
   <div class="presence-info">Cochez les agents de service aujourd'hui. Seuls les agents s\u00e9lectionn\u00e9s pourront signer et prendre du mat\u00e9riel.</div>
   <div class="presence-actions">
@@ -34,7 +33,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnClosePresence').addEventListener('click', () => navigate('/'));
   document.getElementById('btnPresenceAll').addEventListener('click', selectAllPresence);
   document.getElementById('btnPresenceNone').addEventListener('click', selectNonePresence);
   document.getElementById('btnPresenceSave').addEventListener('click', () => {

@@ -5,6 +5,7 @@ import { saveDayData } from '../domains/day-data.js';
 import { savePageNumber, updatePageNumberDisplay } from '../domains/page-number.js';
 import { updatePresenceBadge } from '../domains/presence.js';
 import { logAudit } from '../domains/audit-log.js';
+import { showToast } from '../ui/toast.js';
 
 let _callbacks = {};
 export function bindResetCallbacks(callbacks) {
@@ -17,11 +18,9 @@ export function resetSignatures() {
     if (isMatinLocked()) msg += '• Le visa SORTIE a été signé par le responsable.\n';
     if (isSoirLocked()) msg += '• Le visa RETOUR a été signé par le responsable.\n';
     msg += '\nUtilisez « Remise à zéro complète » dans la Configuration si le registre est finalisé.';
-    alert(msg);
+    showToast(msg.replace(/\n/g, ' '), 'error', 5000);
     return;
   }
-  if (!confirm('Effacer toutes les signatures du jour ?')) return;
-
   const { dayData } = getState();
   dayData.forEach((d) => {
     d.matin = { signature: null, heure: null, machines: [] };
@@ -46,6 +45,7 @@ export function resetSignatures() {
   if (_callbacks.renderEmployees) _callbacks.renderEmployees();
   if (_callbacks.updateCounts) _callbacks.updateCounts();
   if (_callbacks.updateSoirTabState) _callbacks.updateSoirTabState();
+  showToast('Signatures effac\u00e9es avec succ\u00e8s', 'success');
 }
 
 export function fullReset() {
@@ -93,5 +93,5 @@ export function fullReset() {
   if (_callbacks.closeConfig) _callbacks.closeConfig();
 
   logAudit('FULL_RESET', { description: 'Remise à zéro complète — signatures, présents, compteur de page' });
-  alert('Remise à zéro effectuée. Le prochain jour commencera à la page n° 1.');
+  showToast('Remise \u00e0 z\u00e9ro compl\u00e8te effectu\u00e9e', 'success', 4000);
 }

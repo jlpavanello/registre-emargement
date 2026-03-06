@@ -10,6 +10,7 @@ const DEFAULT_SHIFTS = [
   { id: 'nuit', nom: 'Nuit', heureDebut: '22:00', heureFin: '06:00', couleur: '#6366f1', icon: '\u{1F319}', system: true },
   { id: 'garde', nom: 'Garde', heureDebut: '18:00', heureFin: '06:00', couleur: '#ef4444', icon: '\u{1F6E1}\u{FE0F}', system: true },
   { id: 'permanence', nom: 'Permanence', heureDebut: '08:00', heureFin: '20:00', couleur: '#8b5cf6', icon: '\u{1F4DE}', system: true },
+  { id: 'journee', nom: 'Journée', heureDebut: '08:00', heureFin: '18:00', couleur: '#10b981', icon: '📅', system: true },
 ];
 
 export function loadPlanningShifts() {

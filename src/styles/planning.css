@@ -1,11 +1,11 @@
 /* ===== Planning Page ===== */
 .planning-overlay {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  background: var(--color-neutral-50);
   overflow-y: auto; padding-bottom: 20px; min-height: 100vh;
 }
 
 .planning-header {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  background: var(--color-primary);
   color: white; padding: 16px 18px;
   display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 10;
@@ -29,13 +29,13 @@
   transition: all 0.15s ease;
 }
 .planning-tab.active {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  background: var(--color-primary);
   color: white; box-shadow: 0 2px 8px rgba(30,64,175,0.3);
 }
 
 #planningTabContent {
   padding: 12px; min-height: 300px;
-  background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 100%);
+  background: var(--color-neutral-50);
 }
 
 /* ===== Month Grid ===== */
@@ -313,7 +313,7 @@
   font-family: inherit; transition: all 0.15s ease;
 }
 .planning-btn-primary {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  background: var(--color-primary);
   color: white; box-shadow: 0 2px 8px rgba(30,64,175,0.25);
 }
 .planning-btn-primary:hover { box-shadow: 0 4px 12px rgba(30,64,175,0.35); }
@@ -349,6 +349,80 @@
   color: var(--text3); font-size: 13px; font-weight: 500;
 }
 .planning-empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+/* ===== Config Tab ===== */
+.planning-config-header {
+  margin-bottom: 16px;
+}
+.planning-config-header h3 {
+  font-size: 16px; font-weight: 800; color: var(--text);
+  margin: 0 0 4px;
+}
+.planning-config-subtitle {
+  font-size: 12px; color: var(--text3); font-weight: 500;
+  margin: 0;
+}
+
+.planning-config-card {
+  background: white; border-radius: 14px; padding: 16px;
+  margin-bottom: 12px; box-shadow: 0 2px 12px rgba(30,64,175,0.08);
+  border: 1px solid rgba(30,64,175,0.1);
+}
+.planning-config-card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.planning-config-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: white;
+}
+.planning-config-title {
+  flex: 1; font-size: 15px; font-weight: 700; color: var(--text);
+}
+.planning-config-duration {
+  font-size: 13px; font-weight: 700; color: #1e40af;
+  background: #dbeafe; padding: 4px 10px; border-radius: 8px;
+}
+
+.planning-config-fields {
+  display: flex; align-items: flex-end; gap: 10px;
+}
+.planning-config-field-group {
+  flex: 1;
+}
+.planning-config-label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--text3); margin-bottom: 4px; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.planning-config-time {
+  width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  padding: 10px 12px; font-size: 14px; font-family: inherit;
+  font-weight: 600; text-align: center; box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+.planning-config-time:focus {
+  outline: none; border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+}
+.planning-config-separator {
+  font-size: 18px; font-weight: 700; color: var(--text3);
+  padding-bottom: 10px;
+}
+
+.planning-config-actions {
+  margin-top: 20px; text-align: center;
+}
+.planning-config-actions .planning-btn-primary {
+  padding: 12px 32px; font-size: 14px; border: none;
+  border-radius: 12px; cursor: pointer; font-family: inherit;
+  font-weight: 700;
+}
+.planning-btn-success {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+  box-shadow: 0 2px 8px rgba(22,163,74,0.3) !important;
+}
 
 /* Section title */
 .planning-section-title {

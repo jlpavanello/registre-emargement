@@ -17,7 +17,7 @@ export function renderEmployees() {
   if (!c) return; // null-guard: registre pas monte
 
   if (team.every((t) => !t.nom)) {
-    c.innerHTML = '<div class="empty-state"><p>Aucun agent configuré</p><button id="emptyConfigBtn">Configurer</button></div>';
+    c.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDC65</div><div class="empty-state-title">Aucun agent configur\u00e9</div><p>Ajoutez vos agents dans la configuration pour commencer \u00e0 utiliser le registre.</p><button id="emptyConfigBtn">Ouvrir la configuration</button></div>';
     const btn = document.getElementById('emptyConfigBtn');
     if (btn) btn.addEventListener('click', () => { if (_callbacks.openConfig) _callbacks.openConfig(); });
     return;
@@ -25,10 +25,11 @@ export function renderEmployees() {
   c.innerHTML = '';
   const activeTeam = getActiveTeam();
   if (presentToday.length === 0 && activeTeam.length > 0) {
-    c.innerHTML = `<div class="select-presence-prompt">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" style="width:32px;height:32px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-      <p>Sélectionnez d'abord les agents présents aujourd'hui pour afficher la feuille d'émargement.</p>
-      <button id="selectPresenceBtn">Choisir les présents</button>
+    c.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">\u2705</div>
+      <div class="empty-state-title">Aucun agent pr\u00e9sent s\u00e9lectionn\u00e9</div>
+      <p>S\u00e9lectionnez les agents de service aujourd'hui pour afficher la feuille d'\u00e9margement.</p>
+      <button id="selectPresenceBtn">Choisir les pr\u00e9sents</button>
     </div>`;
     const btn = document.getElementById('selectPresenceBtn');
     if (btn) btn.addEventListener('click', () => { if (_callbacks.openPresenceSelector) _callbacks.openPresenceSelector(); });

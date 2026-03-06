@@ -3,8 +3,6 @@
 // Messagerie temps réel entre agents
 // =============================================
 
-import { navigate } from '../router.js';
-
 // --- Lazy-loaded module ---
 
 let _chatModule = null;
@@ -22,7 +20,6 @@ function getTemplate() {
     <div class="chat-header">
       <span class="chat-header-title">\uD83D\uDCAC Chat d'\u00e9quipe</span>
       <button class="chat-notif-btn notif-default" id="btnChatNotif" title="Activer les notifications">\uD83D\uDD14</button>
-      <button class="chat-header-btn" id="btnCloseChat" title="Fermer">\u2715</button>
     </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-bar">
@@ -37,7 +34,6 @@ function getTemplate() {
 // --- Event bindings ---
 
 function bindEvents() {
-  document.getElementById('btnCloseChat').addEventListener('click', () => navigate('/'));
   document.getElementById('btnSendChat').addEventListener('click', async () => {
     (await getChatModule()).sendChatMessage();
   });

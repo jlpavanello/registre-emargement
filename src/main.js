@@ -25,6 +25,8 @@ import './styles/pv.css';
 import './styles/chat.css';
 import './styles/audit.css';
 import './styles/planning.css';
+import './styles/sidebar.css';
+import './styles/toast.css';
 
 // --- Module Imports ---
 import { init, bindInitCallbacks } from './modules/domains/init.js';
@@ -60,6 +62,9 @@ import { isPushSupported, getPushPermission, subscribeToPush } from './modules/p
 import { initRouter, registerRoute } from './modules/router.js';
 import { homepage } from './modules/pages/homepage.js';
 import { registre } from './modules/pages/registre.js';
+
+// Sidebar
+import { mountSidebar } from './modules/ui/sidebar.js';
 
 // =============================================
 // Late-binding callbacks (generiques, sans ref registre)
@@ -305,6 +310,9 @@ async function bootstrap() {
   if (isPushSupported() && getPushPermission() === 'granted') {
     subscribeToPush().catch(err => console.warn('Push auto-subscribe:', err));
   }
+
+  // Sidebar
+  mountSidebar();
 
   // Routeur
   registerRoutes();
