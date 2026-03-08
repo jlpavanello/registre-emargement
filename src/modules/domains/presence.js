@@ -89,10 +89,10 @@ export function savePresence() {
   showToast(tempPresenceSelection.length + ' agent' + (tempPresenceSelection.length > 1 ? 's' : '') + ' s\u00e9lectionn\u00e9' + (tempPresenceSelection.length > 1 ? 's' : ''), 'success');
 }
 
-export function removeFromPresent(idx) {
+export function removeFromPresent(idx, skipConfirm = false) {
   const { team, presentToday, dayData } = getState();
   const nom = team[idx] ? team[idx].nom : `Agent ${idx + 1}`;
-  if (!confirm(`Retirer ${nom} de la liste des présents ?`)) return;
+  if (!skipConfirm && !confirm(`Retirer ${nom} de la liste des présents ?`)) return;
 
   // Retirer de presentToday
   const updated = presentToday.filter((i) => i !== idx);
@@ -114,6 +114,7 @@ export function removeFromPresent(idx) {
   updatePresenceBadge();
   if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
   if (_callbacks.afterSave) _callbacks.afterSave();
+  showToast(nom + ' retiré de la liste', 'info');
 }
 
 export function updatePresenceBadge() {

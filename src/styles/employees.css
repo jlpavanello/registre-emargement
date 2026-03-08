@@ -73,22 +73,86 @@
 .sign-btn.signed img { width: 100%; height: 100%; object-fit: contain; }
 .badge-warning { background: #fef2f2; color: var(--red); }
 
-/* Bouton Supprimer un agent de la liste des présents */
-.btn-remove-present {
-  position: absolute; top: -6px; right: -6px;
-  border-radius: 6px; border: none;
-  background: #ef4444; color: white;
-  font-size: 10px; font-weight: 700;
+/* Bouton "⋯" menu contextuel — toujours visible */
+.btn-emp-menu {
+  position: absolute; top: 6px; right: 6px;
+  width: 28px; height: 28px;
+  border-radius: 50%; border: none;
+  background: transparent; color: var(--color-neutral-400);
+  font-size: 16px; font-weight: 700;
   cursor: pointer; display: flex;
   align-items: center; justify-content: center;
-  box-shadow: 0 2px 6px rgba(239,68,68,0.4);
   transition: all 0.15s ease;
-  z-index: 2; padding: 3px 8px;
+  z-index: 2; padding: 0;
   line-height: 1; font-family: inherit;
 }
+.btn-emp-menu:hover {
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-700);
+}
+
+/* Bouton Supprimer — caché par défaut, visible via menu */
+.btn-remove-present {
+  display: none;
+  position: absolute; top: 38px; right: 6px;
+  border-radius: 8px; border: 1px solid var(--color-neutral-200);
+  background: white; color: var(--color-neutral-400);
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+  align-items: center; justify-content: center; gap: 4px;
+  box-shadow: var(--shadow);
+  transition: all 0.15s ease;
+  z-index: 3; padding: 6px 12px;
+  line-height: 1; font-family: inherit;
+  white-space: nowrap;
+}
+.btn-remove-present.visible {
+  display: flex;
+}
 .btn-remove-present:hover {
-  background: #dc2626;
+  background: #fef2f2;
+  color: var(--color-danger);
+  border-color: #fecaca;
 }
 .btn-remove-present:active {
   transform: scale(0.95);
 }
+
+/* Modal confirmation suppression agent */
+.confirm-remove-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 9998;
+  align-items: center; justify-content: center;
+}
+.confirm-remove-overlay.active { display: flex; }
+.confirm-remove-modal {
+  background: white; border-radius: var(--radius);
+  padding: 24px; max-width: 340px; width: 90%;
+  box-shadow: var(--shadow-xl); text-align: center;
+}
+.confirm-remove-modal h3 {
+  font-size: 16px; font-weight: 700; margin: 0 0 8px;
+  color: var(--color-neutral-900);
+}
+.confirm-remove-modal p {
+  font-size: 13px; color: var(--color-neutral-700);
+  margin: 0 0 20px; line-height: 1.5;
+}
+.confirm-remove-actions {
+  display: flex; gap: 8px; justify-content: center;
+}
+.confirm-remove-actions button {
+  padding: 10px 20px; border-radius: var(--radius-xs);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  font-family: inherit; border: none; transition: all 0.15s ease;
+}
+.confirm-remove-cancel {
+  background: var(--color-neutral-100); color: var(--color-neutral-700);
+}
+.confirm-remove-cancel:hover { background: var(--color-neutral-200); }
+.confirm-remove-confirm {
+  background: var(--color-danger); color: white;
+}
+.confirm-remove-confirm:hover { background: #dc2626; }

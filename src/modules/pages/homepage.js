@@ -1,93 +1,42 @@
 // =============================================
-// homepage.js — Page d'accueil "Caisse à outils"
-// Version premium — présentation par priorité
+// homepage.js — Tableau de bord opérationnel
+// Vue d'ensemble de la journée
 // =============================================
 
 import { getState, subscribe } from '../state.js';
-import { navigate } from '../router.js';
 import { getDeviceRole } from '../auth/auth-state.js';
 import { showRoleScreen } from '../auth/login-screen.js';
+import { getActiveTeam } from '../domains/team.js';
+import { getActiveVehicles, getVehicleLabel } from '../domains/crews.js';
+import { getCrewForEmployee } from '../domains/crew-assignment.js';
+import { getMachineName } from '../domains/machines.js';
+import { isMatinLocked, isSoirLocked } from '../ui/visa.js';
+import { getOpenIncidents } from '../domains/incidents.js';
+import { escapeHtml } from '../utils/sanitize.js';
 
 let _unsubs = [];
 
 // =============================================
-// Définition des outils
+// Outils (grille accès rapides en bas)
 // =============================================
 
 const TOOLS = [
-  // --- HERO : action prioritaire ---
-  {
-    id: 'presence', icon: '✅', label: 'Présence',
-    subtitle: 'Pointer les agents du jour',
-    route: '/presence', color: 'blue', section: 'hero',
-    roles: ['responsable'],
-    badge: () => {
-      const { presentToday } = getState();
-      return presentToday.length > 0 ? presentToday.length : '';
-    },
+  { id: 'planning', icon: '\uD83D\uDCC5', label: 'Planning', route: '/planning', roles: ['responsable'] },
+  { id: 'presence', icon: '\u2705', label: 'Présence', route: '/presence', roles: ['responsable'],
+    badge: () => { const { presentToday } = getState(); return presentToday.length > 0 ? presentToday.length : ''; },
     badgeColor: 'green',
-    badgeLabel: 'présents',
   },
-  // --- OUTILS : grille 3×2 ---
-  {
-    id: 'registre', icon: '📋', label: 'Registre\nd\'attribution',
-    desc: 'Armes & munitions',
-    route: '/registre', color: 'blue', section: 'tools',
-    roles: ['responsable', 'agent'],
+  { id: 'registre', icon: '\uD83D\uDCCB', label: 'Registre', route: '/registre', roles: ['responsable', 'agent'] },
+  { id: 'equipages', icon: '\uD83D\uDE94', label: '\u00c9quipages', route: '/equipages', roles: ['responsable'],
+    badge: () => { const { crewAssignments } = getState(); return Object.values(crewAssignments).filter(m => m && m.length > 0).length || ''; },
   },
-  {
-    id: 'equipages', icon: '🚗', label: 'Équipages',
-    desc: 'Véhicules & agents',
-    route: '/equipages', color: 'indigo', section: 'tools',
-    roles: ['responsable'],
-    badge: () => {
-      const { crewAssignments } = getState();
-      const count = Object.values(crewAssignments).filter(m => m && m.length > 0).length;
-      return count > 0 ? count : '';
-    },
-    badgeColor: 'purple',
-  },
-  {
-    id: 'stock', icon: '📦', label: 'Stock',
-    desc: 'Armes & munitions',
-    route: '/stock', color: 'emerald', section: 'tools',
-    roles: ['responsable'],
-  },
-  {
-    id: 'planning', icon: '📅', label: 'Planning',
-    desc: 'Cycles & congés',
-    route: '/planning', color: 'sky', section: 'tools',
-    roles: ['responsable'],
-  },
-  {
-    id: 'pv', icon: '📝', label: 'Procès-\nVerbaux',
-    desc: '60+ modèles',
-    route: '/pv', color: 'amber', section: 'tools',
-    roles: ['responsable'],
-  },
-  {
-    id: 'vocal', icon: '🎙️', label: 'Comptes-\nrendus',
-    desc: 'Dictée & mission',
-    route: '/vocal', color: 'rose', section: 'tools',
-    roles: ['responsable', 'agent'],
-  },
-  // --- SETTINGS ---
-  {
-    id: 'config', icon: '⚙️', label: 'Configuration',
-    desc: 'Équipe, armes, véhicules',
-    route: '/config', color: 'slate', section: 'settings',
-    roles: ['responsable'],
-  },
-  // --- SECONDARY ---
-  {
-    id: 'audit', icon: '🛡️', label: 'Audit & Incidents',
-    route: '/audit', color: 'slate', section: 'secondary',
-    roles: ['responsable'],
-  },
+  { id: 'stock', icon: '\uD83D\uDCE6', label: 'Stock', route: '/stock', roles: ['responsable'] },
+  { id: 'pv', icon: '\uD83D\uDCDD', label: 'PV', route: '/pv', roles: ['responsable'] },
+  { id: 'vocal', icon: '\uD83D\uDCC4', label: 'CR', route: '/vocal', roles: ['responsable', 'agent'] },
 ];
 
 // =============================================
-// Template HTML
+// Template principal
 // =============================================
 
 function getTemplate() {
@@ -99,7 +48,6 @@ function getTemplate() {
 
   let html = `
     <div class="homepage">
-      <!-- Arrière-plan décoratif -->
       <div class="homepage-bg">
         <div class="homepage-bg-orb homepage-bg-orb--1"></div>
         <div class="homepage-bg-orb homepage-bg-orb--2"></div>
@@ -109,7 +57,7 @@ function getTemplate() {
         <div class="homepage-header-left">
           <img src="/logo-police-municipale.png" alt="" class="homepage-logo" onerror="this.style.display='none'">
           <div class="homepage-title-group">
-            <h1 class="homepage-title">Gestion Opérationnelle</h1>
+            <h1 class="homepage-title">Gestion Op\u00e9rationnelle</h1>
             <div class="homepage-subtitle">Police Municipale de Monistrol-sur-Loire</div>
           </div>
         </div>
@@ -123,32 +71,28 @@ function getTemplate() {
         <span>${today}</span>
       </div>
 
-      <div class="homepage-content">`;
+      <div class="homepage-content" id="tdbContent">`;
 
-  // 1. Hero — Présence
-  html += renderHeroSection(isAgent);
+  // Alert banner
+  html += renderPresenceAlert(isAgent);
 
-  // 1b. Dashboard journée
-  if (!isAgent) html += renderDashboard();
+  // Synthèse
+  html += renderSynthese(isAgent);
 
-  // 2. Grille d'outils
-  html += renderToolsGrid(isAgent);
+  // Équipages
+  if (!isAgent) html += renderEquipages();
 
-  // 3. Config
-  html += renderSettingsSection(isAgent);
+  // Agents présents
+  html += renderAgentsList(isAgent);
 
-  // 4. Audit
-  html += renderSecondarySection(isAgent);
+  // Incidents
+  if (!isAgent) html += renderIncidents();
+
+  // Accès rapides
+  html += renderQuickAccess(isAgent);
 
   html += `
       </div>
-
-      <!-- FAB Chat -->
-      <button class="homepage-fab" id="btnHomeChat" title="Chat d'équipe">
-        <span class="homepage-fab-ring"></span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span class="homepage-fab-badge" id="homeChatBadge"></span>
-      </button>
     </div>`;
 
   return html;
@@ -158,110 +102,132 @@ function getTemplate() {
 // Sections
 // =============================================
 
-function renderHeroSection(isAgent) {
-  const tool = TOOLS.find(t => t.section === 'hero');
-  if (!tool) return '';
-  if (isAgent && !tool.roles.includes('agent')) return '';
-
-  const badgeValue = tool.badge ? tool.badge() : '';
-  const badgeText = badgeValue !== '' ? `${badgeValue} ${tool.badgeLabel || ''}` : '';
-
+function renderPresenceAlert(isAgent) {
+  if (isAgent) return '';
+  const { presentToday } = getState();
+  if (presentToday.length > 0) return '';
   return `
-    <a href="#${tool.route}" class="hero" data-tool="${tool.id}">
-      <div class="hero-glow"></div>
-      <div class="hero-inner">
-        <div class="hero-icon-wrap">
-          <span class="hero-icon">${tool.icon}</span>
-        </div>
-        <div class="hero-body">
-          <span class="hero-label">${tool.label}</span>
-          <span class="hero-subtitle">${tool.subtitle || ''}</span>
-        </div>
-        <div class="hero-right">
-          ${badgeText ? `<span class="hero-badge" id="homeBadge_${tool.id}">${badgeText}</span>` : `<span class="hero-badge" id="homeBadge_${tool.id}" style="display:none;"></span>`}
-          <svg class="hero-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
+    <div class="alert-banner warning" id="homePresenceAlert">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div style="flex:1;line-height:1.4;">
+        La pr\u00e9sence du jour n'a pas \u00e9t\u00e9 point\u00e9e.
+        <a href="#/presence">Pointer maintenant \u2192</a>
       </div>
-    </a>`;
+      <button class="alert-banner-close" id="btnDismissAlert">\u2715</button>
+    </div>`;
 }
 
-function renderDashboard() {
-  const { presentToday, team, crewAssignments, dayData } = getState();
-  const totalTeam = team.filter(t => t.nom).length;
+function renderSynthese(isAgent) {
+  const { presentToday, team, dayData, crewAssignments } = getState();
+  const activeTeam = getActiveTeam();
+  const totalActive = activeTeam.length;
   const presentCount = presentToday.length;
+
+  // Signatures
+  let sigMatin = 0, sigSoir = 0;
+  presentToday.forEach(i => {
+    const d = dayData[i];
+    if (d && d.matin && d.matin.signature) sigMatin++;
+    if (d && d.soir && d.soir.signature) sigSoir++;
+  });
+
+  // Armes
+  let armesCount = 0;
+  presentToday.forEach(i => {
+    const d = dayData[i];
+    if (d && d.matin && d.matin.machines) armesCount += d.matin.machines.length;
+  });
+
+  // Visa status
+  const matinLocked = isMatinLocked();
+  const soirLocked = isSoirLocked();
+
+  // Équipages
   const crewCount = Object.values(crewAssignments).filter(m => m && m.length > 0).length;
 
-  // Count signatures
-  let signedCount = 0;
-  if (dayData) {
-    dayData.forEach((d, i) => {
-      if (presentToday.includes(i) && d.matin && d.matin.signature) signedCount++;
-    });
+  if (isAgent) {
+    // Agent: vue simplifiée
+    return `
+    <div class="tdb-section" id="tdbSynthese">
+      <div class="tdb-section-title">\uD83D\uDCCA Synth\u00e8se du jour</div>
+      <div class="tdb-stats-row">
+        <div class="tdb-stat">
+          <div class="tdb-stat-value${presentCount > 0 ? ' success' : ''}">${presentCount}</div>
+          <div class="tdb-stat-label">pr\u00e9sents</div>
+        </div>
+        <div class="tdb-stat">
+          <div class="tdb-stat-value primary">${armesCount}</div>
+          <div class="tdb-stat-label">armes sorties</div>
+        </div>
+      </div>
+    </div>`;
   }
 
-  const sigWarning = presentCount > 0 && signedCount < presentCount;
-
   return `
-    <div class="day-dashboard">
-      <div class="day-dashboard-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        Tableau de bord du jour
-      </div>
-      <div class="day-dashboard-grid">
-        <div class="day-dashboard-stat">
-          <div class="day-dashboard-stat-icon">\u2705</div>
-          <div class="day-dashboard-stat-value${presentCount > 0 ? ' success' : ''}">${presentCount}</div>
-          <div class="day-dashboard-stat-label">Pr\u00e9sents</div>
-          ${totalTeam > 0 ? `<div class="day-dashboard-stat-sub">/ ${totalTeam}</div>` : ''}
-        </div>
-        <div class="day-dashboard-stat">
-          <div class="day-dashboard-stat-icon">\u270D\uFE0F</div>
-          <div class="day-dashboard-stat-value${sigWarning ? ' warning' : signedCount > 0 ? ' success' : ''}">${signedCount}</div>
-          <div class="day-dashboard-stat-label">Signatures</div>
-          ${sigWarning ? `<div class="day-dashboard-stat-sub">${presentCount - signedCount} restante${presentCount - signedCount > 1 ? 's' : ''}</div>` : ''}
-        </div>
-        <div class="day-dashboard-stat">
-          <div class="day-dashboard-stat-icon">\uD83D\uDE97</div>
-          <div class="day-dashboard-stat-value${crewCount > 0 ? ' primary' : ''}">${crewCount}</div>
-          <div class="day-dashboard-stat-label">\u00c9quipages</div>
-        </div>
-        <div class="day-dashboard-stat">
-          <div class="day-dashboard-stat-icon">\uD83D\uDCCB</div>
-          <div class="day-dashboard-stat-value primary">${presentCount > 0 ? '\u2713' : '\u2014'}</div>
-          <div class="day-dashboard-stat-label">Registre</div>
-        </div>
+    <div class="tdb-section" id="tdbSynthese">
+      <div class="tdb-section-title">\uD83D\uDCCA Synth\u00e8se du jour</div>
+      <div class="tdb-stats-grid">
+        <a href="#/presence" class="tdb-stat-card">
+          <div class="tdb-stat-icon">\uD83D\uDC65</div>
+          <div class="tdb-stat-value${presentCount > 0 ? ' success' : ' warning'}">${presentCount}<span class="tdb-stat-total">/${totalActive}</span></div>
+          <div class="tdb-stat-label">Pr\u00e9sents</div>
+        </a>
+        <a href="#/registre" class="tdb-stat-card">
+          <div class="tdb-stat-icon">\u270D\uFE0F</div>
+          <div class="tdb-stat-value primary">${sigMatin}<span class="tdb-stat-total">/${presentCount}</span></div>
+          <div class="tdb-stat-label">Sortie armes</div>
+          <div class="tdb-stat-badge ${matinLocked ? 'locked' : 'unlocked'}">${matinLocked ? '\uD83D\uDD12 Vis\u00e9' : '\uD83D\uDD13'}</div>
+        </a>
+        <a href="#/registre" class="tdb-stat-card">
+          <div class="tdb-stat-icon">\uD83D\uDD04</div>
+          <div class="tdb-stat-value primary">${sigSoir}<span class="tdb-stat-total">/${presentCount}</span></div>
+          <div class="tdb-stat-label">Retour armes</div>
+          <div class="tdb-stat-badge ${soirLocked ? 'locked' : 'unlocked'}">${soirLocked ? '\uD83D\uDD12 Vis\u00e9' : '\uD83D\uDD13'}</div>
+        </a>
+        <a href="#/equipages" class="tdb-stat-card">
+          <div class="tdb-stat-icon">\uD83D\uDE94</div>
+          <div class="tdb-stat-value${crewCount > 0 ? ' primary' : ' warning'}">${crewCount}</div>
+          <div class="tdb-stat-label">\u00c9quipages</div>
+          ${presentCount > 0 && crewCount === 0 ? '<div class="tdb-stat-badge warning">\u26A0\uFE0F \u00c0 faire</div>' : ''}
+        </a>
       </div>
     </div>`;
 }
 
-function renderToolsGrid(isAgent) {
-  const tools = TOOLS.filter(t => t.section === 'tools');
-  const visibleTools = isAgent ? tools.filter(t => t.roles.includes('agent')) : tools;
-  if (visibleTools.length === 0) return '';
+function renderEquipages() {
+  const { crewAssignments, crewDrivers, team, vehicles } = getState();
+  const activeCrews = Object.entries(crewAssignments).filter(([, members]) => members && members.length > 0);
 
-  const cols = Math.min(3, visibleTools.length);
+  if (activeCrews.length === 0) return '';
 
   let html = `
-    <div class="section">
-      <div class="section-head">
-        <span class="section-line"></span>
-        <span class="section-title">Outils</span>
-        <span class="section-line"></span>
-      </div>
-      <div class="tool-grid" style="--grid-cols: ${cols}">`;
+    <div class="tdb-section" id="tdbEquipages">
+      <div class="tdb-section-title">\uD83D\uDE94 \u00c9quipages du jour</div>
+      <div class="tdb-crews">`;
 
-  for (let i = 0; i < visibleTools.length; i++) {
-    const tool = visibleTools[i];
-    const badgeValue = tool.badge ? tool.badge() : '';
-    const badgeColorClass = tool.badgeColor ? ` tool-badge--${tool.badgeColor}` : '';
+  for (const [vIdx, members] of activeCrews) {
+    const vehicleIdx = parseInt(vIdx);
+    const vLabel = getVehicleLabel(vehicleIdx);
+    const driverIdx = crewDrivers[vehicleIdx];
 
     html += `
-      <a href="#${tool.route}" class="tile tile--${tool.color}" data-tool="${tool.id}" style="--delay: ${i}">
-        <span class="tile-icon">${tool.icon}</span>
-        <span class="tile-label">${tool.label.replace(/\n/g, '<br>')}</span>
-        <span class="tile-desc">${tool.desc || ''}</span>
-        ${badgeValue !== '' ? `<span class="tool-badge${badgeColorClass}" id="homeBadge_${tool.id}" data-count="${badgeValue}">${badgeValue}</span>` : `<span class="tool-badge${badgeColorClass}" id="homeBadge_${tool.id}" data-count="0" style="display:none;"></span>`}
-      </a>`;
+        <div class="tdb-crew-card">
+          <div class="tdb-crew-vehicle">\uD83D\uDE94 ${escapeHtml(vLabel)}</div>
+          <div class="tdb-crew-members">`;
+
+    for (const empIdx of members) {
+      const emp = team[empIdx];
+      if (!emp || !emp.nom) continue;
+      const isDriver = empIdx === driverIdx;
+      html += `<span class="tdb-crew-member${isDriver ? ' driver' : ''}">${escapeHtml(emp.nom)}${isDriver ? ' \uD83C\uDFCE\uFE0F' : ''}</span>`;
+    }
+
+    html += `
+          </div>
+        </div>`;
   }
 
   html += `
@@ -270,64 +236,137 @@ function renderToolsGrid(isAgent) {
   return html;
 }
 
-function renderSettingsSection(isAgent) {
-  const tool = TOOLS.find(t => t.section === 'settings');
-  if (!tool) return '';
-  if (isAgent && !tool.roles.includes('agent')) return '';
+function renderAgentsList(isAgent) {
+  const { presentToday, team, dayData } = getState();
+  if (presentToday.length === 0) return '';
 
-  return `
-    <a href="#${tool.route}" class="config-row" data-tool="${tool.id}">
-      <span class="config-icon">${tool.icon}</span>
-      <div class="config-body">
-        <span class="config-label">${tool.label}</span>
-        <span class="config-desc">${tool.desc || ''}</span>
+  let html = `
+    <div class="tdb-section" id="tdbAgents">
+      <div class="tdb-section-title">\uD83D\uDC65 Agents pr\u00e9sents <span class="tdb-count">${presentToday.length}</span></div>
+      <div class="tdb-agents-list">`;
+
+  for (const i of presentToday) {
+    const emp = team[i];
+    if (!emp || !emp.nom) continue;
+    const d = dayData[i];
+    const hasMatin = d && d.matin && d.matin.signature;
+    const hasSoir = d && d.soir && d.soir.signature;
+    const machines = (d && d.matin && d.matin.machines) || [];
+
+    // Crew
+    const crewVehicle = getCrewForEmployee(i);
+    const vehicleLabel = crewVehicle !== null ? getVehicleLabel(crewVehicle) : null;
+
+    // Status
+    let statusHtml = '';
+    if (hasMatin && hasSoir) {
+      statusHtml = '<span class="tdb-agent-status done">\u2705 Complet</span>';
+    } else if (hasMatin) {
+      statusHtml = '<span class="tdb-agent-status partial">\u2705 Sorti</span>';
+    } else {
+      statusHtml = '<span class="tdb-agent-status pending">\u23F3 En attente</span>';
+    }
+
+    // Badges
+    let badgesHtml = '';
+    if (machines.length > 0) {
+      const armeName = getMachineName(machines[0].machineIdx);
+      badgesHtml += `<span class="tdb-agent-badge arme">\uD83D\uDD2B ${escapeHtml(armeName)}${machines.length > 1 ? ' +' + (machines.length - 1) : ''}</span>`;
+    }
+    if (vehicleLabel) {
+      badgesHtml += `<span class="tdb-agent-badge crew">\uD83D\uDE94 ${escapeHtml(vehicleLabel)}</span>`;
+    }
+
+    html += `
+        <div class="tdb-agent-row">
+          <div class="tdb-agent-info">
+            <div class="tdb-agent-name">${escapeHtml(emp.nom)}</div>
+            <div class="tdb-agent-meta">${emp.matricule ? 'Mat. ' + escapeHtml(emp.matricule) : ''}${badgesHtml ? ' ' : ''}${badgesHtml}</div>
+          </div>
+          ${statusHtml}
+        </div>`;
+  }
+
+  html += `
       </div>
-      <svg class="config-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 18l6-6-6-6"/></svg>
-    </a>`;
+    </div>`;
+  return html;
 }
 
-function renderSecondarySection(isAgent) {
-  const tool = TOOLS.find(t => t.section === 'secondary');
-  if (!tool) return '';
-  if (isAgent && !tool.roles.includes('agent')) return '';
+function renderIncidents() {
+  const incidents = getOpenIncidents();
+  if (incidents.length === 0) return '';
 
-  return `
-    <div class="secondary-wrap">
-      <a href="#${tool.route}" class="secondary-btn" data-tool="${tool.id}">
-        <span class="secondary-icon">${tool.icon}</span>
-        ${tool.label}
+  const critical = incidents.filter(i => i.severity === 'critique' || i.severity === 'grave').length;
+
+  let html = `
+    <div class="tdb-section" id="tdbIncidents">
+      <div class="tdb-section-title">\u26A0\uFE0F Incidents ouverts <span class="tdb-count danger">${incidents.length}</span></div>
+      <a href="#/audit" class="tdb-incident-summary">
+        <div class="tdb-incident-count">${incidents.length} incident${incidents.length > 1 ? 's' : ''} en cours</div>
+        ${critical > 0 ? `<div class="tdb-incident-critical">\uD83D\uDD34 ${critical} critique${critical > 1 ? 's' : ''}/grave${critical > 1 ? 's' : ''}</div>` : ''}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
       </a>
     </div>`;
+  return html;
 }
 
-// =============================================
-// Badges live
-// =============================================
+function renderQuickAccess(isAgent) {
+  const visibleTools = isAgent ? TOOLS.filter(t => t.roles.includes('agent')) : TOOLS;
+  if (visibleTools.length === 0) return '';
 
-function updateBadges() {
-  for (const tool of TOOLS) {
-    if (!tool.badge) continue;
-    const el = document.getElementById('homeBadge_' + tool.id);
-    if (!el) continue;
-    const val = tool.badge();
+  let html = `
+    <div class="tdb-section">
+      <div class="tdb-section-title">\u26A1 Acc\u00e8s rapides</div>
+      <div class="tdb-quick-grid">`;
 
-    if (tool.section === 'hero') {
-      const text = val !== '' ? `${val} ${tool.badgeLabel || ''}` : '';
-      el.textContent = text;
-      el.style.display = text ? '' : 'none';
-    } else {
-      el.textContent = val;
-      el.dataset.count = val || '0';
-      el.style.display = val !== '' ? '' : 'none';
-    }
+  for (const tool of visibleTools) {
+    const badgeValue = tool.badge ? tool.badge() : '';
+    const badgeColorClass = tool.badgeColor ? ` tool-badge--${tool.badgeColor}` : '';
+
+    html += `
+        <a href="#${tool.route}" class="tdb-quick-btn" data-tool="${tool.id}">
+          <span class="tdb-quick-icon">${tool.icon}</span>
+          <span class="tdb-quick-label">${tool.label}</span>
+          ${badgeValue !== '' ? `<span class="tool-badge${badgeColorClass}" id="homeBadge_${tool.id}" data-count="${badgeValue}">${badgeValue}</span>` : `<span class="tool-badge${badgeColorClass}" id="homeBadge_${tool.id}" data-count="0" style="display:none;"></span>`}
+        </a>`;
   }
+
+  html += `
+      </div>
+    </div>`;
+  return html;
 }
 
-function updateChatBadge() {
-  const el = document.getElementById('homeChatBadge');
-  if (!el) return;
-  el.textContent = '';
-  el.dataset.count = '0';
+// =============================================
+// Live updates
+// =============================================
+
+function refreshDashboard() {
+  const container = document.getElementById('tdbContent');
+  if (!container) return;
+  const role = getDeviceRole() || 'responsable';
+  const isAgent = role === 'agent';
+
+  // Rebuild dynamic sections
+  let html = '';
+  html += renderPresenceAlert(isAgent);
+  html += renderSynthese(isAgent);
+  if (!isAgent) html += renderEquipages();
+  html += renderAgentsList(isAgent);
+  if (!isAgent) html += renderIncidents();
+  html += renderQuickAccess(isAgent);
+
+  container.innerHTML = html;
+
+  // Re-bind dismiss button
+  const btnDismiss = document.getElementById('btnDismissAlert');
+  if (btnDismiss) {
+    btnDismiss.addEventListener('click', () => {
+      const alertEl = document.getElementById('homePresenceAlert');
+      if (alertEl) alertEl.remove();
+    });
+  }
 }
 
 // =============================================
@@ -344,17 +383,19 @@ export function mount(container) {
     });
   }
 
-  const btnChat = document.getElementById('btnHomeChat');
-  if (btnChat) {
-    btnChat.addEventListener('click', () => navigate('/chat'));
+  const btnDismiss = document.getElementById('btnDismissAlert');
+  if (btnDismiss) {
+    btnDismiss.addEventListener('click', () => {
+      const alertEl = document.getElementById('homePresenceAlert');
+      if (alertEl) alertEl.remove();
+    });
   }
 
-  _unsubs.push(subscribe('presentToday', updateBadges));
-  _unsubs.push(subscribe('crewAssignments', updateBadges));
-  _unsubs.push(subscribe('chatMessages', updateChatBadge));
-
-  updateBadges();
-  updateChatBadge();
+  _unsubs.push(subscribe('presentToday', refreshDashboard));
+  _unsubs.push(subscribe('crewAssignments', refreshDashboard));
+  _unsubs.push(subscribe('dayData', refreshDashboard));
+  _unsubs.push(subscribe('incidents', refreshDashboard));
+  _unsubs.push(subscribe('pvDocuments', refreshDashboard));
 }
 
 export function unmount() {
@@ -365,5 +406,5 @@ export function unmount() {
 export const homepage = {
   mount,
   unmount,
-  title: 'Accueil',
+  title: 'Tableau de bord',
 };

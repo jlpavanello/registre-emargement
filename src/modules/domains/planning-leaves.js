@@ -9,6 +9,7 @@ export const LEAVE_TYPES = [
   { code: 'rtt', label: 'RTT', icon: '\u{23F0}', couleur: '#06b6d4', joursAn: null },
   { code: 'maladie', label: 'Maladie', icon: '\u{1FA7A}', couleur: '#f97316', joursAn: null },
   { code: 'formation', label: 'Formation', icon: '\u{1F393}', couleur: '#8b5cf6', joursAn: 5 },
+  { code: 'absence_injustifiee', label: 'Absence injustifi\u00e9e', icon: '\u2753', couleur: '#ef4444', joursAn: null },
   { code: 'autre', label: 'Autre absence', icon: '\u{1F4C5}', couleur: '#64748b', joursAn: null },
 ];
 
@@ -35,7 +36,7 @@ export function getPlanningLeaves() {
 /**
  * Create a leave request
  */
-export function createLeave({ agentIdx, type, dateDebut, dateFin, motif }) {
+export function createLeave({ agentIdx, type, dateDebut, dateFin, motif, statut }) {
   const { planningLeaves } = getState();
   const newLeave = {
     id: 'leave_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
@@ -43,7 +44,7 @@ export function createLeave({ agentIdx, type, dateDebut, dateFin, motif }) {
     type: type || 'conge_annuel',
     dateDebut,
     dateFin,
-    statut: 'en_attente',
+    statut: statut || 'en_attente',
     motif: motif || '',
     createdAt: new Date().toISOString(),
   };

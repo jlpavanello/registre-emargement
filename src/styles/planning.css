@@ -178,6 +178,7 @@
 .planning-picker {
   background: white; border-radius: 16px; padding: 16px;
   width: 300px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  max-height: 85vh; overflow-y: auto;
 }
 .planning-picker-title {
   font-size: 14px; font-weight: 800; color: var(--text);
@@ -429,4 +430,260 @@
   font-size: 12px; font-weight: 700; color: var(--text2);
   text-transform: uppercase; padding: 10px 0 6px; letter-spacing: 0.8px;
   display: flex; align-items: center; gap: 8px;
+}
+
+/* ===== Absence Management ===== */
+
+/* Signaler une absence button in nav */
+.planning-absence-btn {
+  border: none; background: #fef2f2; color: #dc2626;
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.planning-absence-btn:hover { background: #fee2e2; }
+.planning-absence-btn:active { transform: scale(0.96); }
+
+/* Section divider in picker */
+.planning-picker-section-label {
+  font-size: 10px; font-weight: 800; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 10px 0 4px; margin-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+.planning-picker-section-label:first-of-type {
+  border-top: none; padding-top: 0; margin-top: 0;
+}
+
+/* Absence items in picker */
+.planning-picker-absence {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+  cursor: pointer; transition: all 0.15s ease; background: white;
+}
+.planning-picker-absence:hover { border-color: #f97316; background: #fff7ed; }
+.planning-picker-absence.selected { border-color: #ea580c; background: #ffedd5; }
+
+/* Absence inline form (multi-day in picker) */
+.planning-absence-inline {
+  margin-top: 12px; padding: 12px;
+  background: #fafafa; border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+.planning-absence-inline-title {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin-bottom: 10px;
+}
+.planning-absence-inline-row {
+  margin-bottom: 8px;
+}
+.planning-absence-inline-row label {
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--text2); margin-bottom: 4px;
+}
+.planning-absence-inline-row input {
+  width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  padding: 8px 10px; font-size: 13px; font-family: inherit;
+  box-sizing: border-box; transition: border-color 0.15s;
+}
+.planning-absence-inline-row input:focus {
+  outline: none; border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+}
+.planning-absence-inline-actions {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.planning-absence-inline-confirm {
+  flex: 1; padding: 10px; border-radius: 10px; border: none;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-family: inherit; background: #16a34a; color: white;
+  transition: background 0.15s;
+}
+.planning-absence-inline-confirm:hover { background: #15803d; }
+
+/* Absence form (full modal) */
+.planning-absence-form {
+  width: 340px; max-width: 92vw;
+}
+.planning-absence-field {
+  margin-bottom: 14px;
+}
+.planning-absence-field > label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--text2); margin-bottom: 6px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.planning-absence-field select,
+.planning-absence-field > input {
+  width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  padding: 10px 12px; font-size: 13px; font-family: inherit;
+  box-sizing: border-box; transition: border-color 0.15s;
+}
+.planning-absence-field select:focus,
+.planning-absence-field > input:focus {
+  outline: none; border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+}
+
+/* Absence type radio buttons */
+.planning-absence-types {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.planning-absence-type-option {
+  cursor: pointer;
+}
+.planning-absence-type-option input[type="radio"] {
+  display: none;
+}
+.planning-absence-type-label {
+  display: inline-block; padding: 6px 12px;
+  border-radius: 8px; font-size: 12px; font-weight: 600;
+  border: 1.5px solid #e2e8f0; background: white;
+  transition: all 0.15s ease; color: var(--text);
+}
+.planning-absence-type-option input[type="radio"]:checked + .planning-absence-type-label {
+  border-color: var(--abs-color, var(--color-primary));
+  background: color-mix(in srgb, var(--abs-color, var(--color-primary)) 10%, white);
+  color: var(--abs-color, var(--color-primary));
+  font-weight: 700;
+}
+
+/* Multi-day date inputs in absence form */
+.planning-absence-field input[type="date"] {
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  padding: 8px 10px; font-size: 13px; font-family: inherit;
+  box-sizing: border-box;
+}
+.planning-absence-field input[type="date"]:focus {
+  outline: none; border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+}
+
+/* ===== Agents prévus aujourd'hui + Présence confirmée ===== */
+.planning-today-section {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid var(--border-light);
+}
+.planning-today-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--color-neutral-700);
+  margin-bottom: 12px;
+}
+.planning-today-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.planning-today-agent {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: var(--color-neutral-50);
+  border-radius: 8px;
+}
+.planning-today-agent-icon {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: white;
+  flex-shrink: 0;
+}
+.planning-today-agent-name {
+  font-size: 13px; font-weight: 600;
+  color: var(--color-neutral-700);
+  flex: 1;
+}
+.planning-today-agent-shift {
+  font-size: 12px; color: var(--color-neutral-400);
+}
+.planning-today-count {
+  font-size: 12px; color: var(--color-neutral-400);
+  margin-top: 10px; text-align: center;
+}
+.planning-confirm-btn {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%; margin-top: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(5,150,105,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.planning-confirm-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(5,150,105,0.2);
+}
+.planning-confirm-btn-sub {
+  font-size: 12px; font-weight: 500;
+  opacity: 0.85; margin-top: 4px;
+}
+.planning-confirm-done {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  font-size: 13px; font-weight: 600;
+  text-align: center;
+}
+
+/* Confirmation modal */
+.planning-confirm-modal {
+  width: 340px; max-width: 95vw;
+}
+.planning-confirm-info {
+  font-size: 13px; color: var(--color-neutral-500);
+  margin-bottom: 12px;
+}
+.planning-confirm-list {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-bottom: 12px;
+}
+.planning-confirm-agent {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--color-neutral-50);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.planning-confirm-agent:hover {
+  background: #ecfdf5;
+}
+.planning-confirm-agent input[type="checkbox"] {
+  width: 18px; height: 18px;
+  accent-color: #059669;
+  flex-shrink: 0;
+}
+.planning-confirm-agent-name {
+  font-size: 13px; font-weight: 600;
+  color: var(--color-neutral-700);
+  flex: 1;
+}
+.planning-confirm-agent-shift {
+  font-size: 12px; color: var(--color-neutral-400);
+}
+.planning-confirm-warning {
+  font-size: 12px; color: var(--color-neutral-400);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Nav wrap for small screens */
+@media (max-width: 480px) {
+  .planning-nav {
+    flex-wrap: wrap; gap: 6px;
+  }
+  .planning-absence-btn {
+    width: 100%; text-align: center; order: 10;
+  }
+  .planning-confirm-modal {
+    width: 100%;
+  }
 }

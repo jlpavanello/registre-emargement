@@ -15,7 +15,7 @@ function getTemplate() {
   return `
 <div class="crew-overlay" id="crewPanel">
   <div class="crew-header">
-    <h2>\uD83D\uDE97 \u00c9quipages v\u00e9hicules</h2>
+    <h2>\uD83D\uDE94 \u00c9quipages v\u00e9hicules</h2>
   </div>
   <div class="crew-info">Choisissez un v\u00e9hicule, puis ajoutez les agents de l'\u00e9quipage.</div>
   <div class="crew-select-section">

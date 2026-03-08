@@ -14,8 +14,10 @@ let _unsubs = [];
 // =============================================
 
 const NAV_ITEMS = [
-  // Main section
-  { id: 'home', icon: '\uD83C\uDFE0', label: 'Accueil', route: '/', section: 'main', roles: ['responsable', 'agent'] },
+  // Tableau de bord — always first
+  { id: 'dashboard', icon: '\uD83D\uDCCA', label: 'Tableau de bord', route: '/', section: 'main', roles: ['responsable', 'agent'] },
+  // Main section — order reflects morning workflow
+  { id: 'planning', icon: '\uD83D\uDCC5', label: 'Planning', route: '/planning', section: 'main', roles: ['responsable'] },
   { id: 'presence', icon: '\u2705', label: 'Présence', route: '/presence', section: 'main', roles: ['responsable'],
     badge: () => {
       const { presentToday } = getState();
@@ -24,14 +26,13 @@ const NAV_ITEMS = [
     badgeClass: 'success',
   },
   { id: 'registre', icon: '\uD83D\uDCCB', label: 'Registre', route: '/registre', section: 'main', roles: ['responsable', 'agent'] },
-  { id: 'equipages', icon: '\uD83D\uDE97', label: 'Équipages', route: '/equipages', section: 'main', roles: ['responsable'],
+  { id: 'equipages', icon: '\uD83D\uDE94', label: 'Équipages', route: '/equipages', section: 'main', roles: ['responsable'],
     badge: () => {
       const { crewAssignments } = getState();
       return Object.values(crewAssignments).filter(m => m && m.length > 0).length || '';
     },
   },
   { id: 'stock', icon: '\uD83D\uDCE6', label: 'Stock', route: '/stock', section: 'main', roles: ['responsable'] },
-  { id: 'planning', icon: '\uD83D\uDCC5', label: 'Planning', route: '/planning', section: 'main', roles: ['responsable'] },
   { id: 'pv', icon: '\uD83D\uDCDD', label: 'Procès-Verbaux', route: '/pv', section: 'main', roles: ['responsable'] },
   { id: 'vocal', icon: '\uD83D\uDCC4', label: 'Comptes-rendus', route: '/vocal', section: 'main', roles: ['responsable', 'agent'] },
 
@@ -54,13 +55,13 @@ function getSidebarHTML() {
   let html = `
     <div class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-brand">
+        <a href="#/" class="sidebar-brand" style="text-decoration:none;color:inherit;">
           <img src="/logo-police-municipale.png" alt="" class="sidebar-logo" onerror="this.style.display='none'">
           <div class="sidebar-brand-text">
-            <div class="sidebar-brand-title">Gestion PM</div>
+            <div class="sidebar-brand-title">\uD83D\uDEE1\uFE0F Gestion PM</div>
             <div class="sidebar-brand-sub">Police Municipale<br>Monistrol-sur-Loire</div>
           </div>
-        </div>
+        </a>
       </div>
 
       <nav class="sidebar-nav">
@@ -101,6 +102,12 @@ function getSidebarHTML() {
   html += `
         </div>
       </nav>
+      <div class="sidebar-footer">
+        <a href="#/chat" class="sidebar-item" data-route="/chat">
+          <span class="sidebar-item-icon">\uD83D\uDCAC</span>
+          <span class="sidebar-item-label">Chat d'\u00e9quipe</span>
+        </a>
+      </div>
     </div>
 
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">

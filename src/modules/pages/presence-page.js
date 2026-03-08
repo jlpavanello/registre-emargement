@@ -9,6 +9,15 @@ import {
   selectAllPresence, selectNonePresence, savePresence,
 } from '../domains/presence.js';
 
+// --- Helpers ---
+
+function formatTodayLabel() {
+  const now = new Date();
+  return now.toLocaleDateString('fr-FR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+}
+
 // --- Template ---
 
 function getTemplate() {
@@ -16,6 +25,7 @@ function getTemplate() {
 <div class="presence-overlay" id="presencePanel">
   <div class="presence-header">
     <h2>Pr\u00e9sents du jour</h2>
+    <div class="presence-date">📅 ${formatTodayLabel()}</div>
   </div>
   <div class="presence-info">Cochez les agents de service aujourd'hui. Seuls les agents s\u00e9lectionn\u00e9s pourront signer et prendre du mat\u00e9riel.</div>
   <div class="presence-actions">

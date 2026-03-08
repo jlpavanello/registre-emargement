@@ -4,6 +4,7 @@ import { getState } from '../state.js';
 import { hasUncoveredSignatures } from '../ui/visa.js';
 import { getMachineName, getMachineRawData } from '../domains/machines.js';
 import { getActiveVehicles, getVehicleLabel } from '../domains/crews.js';
+import { showToast } from '../ui/toast.js';
 
 export function generatePDF() {
   const {
@@ -501,4 +502,5 @@ export function generatePDF() {
   doc.text('Page n\u00b0 ' + pageNumber + ' - ' + ds, pw - ml, ph - 4, { align: 'right' });
 
   doc.save('gestion_pm_' + (dv || 'jour') + '.pdf');
+  showToast('PDF g\u00e9n\u00e9r\u00e9 avec succ\u00e8s', 'success');
 }

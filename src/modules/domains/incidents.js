@@ -16,7 +16,7 @@ const STORAGE_KEY = 'reg_incidents';
 export const INCIDENT_TYPES = {
   arme: { label: 'Incident arme', icon: '🔫', color: '#dc2626' },
   munition: { label: 'Incident munition', icon: '💥', color: '#ea580c' },
-  vehicule: { label: 'Incident véhicule', icon: '🚗', color: '#2563eb' },
+  vehicule: { label: 'Incident véhicule', icon: '🚔', color: '#2563eb' },
   agent: { label: 'Incident agent', icon: '👤', color: '#7c3aed' },
   securite: { label: 'Incident sécurité', icon: '🛡️', color: '#b91c1c' },
   materiel: { label: 'Incident matériel', icon: '🔧', color: '#ca8a04' },

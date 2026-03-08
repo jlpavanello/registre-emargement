@@ -25,14 +25,18 @@ export function renderTemplatesTab(container) {
   html += `<div class="pv-chips">
     <button class="pv-chip ${!_selectedFamille ? 'active' : ''}" data-famille="">Tous</button>`;
   familles.forEach(f => {
-    const icons = { 1: '\uD83C\uDD7F\uFE0F', 2: '\uD83D\uDE97', 3: '\uD83D\uDD07', 4: '\uD83E\uDDF9', 5: '\uD83D\uDC15', 6: '\uD83C\uDFD7\uFE0F', 7: '\uD83C\uDFEA', 8: '\uD83C\uDFDB\uFE0F' };
+    const icons = { 1: '\uD83C\uDD7F\uFE0F', 2: '\uD83D\uDE94', 3: '\uD83D\uDD07', 4: '\uD83E\uDDF9', 5: '\uD83D\uDC15', 6: '\uD83C\uDFD7\uFE0F', 7: '\uD83C\uDFEA', 8: '\uD83C\uDFDB\uFE0F' };
     html += `<button class="pv-chip ${_selectedFamille === f.nom ? 'active' : ''}" data-famille="${f.nom}">${icons[f.num] || '\uD83D\uDCCB'} ${f.nom}</button>`;
   });
   html += `</div>`;
 
   // Templates grouped by famille
   if (templates.length === 0) {
-    html += `<div class="pv-empty">Aucun mod\u00e8le trouv\u00e9</div>`;
+    html += `<div class="pv-empty">
+      <div class="pv-empty-icon">\uD83D\uDD0D</div>
+      <div>Aucun mod\u00e8le trouv\u00e9</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text3);">Essayez un autre terme de recherche ou une autre cat\u00e9gorie.</div>
+    </div>`;
   } else {
     let currentFamille = '';
     templates.sort((a, b) => a.familleNum - b.familleNum || a.ref.localeCompare(b.ref, undefined, { numeric: true }));

@@ -7,6 +7,7 @@ import { getActiveVehicles, getVehicleLabel } from './crews.js';
 import { getPresentTeam } from './team.js';
 import { saveDayData } from './day-data.js';
 import { escapeHtml } from '../utils/sanitize.js';
+import { showToast } from '../ui/toast.js';
 
 // Late-binding callbacks
 let _callbacks = {};
@@ -198,7 +199,11 @@ function renderAssignedList() {
   container.innerHTML = '';
 
   if (assigned.length === 0) {
-    container.innerHTML = '<div class="crew-empty-msg">Aucun agent dans cet équipage</div>';
+    container.innerHTML = `<div class="empty-state" style="padding:24px;">
+      <div class="empty-state-icon">\uD83D\uDE94</div>
+      <div class="empty-state-title">Aucun agent dans cet \u00e9quipage</div>
+      <p>Choisissez un agent ci-dessus pour l'ajouter \u00e0 cet \u00e9quipage.</p>
+    </div>`;
     return;
   }
 
@@ -251,7 +256,7 @@ function renderCrewSummary() {
     const driverIdx = tempCrewDrivers[v.idx];
 
     html += `<div class="crew-summary-card">
-      <div class="crew-summary-vehicle">🚗 ${escapeHtml(v.marque)}${v.immatriculation ? ' — ' + escapeHtml(v.immatriculation) : ''}</div>
+      <div class="crew-summary-vehicle">🚔 ${escapeHtml(v.marque)}${v.immatriculation ? ' — ' + escapeHtml(v.immatriculation) : ''}</div>
       <div class="crew-summary-members">`;
 
     assigned.forEach((empIdx) => {
@@ -270,7 +275,11 @@ function renderCrewSummary() {
   });
 
   if (totalCrews === 0) {
-    html = '<div class="crew-empty-msg" style="margin-top:12px;">Aucun équipage constitué</div>';
+    html = `<div class="empty-state" style="padding:24px;margin-top:12px;">
+      <div class="empty-state-icon">\uD83D\uDE94</div>
+      <div class="empty-state-title">Aucun \u00e9quipage constitu\u00e9</div>
+      <p>Commencez par choisir un v\u00e9hicule ci-dessus pour constituer un \u00e9quipage.</p>
+    </div>`;
   } else {
     html = `<div class="crew-summary-title">${totalCrews} équipage${totalCrews > 1 ? 's' : ''} constitué${totalCrews > 1 ? 's' : ''}</div>` + html;
   }
@@ -389,6 +398,13 @@ export function saveCrewAssignments() {
   if (_callbacks.updateCounts) _callbacks.updateCounts();
   if (_callbacks.afterSave) _callbacks.afterSave();
   updateCrewBadge();
+
+  const crewCount = Object.keys(clean).length;
+  if (crewCount > 0) {
+    showToast(crewCount + ' \u00e9quipage' + (crewCount > 1 ? 's' : '') + ' constitu\u00e9' + (crewCount > 1 ? 's' : ''), 'success');
+  } else {
+    showToast('\u00c9quipages enregistr\u00e9s', 'success');
+  }
 }
 
 /**

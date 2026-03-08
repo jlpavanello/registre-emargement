@@ -11,6 +11,41 @@ export function bindRendererCallbacks(callbacks) {
   _callbacks = callbacks;
 }
 
+function showRemoveConfirmation(empIdx, empName) {
+  // Remove existing modal if any
+  let overlay = document.getElementById('confirmRemoveOverlay');
+  if (overlay) overlay.remove();
+
+  overlay = document.createElement('div');
+  overlay.id = 'confirmRemoveOverlay';
+  overlay.className = 'confirm-remove-overlay active';
+  overlay.innerHTML = `
+    <div class="confirm-remove-modal">
+      <h3>\u00cates-vous s\u00fbr ?</h3>
+      <p>\u00cates-vous s\u00fbr de vouloir retirer <strong>${empName}</strong> de la liste des pr\u00e9sents ?</p>
+      <div class="confirm-remove-actions">
+        <button class="confirm-remove-cancel" id="btnRemoveCancel">Annuler</button>
+        <button class="confirm-remove-confirm" id="btnRemoveConfirm">Confirmer la suppression</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  // Focus on cancel button (default)
+  document.getElementById('btnRemoveCancel').focus();
+
+  document.getElementById('btnRemoveCancel').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('btnRemoveConfirm').addEventListener('click', () => {
+    overlay.remove();
+    if (_callbacks.removeFromPresent) _callbacks.removeFromPresent(empIdx, true);
+  });
+}
+
+// Close menus when clicking elsewhere
+document.addEventListener('click', () => {
+  document.querySelectorAll('.btn-remove-present.visible').forEach(b => b.classList.remove('visible'));
+});
+
 export function renderEmployees() {
   const { team, currentPeriod, presentToday, dayData, lockedMatinPresents, lockedSoirPresents } = getState();
   const c = document.getElementById('employeesList');
@@ -76,14 +111,14 @@ export function renderEmployees() {
 
     // Crew badge
     const crewVehicle = getCrewForEmployee(i);
-    const crewBadgeHtml = crewVehicle !== null ? `<span class="badge badge-crew">🚗 ${getVehicleLabel(crewVehicle)}</span>` : '';
+    const crewBadgeHtml = crewVehicle !== null ? `<span class="badge badge-crew">🚔 ${getVehicleLabel(crewVehicle)}</span>` : '';
 
     const card = document.createElement('div');
     card.className = 'emp-card' + (isSigned ? ' signed-card' : '') + (empLocked ? ' locked' : '');
     card.style.animationDelay = (cardIdx * 0.04) + 's';
     cardIdx++;
     card.innerHTML = `
-      ${!empLocked ? '<button class="btn-remove-present" title="Retirer des présents">Supprimer</button>' : ''}
+      ${!empLocked ? `<button class="btn-emp-menu" title="Options">\u22EF</button><button class="btn-remove-present" data-empname="${escapeHtml(t.nom)}">\uD83D\uDDD1\uFE0F Retirer</button>` : ''}
       <div class="emp-num">${i + 1}</div>
       <div class="emp-info">
         <div class="emp-name">${escapeHtml(t.nom)}</div>
@@ -111,11 +146,22 @@ export function renderEmployees() {
           if (_callbacks.openSignModal) _callbacks.openSignModal(empIdx, period);
         });
       }
+      // Menu toggle for "⋯" button
+      const menuBtn = card.querySelector('.btn-emp-menu');
       const removeBtn = card.querySelector('.btn-remove-present');
-      if (removeBtn) {
+      if (menuBtn && removeBtn) {
+        menuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // Close all other open menus
+          document.querySelectorAll('.btn-remove-present.visible').forEach(b => {
+            if (b !== removeBtn) b.classList.remove('visible');
+          });
+          removeBtn.classList.toggle('visible');
+        });
         removeBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (_callbacks.removeFromPresent) _callbacks.removeFromPresent(empIdx);
+          removeBtn.classList.remove('visible');
+          showRemoveConfirmation(empIdx, removeBtn.dataset.empname);
         });
       }
     }

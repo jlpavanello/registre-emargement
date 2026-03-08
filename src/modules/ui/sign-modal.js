@@ -10,6 +10,7 @@ import { initCanvas, clearCanvas } from './canvas.js';
 import { isMatinLocked, isSoirLocked, hasUncoveredSignatures } from './visa.js';
 import { escapeHtml } from '../utils/sanitize.js';
 import { logAudit } from '../domains/audit-log.js';
+import { showToast } from './toast.js';
 
 let _afterConfirm = {};
 export function bindSignModalCallbacks(callbacks) {
@@ -530,4 +531,17 @@ export function confirmSignature() {
   if (_afterConfirm.updateCounts) _afterConfirm.updateCounts();
   if (_afterConfirm.updateSoirTabState) _afterConfirm.updateSoirTabState();
   if (_afterConfirm.updateVisaButtonState) _afterConfirm.updateVisaButtonState();
+
+  // Toast notification
+  if (index === -1) {
+    showToast(period === 'visaMatin' ? 'Visa sortie sign\u00e9' : 'Visa retour sign\u00e9', 'success');
+  } else {
+    const { team } = getState();
+    const agentName = team[index] ? team[index].nom : `Agent ${index + 1}`;
+    if (period === 'matin') {
+      showToast('Arme attribu\u00e9e \u00e0 ' + agentName, 'success');
+    } else {
+      showToast('Arme restitu\u00e9e par ' + agentName, 'success');
+    }
+  }
 }
