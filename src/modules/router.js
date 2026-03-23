@@ -9,6 +9,7 @@ const routes = new Map();
 let currentRoute = null;
 let currentPath = null;
 let appContainer = null;
+const _afterRouteHooks = [];
 
 /**
  * Enregistre une route avec son handler
@@ -50,6 +51,14 @@ export function initRouter(container) {
  */
 export function getCurrentPath() {
   return window.location.hash.slice(1) || '/';
+}
+
+/**
+ * Enregistre un hook appelé après chaque changement de route
+ * @param {function} fn - () => void
+ */
+export function onAfterRoute(fn) {
+  _afterRouteHooks.push(fn);
 }
 
 /**
@@ -115,6 +124,11 @@ async function handleRoute() {
 
   // Mettre à jour la sidebar active
   updateSidebarActive();
+
+  // Hooks post-route
+  for (const fn of _afterRouteHooks) {
+    try { fn(); } catch (e) { console.warn('afterRoute hook error:', e); }
+  }
 
   // Scroll en haut
   window.scrollTo(0, 0);

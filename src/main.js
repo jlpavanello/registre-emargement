@@ -27,6 +27,7 @@ import './styles/audit.css';
 import './styles/planning.css';
 import './styles/sidebar.css';
 import './styles/toast.css';
+import './styles/feedback.css';
 
 // --- Module Imports ---
 import { init, bindInitCallbacks } from './modules/domains/init.js';
@@ -59,12 +60,15 @@ import { initAccessibility } from './modules/a11y/accessibility.js';
 import { isPushSupported, getPushPermission, subscribeToPush } from './modules/push/push-notifications.js';
 
 // Routeur & Pages
-import { initRouter, registerRoute } from './modules/router.js';
+import { initRouter, registerRoute, onAfterRoute } from './modules/router.js';
 import { homepage } from './modules/pages/homepage.js';
 import { registre } from './modules/pages/registre.js';
 
 // Sidebar
 import { mountSidebar } from './modules/ui/sidebar.js';
+
+// Feedback widget
+import { mountFeedbackWidget, unmountFeedbackWidget } from './modules/ui/feedback-widget.js';
 
 // =============================================
 // Late-binding callbacks (generiques, sans ref registre)
@@ -266,6 +270,17 @@ function registerRoutes() {
     },
     unmount() {},
   });
+
+  // Feedback récapitulatif (admin)
+  registerRoute('/feedback', {
+    title: 'Feedback Client',
+    guard: () => ACCESS.canViewConfig(),
+    async mount(container) {
+      const { feedbackPage } = await import('./modules/pages/feedback-page.js');
+      feedbackPage.mount(container);
+    },
+    unmount() {},
+  });
 }
 
 // =============================================
@@ -316,6 +331,7 @@ async function bootstrap() {
 
   // Routeur
   registerRoutes();
+  onAfterRoute(() => mountFeedbackWidget());
   const appContainer = document.getElementById('app');
   initRouter(appContainer);
 }

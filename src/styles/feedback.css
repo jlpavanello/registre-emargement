@@ -1,0 +1,311 @@
+/* =============================================
+   feedback.css — Bouton flottant + drawer commentaires
+   ============================================= */
+
+/* ── Bouton flottant ── */
+.feedback-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--color-neutral-700);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: background var(--transition), transform var(--transition);
+}
+.feedback-fab:hover {
+  background: var(--color-primary);
+  transform: translateY(-2px);
+}
+.feedback-fab svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.feedback-fab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--color-primary-light);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+.feedback-fab-badge:empty {
+  display: none;
+}
+
+/* ── Overlay ── */
+.feedback-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.feedback-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Drawer ── */
+.feedback-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(420px, 92vw);
+  z-index: 1001;
+  background: var(--surface, #fff);
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.feedback-drawer.open {
+  transform: translateX(0);
+}
+
+/* ── Drawer header ── */
+.feedback-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--color-neutral-50);
+}
+.feedback-drawer-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.feedback-drawer-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 18px;
+  transition: background var(--transition);
+}
+.feedback-drawer-close:hover {
+  background: var(--color-neutral-200);
+  color: var(--text);
+}
+
+/* ── Form ── */
+.feedback-form {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.feedback-form textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color var(--transition);
+  box-sizing: border-box;
+}
+.feedback-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.08);
+}
+.feedback-form select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.feedback-form select:focus {
+  outline: none;
+  border-color: var(--color-primary-light);
+}
+.feedback-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.feedback-submit-btn {
+  padding: 8px 20px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.feedback-submit-btn:hover {
+  background: var(--color-primary-light);
+}
+.feedback-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Liste de commentaires ── */
+.feedback-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px;
+}
+.feedback-list-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text3);
+  font-size: 13px;
+}
+.feedback-item {
+  padding: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xs);
+  margin-bottom: 8px;
+  background: var(--color-neutral-50);
+}
+.feedback-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.feedback-item-type {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.feedback-type-ajout { background: #dbeafe; color: #1e40af; }
+.feedback-type-modification { background: #fef3c7; color: #92400e; }
+.feedback-type-bug { background: #fee2e2; color: #991b1b; }
+.feedback-type-remarque { background: #e0e7ff; color: #3730a3; }
+.feedback-item-date {
+  font-size: 11px;
+  color: var(--text3);
+}
+.feedback-item-message {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Page récapitulative Feedback ── */
+.feedback-recap {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.feedback-recap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.feedback-recap-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.feedback-recap-actions {
+  display: flex;
+  gap: 8px;
+}
+.feedback-recap-actions button {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+  transition: background var(--transition);
+}
+.feedback-recap-actions button:hover {
+  background: var(--color-neutral-100);
+}
+.feedback-recap-actions .feedback-btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+  border-color: var(--color-danger);
+}
+.feedback-recap-actions .feedback-btn-danger:hover {
+  background: var(--red-light);
+}
+.feedback-recap-group {
+  margin-bottom: 24px;
+}
+.feedback-recap-group-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--color-primary-lighter);
+}
+.feedback-recap-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .feedback-fab {
+    bottom: 80px;
+    right: 16px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .feedback-recap {
+    padding: 16px;
+  }
+}

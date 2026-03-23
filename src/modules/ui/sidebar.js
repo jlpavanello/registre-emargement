@@ -39,6 +39,7 @@ const NAV_ITEMS = [
   // Settings section
   { id: 'config', icon: '\u2699\uFE0F', label: 'Configuration', route: '/config', section: 'settings', roles: ['responsable'] },
   { id: 'audit', icon: '\uD83D\uDD0D', label: 'Audit & Incidents', route: '/audit', section: 'settings', roles: ['responsable'] },
+  { id: 'feedback', icon: '\uD83D\uDCAC', label: 'Feedback Client', route: '/feedback', section: 'settings', roles: ['responsable'] },
 ];
 
 // =============================================
