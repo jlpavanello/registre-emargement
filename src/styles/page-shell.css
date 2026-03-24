@@ -4,11 +4,9 @@
    ============================================= */
 
 /* Conteneur principal */
+/* Transition de page supprimée pour éviter le clignotement */
 #app {
-  transition: opacity 0.12s ease;
-}
-#app.page-exit {
-  opacity: 0;
+  /* No opacity transition — instant page swap */
 }
 
 /* Header de page (sticky en haut) */

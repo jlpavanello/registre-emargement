@@ -78,12 +78,30 @@ let _overlayEl = null;
  * Mount the feedback widget (call after each page mount)
  * Automatically detects current page from the router.
  */
-export function mountFeedbackWidget() {
-  unmountFeedbackWidget();
+let _currentWidgetPage = null;
 
+export function mountFeedbackWidget() {
   const page = getCurrentPath();
+
   // Don't show on the feedback recap page itself
-  if (page === '/feedback') return;
+  if (page === '/feedback') {
+    unmountFeedbackWidget();
+    return;
+  }
+
+  // Skip remount if already mounted for the same page
+  if (_fabEl && _currentWidgetPage === page) {
+    // Just update the badge count
+    const badge = document.getElementById('feedbackBadge');
+    if (badge) {
+      const count = getCommentsForPage(page).length;
+      badge.textContent = count || '';
+    }
+    return;
+  }
+
+  unmountFeedbackWidget();
+  _currentWidgetPage = page;
 
   const pageLabel = PAGE_LABELS[page] || page;
   const count = getCommentsForPage(page).length;
@@ -123,6 +141,7 @@ export function mountFeedbackWidget() {
  */
 export function unmountFeedbackWidget() {
   _isOpen = false;
+  _currentWidgetPage = null;
   if (_fabEl) { _fabEl.remove(); _fabEl = null; }
   if (_drawerEl) { _drawerEl.remove(); _drawerEl = null; }
   if (_overlayEl) { _overlayEl.remove(); _overlayEl = null; }

@@ -347,7 +347,18 @@ function renderQuickAccess(isAgent) {
 // Live updates
 // =============================================
 
+let _refreshTimer = null;
+
 function refreshDashboard() {
+  // Debounce: coalesce rapid-fire state updates into one re-render
+  if (_refreshTimer) return;
+  _refreshTimer = requestAnimationFrame(() => {
+    _refreshTimer = null;
+    _doRefreshDashboard();
+  });
+}
+
+function _doRefreshDashboard() {
   const container = document.getElementById('tdbContent');
   if (!container) return;
   const role = getDeviceRole() || 'responsable';

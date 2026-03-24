@@ -79,14 +79,7 @@ async function handleRoute() {
     return;
   }
 
-  // Animation de sortie (seulement si le conteneur a du contenu visible)
-  const hasVisibleContent = appContainer && currentRoute && appContainer.children.length > 0;
-  if (hasVisibleContent) {
-    appContainer.classList.add('page-exit');
-    await new Promise(r => setTimeout(r, 120));
-  }
-
-  // Unmount la page actuelle
+  // Unmount la page actuelle (pas d'animation de fade pour éviter le clignotement)
   if (currentRoute && currentRoute.unmount) {
     try {
       await currentRoute.unmount(appContainer);
@@ -101,7 +94,6 @@ async function handleRoute() {
 
   if (appContainer) {
     appContainer.innerHTML = '';
-    appContainer.classList.remove('page-exit');
   }
 
   try {

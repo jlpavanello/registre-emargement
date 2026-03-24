@@ -4,7 +4,7 @@
 // Debounced push (3s), periodic pull (30s)
 
 import { getSupabase, isSupabaseEnabled } from './client.js';
-import { getState, setState } from '../state.js';
+import { getState, setState, beginBatch, endBatch } from '../state.js';
 
 // Domain save functions (same pattern as export-import.js)
 import { saveTeam } from '../domains/team.js';
@@ -116,6 +116,9 @@ function buildStateSnapshot() {
 function applyRemoteState(data) {
   if (!data || typeof data !== 'object') return;
 
+  // Batch all state updates to avoid cascading re-renders
+  beginBatch();
+
   // Config
   if (data.team) { setState('team', data.team); saveTeam(); }
   if (data.machines) { setState('machines', data.machines); saveMachines(); }
@@ -170,6 +173,9 @@ function applyRemoteState(data) {
   if (data.planningShifts) { setState('planningShifts', data.planningShifts); savePlanningShifts(); }
   if (data.planningCycles) { setState('planningCycles', data.planningCycles); savePlanningCycles(); }
   if (data.planningLeaves) { setState('planningLeaves', data.planningLeaves); savePlanningLeaves(); }
+
+  // End batch — fire all pending listeners once
+  endBatch();
 
   console.log('✅ État distant appliqué localement');
 }
