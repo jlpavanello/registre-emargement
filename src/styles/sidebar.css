@@ -160,6 +160,20 @@
   padding: 10px 8px 16px;
   border-top: 1px solid rgba(255,255,255,0.1);
 }
+.sidebar-logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  margin-top: 4px;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+}
+.sidebar-logout-btn:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.15) !important;
+}
 
 /* ─── Mobile: Hamburger + Overlay ─── */
 

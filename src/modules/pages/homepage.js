@@ -5,7 +5,7 @@
 
 import { getState, subscribe } from '../state.js';
 import { getDeviceRole } from '../auth/auth-state.js';
-import { showRoleScreen } from '../auth/login-screen.js';
+import { showRoleScreen, showLoginScreen } from '../auth/login-screen.js';
 import { getActiveTeam } from '../domains/team.js';
 import { getActiveVehicles, getVehicleLabel } from '../domains/crews.js';
 import { getCrewForEmployee } from '../domains/crew-assignment.js';
@@ -61,9 +61,14 @@ function getTemplate() {
             <div class="homepage-subtitle">Police Municipale de Monistrol-sur-Loire</div>
           </div>
         </div>
-        <button class="homepage-role-btn" id="btnHomeRole" title="Changer de profil">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-        </button>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button class="homepage-role-btn" id="btnHomeLogout" title="Déconnexion" style="opacity:0.7;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+          <button class="homepage-role-btn" id="btnHomeRole" title="Changer de profil">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+          </button>
+        </div>
       </div>
 
       <div class="homepage-date-bar">
@@ -380,6 +385,13 @@ export function mount(container) {
   if (btnRole) {
     btnRole.addEventListener('click', () => {
       if (confirm('Changer le profil de cet appareil ?')) showRoleScreen();
+    });
+  }
+
+  const btnLogout = document.getElementById('btnHomeLogout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      if (confirm('Se déconnecter de l\'application ?')) showLoginScreen();
     });
   }
 

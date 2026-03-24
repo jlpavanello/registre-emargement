@@ -6,6 +6,7 @@ import { getState, subscribe } from '../state.js';
 import { getCurrentPath } from '../router.js';
 import { getDeviceRole } from '../auth/auth-state.js';
 import { ACCESS } from '../auth/auth-state.js';
+import { showLoginScreen } from '../auth/login-screen.js';
 
 let _unsubs = [];
 
@@ -109,6 +110,10 @@ function getSidebarHTML() {
           <span class="sidebar-item-icon">\uD83D\uDCAC</span>
           <span class="sidebar-item-label">Chat d'\u00e9quipe</span>
         </a>
+        <button class="sidebar-item sidebar-logout-btn" id="sidebarLogout">
+          <span class="sidebar-item-icon">\uD83D\uDD12</span>
+          <span class="sidebar-item-label">D\u00e9connexion</span>
+        </button>
       </div>
     </div>
 
@@ -172,6 +177,19 @@ export function mountSidebar() {
       }
     });
   });
+
+  // Logout button
+  const logoutBtn = document.getElementById('sidebarLogout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (confirm('Se déconnecter de l\'application ?')) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+        showLoginScreen();
+      }
+    });
+  }
 
   // Subscribe to badge updates
   _unsubs.push(subscribe('presentToday', updateSidebarBadges));
