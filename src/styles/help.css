@@ -1,0 +1,235 @@
+/* =============================================
+   help.css — Page Aide / Mode d'emploi
+   ============================================= */
+
+.help-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+
+/* Header */
+.help-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.help-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin: 0 0 6px;
+}
+.help-subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  margin: 0;
+}
+
+/* Table of Contents */
+.help-toc {
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 28px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.help-toc-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 10px;
+}
+.help-toc-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+.help-toc-link {
+  font-size: 13px;
+  color: var(--color-primary-light);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition);
+}
+.help-toc-link:hover,
+.help-toc-link:active {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* Sections */
+.help-section {
+  background: #fff;
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius);
+  padding: 20px 18px;
+  margin-bottom: 18px;
+  scroll-margin-top: 10px;
+}
+.help-section h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-neutral-100);
+}
+.help-section h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text2);
+  margin: 16px 0 8px;
+}
+.help-section p {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+.help-section ul,
+.help-section ol {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text);
+  padding-left: 22px;
+  margin: 0 0 12px;
+}
+.help-section li {
+  margin-bottom: 4px;
+}
+
+/* Mini cards grid (onglets overview) */
+.help-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+.help-mini-card {
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 12px;
+  text-align: center;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+/* Tables */
+.help-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0 16px;
+  font-size: 13px;
+}
+.help-table th {
+  background: var(--color-neutral-50);
+  color: var(--color-primary);
+  font-weight: 700;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--color-neutral-200);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.help-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--color-neutral-100);
+  color: var(--text);
+}
+.help-table tbody tr:hover {
+  background: var(--color-neutral-50);
+}
+.help-table--legend td:first-child {
+  font-size: 18px;
+  text-align: center;
+  width: 50px;
+}
+
+/* Color dots for legend */
+.help-color-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+/* Callouts */
+.help-callout {
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 10px 14px;
+  border-radius: var(--radius-xs);
+  margin: 12px 0;
+}
+.help-callout--tip {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+.help-callout--warn {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+.help-callout a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Back to top */
+.help-back-top {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--text3);
+  text-decoration: none;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--color-neutral-50);
+  transition: background var(--transition);
+}
+.help-back-top:hover {
+  background: var(--color-neutral-200);
+  color: var(--text2);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .help-grid-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .help-toc {
+    position: static;
+  }
+  .help-section {
+    padding: 16px 14px;
+  }
+  .help-table {
+    font-size: 12px;
+  }
+  .help-table th,
+  .help-table td {
+    padding: 6px 7px;
+  }
+}
+
+@media (min-width: 600px) {
+  .help-page {
+    padding: 28px 24px 60px;
+  }
+  .help-header h2 {
+    font-size: 26px;
+  }
+  .help-toc-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}

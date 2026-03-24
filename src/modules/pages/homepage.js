@@ -181,9 +181,9 @@ function renderSynthese(isAgent) {
           <div class="tdb-stat-label">Sortie armes</div>
           <div class="tdb-stat-badge ${matinLocked ? 'locked' : 'unlocked'}">${matinLocked ? '\uD83D\uDD12 Vis\u00e9' : '\uD83D\uDD13'}</div>
         </a>
-        <a href="#/registre" class="tdb-stat-card">
+        <a href="#/registre" class="tdb-stat-card${presentCount > 0 && sigSoir < presentCount && !soirLocked ? ' tdb-stat-card--alert' : ''}">
           <div class="tdb-stat-icon">\uD83D\uDD04</div>
-          <div class="tdb-stat-value primary">${sigSoir}<span class="tdb-stat-total">/${presentCount}</span></div>
+          <div class="tdb-stat-value${presentCount > 0 && sigSoir < presentCount && !soirLocked ? ' danger' : ' primary'}">${sigSoir}<span class="tdb-stat-total">/${presentCount}</span></div>
           <div class="tdb-stat-label">Retour armes</div>
           <div class="tdb-stat-badge ${soirLocked ? 'locked' : 'unlocked'}">${soirLocked ? '\uD83D\uDD12 Vis\u00e9' : '\uD83D\uDD13'}</div>
         </a>

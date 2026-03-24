@@ -250,6 +250,17 @@
 .tdb-stat-value.success { color: var(--color-success); }
 .tdb-stat-value.warning { color: var(--color-warning); }
 .tdb-stat-value.primary { color: var(--color-primary); }
+.tdb-stat-value.danger { color: var(--color-danger); }
+
+.tdb-stat-card--alert {
+  background: #fef2f2;
+  border-color: #fecaca;
+  animation: alertPulse 2s ease-in-out infinite;
+}
+@keyframes alertPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); }
+}
 
 .tdb-stat-total {
   font-size: 14px;

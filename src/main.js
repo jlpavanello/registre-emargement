@@ -28,6 +28,7 @@ import './styles/planning.css';
 import './styles/sidebar.css';
 import './styles/toast.css';
 import './styles/feedback.css';
+import './styles/help.css';
 
 // --- Module Imports ---
 import { init, bindInitCallbacks } from './modules/domains/init.js';
@@ -278,6 +279,16 @@ function registerRoutes() {
     async mount(container) {
       const { feedbackPage } = await import('./modules/pages/feedback-page.js');
       feedbackPage.mount(container);
+    },
+    unmount() {},
+  });
+
+  // Aide / Mode d'emploi
+  registerRoute('/aide', {
+    title: 'Aide',
+    async mount(container) {
+      const { helpPage } = await import('./modules/pages/help-page.js');
+      helpPage.mount(container);
     },
     unmount() {},
   });
