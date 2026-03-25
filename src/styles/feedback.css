@@ -213,20 +213,22 @@
   margin-left: auto;
 }
 .feedback-item-delete {
-  background: none;
-  border: none;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
   cursor: pointer;
-  font-size: 14px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  opacity: 0.4;
-  transition: opacity var(--transition), background var(--transition);
+  font-size: 15px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  opacity: 1;
+  transition: background var(--transition), transform var(--transition);
   line-height: 1;
   flex-shrink: 0;
+  color: var(--color-danger);
 }
 .feedback-item-delete:hover {
-  opacity: 1;
-  background: #fee2e2;
+  background: var(--color-danger);
+  color: #fff;
+  transform: scale(1.1);
 }
 .feedback-item-type {
   display: inline-block;
@@ -335,18 +337,19 @@
 /* Clear page button inside drawer */
 .feedback-clear-page-btn {
   display: block;
-  width: calc(100% - 40px);
-  margin: 8px 20px 16px;
-  padding: 8px;
-  background: none;
-  border: 1px solid var(--color-danger);
+  width: 100%;
+  margin: 12px 0 4px;
+  padding: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: var(--radius-xs);
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-danger);
   cursor: pointer;
   transition: background var(--transition), color var(--transition);
+  box-sizing: border-box;
 }
 .feedback-clear-page-btn:hover {
   background: var(--color-danger);

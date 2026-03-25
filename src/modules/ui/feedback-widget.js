@@ -191,8 +191,7 @@ function getDrawerHTML(page, pageLabel) {
         <button class="feedback-submit-btn" id="feedbackSubmit">Envoyer</button>
       </div>
     </div>
-    <div class="feedback-list" id="feedbackList">${listHTML}</div>
-    ${clearPageBtn}
+    <div class="feedback-list" id="feedbackList">${listHTML}${clearPageBtn}</div>
   `;
 }
 
