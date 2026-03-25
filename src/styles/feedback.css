@@ -206,8 +206,27 @@
 .feedback-item-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   margin-bottom: 6px;
+}
+.feedback-item-date {
+  margin-left: auto;
+}
+.feedback-item-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0.4;
+  transition: opacity var(--transition), background var(--transition);
+  line-height: 1;
+  flex-shrink: 0;
+}
+.feedback-item-delete:hover {
+  opacity: 1;
+  background: #fee2e2;
 }
 .feedback-item-type {
   display: inline-block;
@@ -283,13 +302,55 @@
 .feedback-recap-group {
   margin-bottom: 24px;
 }
+.feedback-recap-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--color-primary-lighter);
+}
 .feedback-recap-group-title {
   font-size: 15px;
   font-weight: 700;
   color: var(--color-primary);
-  margin-bottom: 12px;
-  padding-bottom: 6px;
-  border-bottom: 2px solid var(--color-primary-lighter);
+}
+.feedback-btn-danger-sm {
+  padding: 4px 10px;
+  background: none;
+  border: 1px solid var(--color-danger);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-danger);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+.feedback-btn-danger-sm:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+/* Clear page button inside drawer */
+.feedback-clear-page-btn {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 8px 20px 16px;
+  padding: 8px;
+  background: none;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-xs);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-danger);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.feedback-clear-page-btn:hover {
+  background: var(--color-danger);
+  color: #fff;
 }
 .feedback-recap-empty {
   text-align: center;

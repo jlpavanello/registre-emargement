@@ -3,7 +3,7 @@
 // Affiche tous les commentaires groupés par page
 // =============================================
 
-import { getAllComments, clearAllComments } from '../ui/feedback-widget.js';
+import { getAllComments, clearAllComments, clearCommentsForPage, deleteComment } from '../ui/feedback-widget.js';
 import { showConfirm } from '../utils/confirm-dialog.js';
 
 const COMMENT_TYPES = {
@@ -41,9 +41,13 @@ function getPageHTML() {
     contentHTML = '<div class="feedback-recap-empty">Aucun commentaire pour le moment.</div>';
   } else {
     for (const [pageLabel, items] of Object.entries(grouped)) {
+      const pagePath = items[0].page;
       contentHTML += `
         <div class="feedback-recap-group">
-          <div class="feedback-recap-group-title">${escapeHTML(pageLabel)} (${items.length})</div>
+          <div class="feedback-recap-group-header">
+            <div class="feedback-recap-group-title">${escapeHTML(pageLabel)} (${items.length})</div>
+            <button class="feedback-btn-danger-sm feedback-clear-section" data-page="${escapeHTML(pagePath)}" data-label="${escapeHTML(pageLabel)}">🗑️ Supprimer cette section</button>
+          </div>
           ${items.map(c => getItemHTML(c)).join('')}
         </div>
       `;
@@ -76,6 +80,7 @@ function getItemHTML(c) {
       <div class="feedback-item-header">
         <span class="feedback-item-type feedback-type-${c.type}">${typeLabel}</span>
         <span class="feedback-item-date">${dateStr}</span>
+        <button class="feedback-item-delete feedback-delete-single" data-date="${c.date}" aria-label="Supprimer" title="Supprimer ce commentaire">🗑️</button>
       </div>
       <div class="feedback-item-message">${escapeHTML(c.message)}</div>
     </div>
@@ -91,6 +96,43 @@ function bindEvents(container) {
 
   const clearBtn = document.getElementById('feedbackClearAll');
   if (clearBtn) clearBtn.addEventListener('click', () => handleClearAll(container));
+
+  // Per-section delete
+  container.querySelectorAll('.feedback-clear-section').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const page = btn.dataset.page;
+      const label = btn.dataset.label;
+      const confirmed = await showConfirm({
+        title: `Supprimer les commentaires`,
+        message: `Supprimer tous les commentaires de la page "${label}" ?`,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true,
+      });
+      if (!confirmed) return;
+      clearCommentsForPage(page);
+      container.innerHTML = getPageHTML();
+      bindEvents(container);
+    });
+  });
+
+  // Per-comment delete
+  container.querySelectorAll('.feedback-delete-single').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const date = Number(btn.dataset.date);
+      const confirmed = await showConfirm({
+        title: 'Supprimer ce commentaire',
+        message: 'Voulez-vous supprimer ce commentaire ?',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        danger: true,
+      });
+      if (!confirmed) return;
+      deleteComment(date);
+      container.innerHTML = getPageHTML();
+      bindEvents(container);
+    });
+  });
 }
 
 function handleCopyAll() {

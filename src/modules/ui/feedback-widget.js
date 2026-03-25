@@ -58,8 +58,18 @@ function clearAllComments() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+function clearCommentsForPage(page) {
+  const all = getAllComments().filter(c => c.page !== page);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+function deleteComment(date) {
+  const all = getAllComments().filter(c => c.date !== date);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
 // Public: export for recap page
-export { getAllComments, getCommentsForPage, clearAllComments };
+export { getAllComments, getCommentsForPage, clearAllComments, clearCommentsForPage, deleteComment };
 
 // =============================================
 // Widget state
@@ -165,6 +175,10 @@ function getDrawerHTML(page, pageLabel) {
       .join('');
   }
 
+  const clearPageBtn = comments.length > 0
+    ? `<button class="feedback-clear-page-btn" id="feedbackClearPage">🗑️ Supprimer les commentaires de cette page (${comments.length})</button>`
+    : '';
+
   return `
     <div class="feedback-drawer-header">
       <span class="feedback-drawer-title">Commentaires — ${pageLabel}</span>
@@ -178,6 +192,7 @@ function getDrawerHTML(page, pageLabel) {
       </div>
     </div>
     <div class="feedback-list" id="feedbackList">${listHTML}</div>
+    ${clearPageBtn}
   `;
 }
 
@@ -192,6 +207,7 @@ function getCommentItemHTML(c) {
       <div class="feedback-item-header">
         <span class="feedback-item-type feedback-type-${c.type}">${typeInfo.label}</span>
         <span class="feedback-item-date">${dateStr}</span>
+        <button class="feedback-item-delete" data-date="${c.date}" aria-label="Supprimer" title="Supprimer ce commentaire">🗑️</button>
       </div>
       <div class="feedback-item-message">${escapeHTML(c.message)}</div>
     </div>
@@ -215,6 +231,31 @@ function bindDrawerEvents(page, pageLabel) {
     textarea.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
         handleSubmit(page, pageLabel);
+      }
+    });
+  }
+
+  // Delete individual comment
+  _drawerEl.querySelectorAll('.feedback-item-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const date = Number(btn.dataset.date);
+      if (confirm('Supprimer ce commentaire ?')) {
+        deleteComment(date);
+        refreshDrawer(page, pageLabel);
+        updateBadge(page);
+      }
+    });
+  });
+
+  // Clear all comments for this page
+  const clearPageBtn = _drawerEl.querySelector('#feedbackClearPage');
+  if (clearPageBtn) {
+    clearPageBtn.addEventListener('click', () => {
+      const count = getCommentsForPage(page).length;
+      if (confirm(`Supprimer tous les commentaires de la page ${pageLabel} (${count}) ?`)) {
+        clearCommentsForPage(page);
+        refreshDrawer(page, pageLabel);
+        updateBadge(page);
       }
     });
   }
@@ -258,6 +299,12 @@ function refreshList(page) {
       .map(c => getCommentItemHTML(c))
       .join('');
   }
+}
+
+function refreshDrawer(page, pageLabel) {
+  if (!_drawerEl) return;
+  _drawerEl.innerHTML = getDrawerHTML(page, pageLabel);
+  bindDrawerEvents(page, pageLabel);
 }
 
 function updateBadge(page) {
