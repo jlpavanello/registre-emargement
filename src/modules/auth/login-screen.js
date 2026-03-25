@@ -27,21 +27,31 @@ async function sha256(message) {
 }
 
 /**
- * Initialize default credentials if not already stored
+ * Initialize default credentials — always ensure the hash is correct
  */
 async function ensureCredentials() {
-  const stored = localStorage.getItem(CREDENTIALS_KEY);
-  if (stored) return;
-
   const hash = await sha256('PM43120!');
+  const stored = localStorage.getItem(CREDENTIALS_KEY);
+  if (stored) {
+    try {
+      const creds = JSON.parse(stored);
+      // If hash matches, nothing to do
+      if (creds.username === DEFAULT_USER && creds.passwordHash === hash) return;
+    } catch { /* corrupt data, will be overwritten */ }
+  }
   const creds = { username: DEFAULT_USER, passwordHash: hash };
   localStorage.setItem(CREDENTIALS_KEY, JSON.stringify(creds));
 }
+
+// Pre-computed credentials ready flag
+let _credentialsReady = null;
 
 /**
  * Verify login credentials
  */
 async function verifyCredentials(username, password) {
+  // Wait for credentials to be initialized
+  if (_credentialsReady) await _credentialsReady;
   const stored = localStorage.getItem(CREDENTIALS_KEY);
   if (!stored) return false;
 
@@ -259,9 +269,10 @@ function getRoleSelectionHTML() {
 /**
  * Create and inject the login / role selection screen into the DOM
  */
-export function createLoginScreen() {
-  // Ensure default credentials exist
-  ensureCredentials();
+export async function createLoginScreen() {
+  // Ensure default credentials exist — AWAIT so hash is ready before login
+  _credentialsReady = ensureCredentials();
+  await _credentialsReady;
 
   const screen = document.createElement('div');
   screen.id = 'roleSelectScreen';

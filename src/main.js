@@ -303,7 +303,7 @@ async function bootstrap() {
   initAccessibility();
 
   // Role selection screen
-  createLoginScreen();
+  await createLoginScreen();
 
   // Init data (IndexedDB + Supabase sync)
   await init();
