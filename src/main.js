@@ -123,7 +123,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const base = import.meta.env.BASE_URL || '/';
     navigator.serviceWorker
-      .register(base + 'sw.js?v=21')
+      .register(base + 'sw.js?v=22')
       .then((reg) => console.log('SW enregistr\u00e9:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });
