@@ -6,6 +6,7 @@
 import { getSupabase, isSupabaseEnabled } from './client.js';
 import { getState, setState, beginBatch, endBatch } from '../state.js';
 import { isConfigEditing } from '../ui/config-panel.js';
+import { setSyncPulling } from '../storage/storage-interface.js';
 
 // Domain save functions (same pattern as export-import.js)
 import { saveTeam } from '../domains/team.js';
@@ -117,68 +118,80 @@ function buildStateSnapshot() {
 function applyRemoteState(data) {
   if (!data || typeof data !== 'object') return;
 
-  // Batch all state updates to avoid cascading re-renders
-  beginBatch();
+  // Suppress syncPush during pull — avoid re-pushing what we just received
+  setSyncPulling(true);
+  const app = document.getElementById('app');
+  if (app) app.classList.add('syncing');
 
-  // Config
-  if (data.team) { setState('team', data.team); saveTeam(); }
-  if (data.machines) { setState('machines', data.machines); saveMachines(); }
-  if (data.categories) { setState('categories', data.categories); saveCategories(); }
-  if (data.responsables) { setState('responsables', data.responsables); saveResponsables(); }
-  if (data.vehicles) { setState('vehicles', data.vehicles); saveVehicles(); }
-  if (typeof data.pageNumber === 'number' && !isNaN(data.pageNumber)) { setState('pageNumber', data.pageNumber); savePageNumber(); }
-  if (data.infoFields) {
-    const inf = data.infoFields;
-    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
-    setVal('entreprise', inf.entreprise);
-    setVal('refChantier', inf.refChantier);
-    setVal('responsable', inf.responsable);
-    setVal('adresseChantier', inf.adresseChantier);
-    saveInfoFields();
+  try {
+    // Batch all state updates to avoid cascading re-renders
+    beginBatch();
+
+    // Config
+    if (data.team) { setState('team', data.team); saveTeam(); }
+    if (data.machines) { setState('machines', data.machines); saveMachines(); }
+    if (data.categories) { setState('categories', data.categories); saveCategories(); }
+    if (data.responsables) { setState('responsables', data.responsables); saveResponsables(); }
+    if (data.vehicles) { setState('vehicles', data.vehicles); saveVehicles(); }
+    if (typeof data.pageNumber === 'number' && !isNaN(data.pageNumber)) { setState('pageNumber', data.pageNumber); savePageNumber(); }
+    if (data.infoFields) {
+      const inf = data.infoFields;
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+      setVal('entreprise', inf.entreprise);
+      setVal('refChantier', inf.refChantier);
+      setVal('responsable', inf.responsable);
+      setVal('adresseChantier', inf.adresseChantier);
+      saveInfoFields();
+    }
+
+    // Données du jour
+    if (data.dayData) setState('dayData', data.dayData);
+    if (data.presentToday) setState('presentToday', data.presentToday);
+    if (data.visaMatin !== undefined) setState('visaMatin', data.visaMatin);
+    if (data.visaSoir !== undefined) setState('visaSoir', data.visaSoir);
+    if (data.visaMatinSigner !== undefined) setState('visaMatinSigner', data.visaMatinSigner);
+    if (data.visaSoirSigner !== undefined) setState('visaSoirSigner', data.visaSoirSigner);
+    if (data.lockedMatinPresents) setState('lockedMatinPresents', data.lockedMatinPresents);
+    if (data.lockedSoirPresents) setState('lockedSoirPresents', data.lockedSoirPresents);
+    if (data.crewAssignments) setState('crewAssignments', data.crewAssignments);
+    if (data.crewDrivers) setState('crewDrivers', data.crewDrivers);
+    syncDayData();
+    saveDayData();
+
+    // Stock & Logistique
+    if (data.munitionRefs) { setState('munitionRefs', data.munitionRefs); saveMunitionRefs(); }
+    if (data.stockArmes) { setState('stockArmes', data.stockArmes); saveStockArmes(); }
+    if (data.stockMouvements) { setState('stockMouvements', data.stockMouvements); saveStockMouvements(); }
+    if (data.previsionsTir) { setState('previsionsTir', data.previsionsTir); savePrevisionsTir(); }
+    if (data.fournisseurs) { setState('fournisseurs', data.fournisseurs); saveFournisseurs(); }
+    if (data.commandes) { setState('commandes', data.commandes); saveCommandes(); }
+
+    // PV
+    if (data.pvTemplates) { setState('pvTemplates', data.pvTemplates); savePvTemplates(); }
+    if (data.pvDocuments) { setState('pvDocuments', data.pvDocuments); savePvDocuments(); }
+
+    // Autres
+    if (data.vocalReports) { setState('vocalReports', data.vocalReports); saveVocalReports(); }
+    if (data.chatMessages) { setState('chatMessages', data.chatMessages); saveChatMessages(); }
+    if (data.auditLog) { setState('auditLog', data.auditLog); saveAuditLog(); }
+    if (data.incidents) { setState('incidents', data.incidents); saveIncidents(); }
+
+    // Planning
+    if (data.planningEntries) { setState('planningEntries', data.planningEntries); savePlanningEntries(); }
+    if (data.planningShifts) { setState('planningShifts', data.planningShifts); savePlanningShifts(); }
+    if (data.planningCycles) { setState('planningCycles', data.planningCycles); savePlanningCycles(); }
+    if (data.planningLeaves) { setState('planningLeaves', data.planningLeaves); savePlanningLeaves(); }
+
+    // End batch in next animation frame — single repaint instead of multiple
+    requestAnimationFrame(() => {
+      endBatch();
+      if (app) app.classList.remove('syncing');
+    });
+
+    console.log('✅ État distant appliqué localement');
+  } finally {
+    setSyncPulling(false);
   }
-
-  // Données du jour
-  if (data.dayData) setState('dayData', data.dayData);
-  if (data.presentToday) setState('presentToday', data.presentToday);
-  if (data.visaMatin !== undefined) setState('visaMatin', data.visaMatin);
-  if (data.visaSoir !== undefined) setState('visaSoir', data.visaSoir);
-  if (data.visaMatinSigner !== undefined) setState('visaMatinSigner', data.visaMatinSigner);
-  if (data.visaSoirSigner !== undefined) setState('visaSoirSigner', data.visaSoirSigner);
-  if (data.lockedMatinPresents) setState('lockedMatinPresents', data.lockedMatinPresents);
-  if (data.lockedSoirPresents) setState('lockedSoirPresents', data.lockedSoirPresents);
-  if (data.crewAssignments) setState('crewAssignments', data.crewAssignments);
-  if (data.crewDrivers) setState('crewDrivers', data.crewDrivers);
-  syncDayData();
-  saveDayData();
-
-  // Stock & Logistique
-  if (data.munitionRefs) { setState('munitionRefs', data.munitionRefs); saveMunitionRefs(); }
-  if (data.stockArmes) { setState('stockArmes', data.stockArmes); saveStockArmes(); }
-  if (data.stockMouvements) { setState('stockMouvements', data.stockMouvements); saveStockMouvements(); }
-  if (data.previsionsTir) { setState('previsionsTir', data.previsionsTir); savePrevisionsTir(); }
-  if (data.fournisseurs) { setState('fournisseurs', data.fournisseurs); saveFournisseurs(); }
-  if (data.commandes) { setState('commandes', data.commandes); saveCommandes(); }
-
-  // PV
-  if (data.pvTemplates) { setState('pvTemplates', data.pvTemplates); savePvTemplates(); }
-  if (data.pvDocuments) { setState('pvDocuments', data.pvDocuments); savePvDocuments(); }
-
-  // Autres
-  if (data.vocalReports) { setState('vocalReports', data.vocalReports); saveVocalReports(); }
-  if (data.chatMessages) { setState('chatMessages', data.chatMessages); saveChatMessages(); }
-  if (data.auditLog) { setState('auditLog', data.auditLog); saveAuditLog(); }
-  if (data.incidents) { setState('incidents', data.incidents); saveIncidents(); }
-
-  // Planning
-  if (data.planningEntries) { setState('planningEntries', data.planningEntries); savePlanningEntries(); }
-  if (data.planningShifts) { setState('planningShifts', data.planningShifts); savePlanningShifts(); }
-  if (data.planningCycles) { setState('planningCycles', data.planningCycles); savePlanningCycles(); }
-  if (data.planningLeaves) { setState('planningLeaves', data.planningLeaves); savePlanningLeaves(); }
-
-  // End batch — fire all pending listeners once
-  endBatch();
-
-  console.log('✅ État distant appliqué localement');
 }
 
 // ── Push state to Supabase ─────────────────────────────────

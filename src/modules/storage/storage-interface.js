@@ -11,6 +11,10 @@ let _initialized = false;
 let _fallback = null; // Lazy singleton fallback — avoid creating new LocalStorageAdapter on every call
 let _warnedOnce = false;
 
+// Flag to suppress syncPush during applyRemoteState (avoids re-pushing pulled data)
+let _isSyncPulling = false;
+export function setSyncPulling(v) { _isSyncPulling = v; }
+
 /**
  * Get the localStorage fallback (lazy singleton).
  * Avoids creating a new instance on every proxy call.
@@ -78,7 +82,7 @@ export const storage = new Proxy({}, {
       if (prop === 'set') {
         return (key, value) => {
           fb.set(key, value);
-          syncPush(key, value);
+          if (!_isSyncPulling) syncPush(key, value);
         };
       }
       const val = fb[prop];
@@ -89,7 +93,7 @@ export const storage = new Proxy({}, {
     if (prop === 'set') {
       return (key, value) => {
         _storage.set(key, value);
-        syncPush(key, value);
+        if (!_isSyncPulling) syncPush(key, value);
       };
     }
 

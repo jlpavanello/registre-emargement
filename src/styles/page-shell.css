@@ -5,8 +5,10 @@
 
 /* Conteneur principal */
 /* Transition de page supprimée pour éviter le clignotement */
-#app {
-  /* No opacity transition — instant page swap */
+#app.syncing {
+  opacity: 0.97;
+  pointer-events: none;
+  transition: opacity 0.15s ease, margin-left 0.25s ease;
 }
 
 /* Header de page (sticky en haut) */
