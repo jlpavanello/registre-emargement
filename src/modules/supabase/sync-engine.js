@@ -5,6 +5,7 @@
 
 import { getSupabase, isSupabaseEnabled } from './client.js';
 import { getState, setState, beginBatch, endBatch } from '../state.js';
+import { isConfigEditing } from '../ui/config-panel.js';
 
 // Domain save functions (same pattern as export-import.js)
 import { saveTeam } from '../domains/team.js';
@@ -243,6 +244,12 @@ async function pullState() {
     // Apply remote state if it's from another device
     // or if it's newer than our last push (someone else pushed after us)
     if (remoteDevice !== localDevice || remoteTime > _lastPushTime + 5000) {
+      // Skip applying remote state while user is editing config
+      // to prevent overwriting in-progress changes
+      if (isConfigEditing()) {
+        console.log('⏸️ Pull ignoré — configuration en cours d\'édition');
+        return false;
+      }
       console.log(`⬇️ État distant détecté (device: ${remoteDevice.slice(0, 12)}..., date: ${data.updated_at})`);
       applyRemoteState(data.data);
       _lastPushTime = remoteTime; // avoid re-pushing what we just pulled

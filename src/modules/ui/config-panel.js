@@ -13,12 +13,19 @@ export function bindConfigCallbacks(callbacks) {
   _afterSave = callbacks;
 }
 
+// Flag to prevent sync from overwriting state while user is editing config
+let _configEditing = false;
+export function isConfigEditing() { return _configEditing; }
+export function setConfigEditing(v) { _configEditing = v; }
+
 export function openConfig() {
+  _configEditing = true;
   document.getElementById('configPanel').classList.add('active');
   renderConfig();
 }
 
 export function closeConfig() {
+  _configEditing = false;
   document.getElementById('configPanel').classList.remove('active');
 }
 
@@ -75,14 +82,17 @@ export function renderConfig() {
   document.querySelectorAll('#configEmpList input,#configMachList input,#configMachList select,#configVehiclesList input').forEach((inp) => {
     const evtType = inp.type === 'checkbox' ? 'change' : (inp.tagName === 'SELECT' ? 'change' : 'input');
     inp.addEventListener(evtType, function () {
+      // Always read current state to avoid stale closure references
+      // (Supabase sync can replace state arrays while config is open)
+      const st = getState();
       const idx = +this.dataset.i;
       if (this.dataset.t === 'emp') {
-        if (this.dataset.f === 'asvp') team[idx].asvp = this.checked;
-        else { team[idx][this.dataset.f] = this.value; populateArmurierSelect(); }
+        if (this.dataset.f === 'asvp') st.team[idx].asvp = this.checked;
+        else { st.team[idx][this.dataset.f] = this.value; populateArmurierSelect(); }
       } else if (this.dataset.t === 'veh') {
-        vehicles[idx][this.dataset.f] = this.value;
+        st.vehicles[idx][this.dataset.f] = this.value;
       } else {
-        machines[idx][this.dataset.f] = this.value;
+        st.machines[idx][this.dataset.f] = this.value;
       }
     });
   });

@@ -4,6 +4,7 @@ import { getState, setState } from '../state.js';
 import { initStorage, getRawStorage } from '../storage/storage-interface.js';
 import { syncPullAll, syncPushAll, subscribeToChanges } from '../supabase/data-sync.js';
 import { isSupabaseEnabled } from '../supabase/client.js';
+import { isConfigEditing } from '../ui/config-panel.js';
 import { loadTeam, saveTeam } from './team.js';
 import { loadMachines, saveMachines } from './machines.js';
 import { loadCategories } from './categories.js';
@@ -119,7 +120,11 @@ export async function init() {
   if (isSupabaseEnabled()) {
     const rawStorage = getRawStorage();
     subscribeToChanges(rawStorage, (key, _value) => {
-      // When data changes from another device, reload the affected module
+      // Skip real-time updates while user is editing config
+      if (isConfigEditing()) {
+        console.log(`⏸️ Mise à jour temps réel ignorée (config en édition): ${key}`);
+        return;
+      }
       console.log(`🔄 Mise à jour en temps réel reçue: ${key}`);
       _reloadFromStorage(key);
     });

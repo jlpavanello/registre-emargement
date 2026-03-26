@@ -6,6 +6,7 @@
 import { navigate } from '../router.js';
 import {
   openConfig, closeConfig, addItem, saveConfig, renderConfig,
+  setConfigEditing,
 } from '../ui/config-panel.js';
 import { addCategory } from '../domains/categories.js';
 import { fullReset } from '../actions/reset.js';
@@ -116,7 +117,10 @@ export const configPage = {
   mount(container) {
     container.innerHTML = getTemplate();
     bindEvents();
+    setConfigEditing(true);
     renderConfig();
   },
-  unmount() {},
+  unmount() {
+    setConfigEditing(false);
+  },
 };
