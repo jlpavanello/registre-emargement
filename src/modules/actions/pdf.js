@@ -408,7 +408,7 @@ export function generatePDF() {
   doc.setDrawColor(26, 58, 92);
 
   // --- Equipages section ---
-  const { crewAssignments } = getState();
+  const { crewAssignments, crewDrivers } = getState();
   const vehicles = getActiveVehicles();
   const activeCrews = vehicles.filter((v) => {
     const members = crewAssignments[v.idx] || [];
@@ -451,13 +451,16 @@ export function generatePDF() {
 
       // Crew members
       const members = crewAssignments[v.idx] || [];
+      const driverIdx = crewDrivers[v.idx];
       doc.setFontSize(5.5);
-      doc.setFont('helvetica', 'normal');
       doc.setTextColor(0);
       members.forEach((empIdx, mi) => {
         const emp = team.find((t, i) => i === empIdx);
         const empName = emp ? emp.nom : 'Agent ' + (empIdx + 1);
-        doc.text('- ' + empName, cx + 4, cy + 9 + mi * 3, { maxWidth: crewColW - 6 });
+        const isDriver = empIdx === driverIdx;
+        doc.setFont('helvetica', isDriver ? 'bold' : 'normal');
+        const label = isDriver ? '> ' + empName + ' (Conducteur)' : '- ' + empName;
+        doc.text(label, cx + 4, cy + 9 + mi * 3, { maxWidth: crewColW - 6 });
       });
     });
 

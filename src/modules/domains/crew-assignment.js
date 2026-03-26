@@ -389,6 +389,14 @@ export function saveCrewAssignments() {
     }
   }
 
+  // Vérifier que chaque équipage a un conducteur désigné
+  const sansConduct = Object.keys(clean).filter(vIdx => cleanDrivers[vIdx] === undefined);
+  if (sansConduct.length > 0) {
+    const noms = sansConduct.map(vIdx => getVehicleLabel(parseInt(vIdx))).join(', ');
+    alert('Impossible de valider :\n\n• Conducteur non désigné pour : ' + noms + '\n\nChaque équipage doit avoir un conducteur.');
+    return;
+  }
+
   setState('crewAssignments', clean);
   setState('crewDrivers', cleanDrivers);
   saveDayData();
