@@ -18,26 +18,34 @@ export function loadDayData() {
         setState('lockedSoirPresents', p.lockedSoirPresents || []);
         setState('crewAssignments', p.crewAssignments || {});
         setState('crewDrivers', p.crewDrivers || {});
-        // Restore visa UI
+        // Restore visa UI (null-guard: DOM may not exist yet at startup)
         const { visaMatin, visaSoir, visaMatinSigner, visaSoirSigner } = getState();
         if (visaMatin) {
           const b = document.getElementById('visaMatinBtn');
-          b.innerHTML = `<img src="${visaMatin}" alt="v">`;
-          b.classList.add('signed');
+          if (b) {
+            b.innerHTML = `<img src="${visaMatin}" alt="v">`;
+            b.classList.add('signed');
+          }
           if (visaMatinSigner) {
             const info = document.getElementById('visaMatinSignedBy');
-            info.textContent = visaMatinSigner.label + ' \u2014 ' + visaMatinSigner.nom;
-            info.style.display = 'block';
+            if (info) {
+              info.textContent = visaMatinSigner.label + ' \u2014 ' + visaMatinSigner.nom;
+              info.style.display = 'block';
+            }
           }
         }
         if (visaSoir) {
           const b = document.getElementById('visaSoirBtn');
-          b.innerHTML = `<img src="${visaSoir}" alt="v">`;
-          b.classList.add('signed');
+          if (b) {
+            b.innerHTML = `<img src="${visaSoir}" alt="v">`;
+            b.classList.add('signed');
+          }
           if (visaSoirSigner) {
             const info = document.getElementById('visaSoirSignedBy');
-            info.textContent = visaSoirSigner.label + ' \u2014 ' + visaSoirSigner.nom;
-            info.style.display = 'block';
+            if (info) {
+              info.textContent = visaSoirSigner.label + ' \u2014 ' + visaSoirSigner.nom;
+              info.style.display = 'block';
+            }
           }
         }
         return;
