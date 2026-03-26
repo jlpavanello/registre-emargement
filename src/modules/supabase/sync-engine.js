@@ -144,15 +144,25 @@ function applyRemoteState(data) {
       saveInfoFields();
     }
 
-    // Données du jour
-    if (data.dayData) setState('dayData', data.dayData);
-    if (data.presentToday) setState('presentToday', data.presentToday);
+    // Données du jour — ne jamais écraser des données locales non-vides
+    // par des tableaux vides distants (protège presentToday, dayData, locks)
+    const local = getState();
+    if (data.dayData && (data.dayData.length > 0 || local.dayData.length === 0)) {
+      setState('dayData', data.dayData);
+    }
+    if (data.presentToday && (data.presentToday.length > 0 || local.presentToday.length === 0)) {
+      setState('presentToday', data.presentToday);
+    }
     if (data.visaMatin !== undefined) setState('visaMatin', data.visaMatin);
     if (data.visaSoir !== undefined) setState('visaSoir', data.visaSoir);
     if (data.visaMatinSigner !== undefined) setState('visaMatinSigner', data.visaMatinSigner);
     if (data.visaSoirSigner !== undefined) setState('visaSoirSigner', data.visaSoirSigner);
-    if (data.lockedMatinPresents) setState('lockedMatinPresents', data.lockedMatinPresents);
-    if (data.lockedSoirPresents) setState('lockedSoirPresents', data.lockedSoirPresents);
+    if (data.lockedMatinPresents && (data.lockedMatinPresents.length > 0 || local.lockedMatinPresents.length === 0)) {
+      setState('lockedMatinPresents', data.lockedMatinPresents);
+    }
+    if (data.lockedSoirPresents && (data.lockedSoirPresents.length > 0 || local.lockedSoirPresents.length === 0)) {
+      setState('lockedSoirPresents', data.lockedSoirPresents);
+    }
     if (data.crewAssignments) setState('crewAssignments', data.crewAssignments);
     if (data.crewDrivers) setState('crewDrivers', data.crewDrivers);
     syncDayData();

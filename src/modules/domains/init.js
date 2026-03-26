@@ -150,10 +150,16 @@ function _reloadFromStorage(key) {
       loadResponsables();
       populateVisaSignerSelect();
       break;
-    case 'reg_day':
+    case 'reg_day': {
+      // Protect non-empty presentToday from being wiped by remote data
+      const prevPresent = getState().presentToday;
       loadDayData();
+      if (prevPresent.length > 0 && getState().presentToday.length === 0) {
+        setState('presentToday', prevPresent);
+      }
       syncDayData();
       break;
+    }
     case 'reg_info':
       loadInfoFields();
       break;
