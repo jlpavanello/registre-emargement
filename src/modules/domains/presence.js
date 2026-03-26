@@ -72,12 +72,11 @@ export function selectNonePresence() {
 export function updatePresenceCount() {
   const n = getState().tempPresenceSelection.length;
   document.getElementById('presenceCount').innerHTML = `<span>${n}</span> agent${n > 1 ? 's' : ''} sélectionné${n > 1 ? 's' : ''}`;
-  document.getElementById('btnPresenceSave').disabled = n === 0;
+  document.getElementById('btnPresenceSave').disabled = false;
 }
 
 export function savePresence() {
   const { tempPresenceSelection } = getState();
-  if (tempPresenceSelection.length === 0) { showToast('S\u00e9lectionnez au moins un agent', 'warning'); return; }
   setState('presentToday', [...tempPresenceSelection].sort((a, b) => a - b));
   saveDayData();
   closePresenceSelector();
