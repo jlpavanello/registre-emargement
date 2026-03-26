@@ -39,6 +39,17 @@ export function generatePDF() {
     return;
   }
 
+  // Vérifier que toutes les armes sorties ont été rendues
+  const agentsNonRendus = at.filter(t => {
+    const d = dayData[t.idx];
+    return d && d.matin.machines && d.matin.machines.length > 0 && !d.soir.signature;
+  });
+  if (agentsNonRendus.length > 0) {
+    const noms = agentsNonRendus.map(t => t.nom).join(', ');
+    alert('Impossible de générer le PDF :\n\n• Les armes n\'ont pas été rendues par : ' + noms + '\n\nTous les agents doivent signer le retour des armes avant la génération du PDF.');
+    return;
+  }
+
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const pw = 297;
   const ph = 210;

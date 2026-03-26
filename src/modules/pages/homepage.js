@@ -198,6 +198,12 @@ function renderSynthese(isAgent) {
           <div class="tdb-stat-label">\u00c9quipages</div>
           ${presentCount > 0 && crewCount === 0 ? '<div class="tdb-stat-badge warning">\u26A0\uFE0F \u00c0 faire</div>' : ''}
         </a>
+        <a href="#/registre" class="tdb-stat-card${presentCount > 0 && !(matinLocked && soirLocked) ? ' tdb-stat-card--alert' : ''}">
+          <div class="tdb-stat-icon">\uD83D\uDCC4</div>
+          <div class="tdb-stat-value${matinLocked && soirLocked ? ' success' : ' danger'}">PDF</div>
+          <div class="tdb-stat-label">Registre du jour</div>
+          <div class="tdb-stat-badge ${matinLocked && soirLocked ? 'locked' : 'warning'}">${matinLocked && soirLocked ? '\u2705 Pr\u00eat' : '\uD83D\uDD34 En attente'}</div>
+        </a>
       </div>
     </div>`;
 }
