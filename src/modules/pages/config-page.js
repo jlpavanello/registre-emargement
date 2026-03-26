@@ -3,7 +3,6 @@
 // Équipe, armes, catégories, véhicules, RAZ
 // =============================================
 
-import { navigate } from '../router.js';
 import {
   openConfig, closeConfig, addItem, saveConfig, renderConfig,
   setConfigEditing,
@@ -100,7 +99,6 @@ function getTemplate() {
 function bindEvents() {
   document.getElementById('btnSaveConfig').addEventListener('click', () => {
     saveConfig();
-    navigate('/registre');
   });
   document.getElementById('btnAddEmp').addEventListener('click', () => addItem('emp'));
   document.getElementById('btnAddCat').addEventListener('click', addCategory);
