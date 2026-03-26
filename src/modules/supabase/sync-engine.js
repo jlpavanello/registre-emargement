@@ -266,7 +266,7 @@ async function pullState() {
 
     // Apply remote state if it's from another device
     // or if it's newer than our last push (someone else pushed after us)
-    if (remoteDevice !== localDevice || remoteTime > _lastPushTime + 5000) {
+    if (remoteDevice !== localDevice) {
       // Skip applying remote state while user is editing config
       // to prevent overwriting in-progress changes
       if (isConfigEditing()) {
