@@ -18,6 +18,7 @@ export function loadDayData() {
         setState('lockedSoirPresents', p.lockedSoirPresents || []);
         setState('crewAssignments', p.crewAssignments || {});
         setState('crewDrivers', p.crewDrivers || {});
+        setState('pdfGenerated', !!p.pdfGenerated);
         // Restore visa UI (null-guard: DOM may not exist yet at startup)
         const { visaMatin, visaSoir, visaMatinSigner, visaSoirSigner } = getState();
         if (visaMatin) {
@@ -62,6 +63,7 @@ export function loadDayData() {
   setState('lockedSoirPresents', []);
   setState('crewAssignments', {});
   setState('crewDrivers', {});
+  setState('pdfGenerated', false);
 }
 
 export function syncDayData() {
@@ -105,5 +107,6 @@ export function saveDayData() {
     lockedSoirPresents: s.lockedSoirPresents,
     crewAssignments: s.crewAssignments,
     crewDrivers: s.crewDrivers,
+    pdfGenerated: s.pdfGenerated,
   });
 }

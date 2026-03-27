@@ -126,7 +126,7 @@ function renderPresenceAlert(isAgent) {
 }
 
 function renderSynthese(isAgent) {
-  const { presentToday, team, dayData, crewAssignments } = getState();
+  const { presentToday, team, dayData, crewAssignments, pdfGenerated } = getState();
   const activeTeam = getActiveTeam();
   const totalActive = activeTeam.length;
   const presentCount = presentToday.length;
@@ -198,11 +198,11 @@ function renderSynthese(isAgent) {
           <div class="tdb-stat-label">\u00c9quipages</div>
           ${presentCount > 0 && crewCount === 0 ? '<div class="tdb-stat-badge warning">\u26A0\uFE0F \u00c0 faire</div>' : ''}
         </a>
-        <a href="#/registre" class="tdb-stat-card${presentCount > 0 && !(matinLocked && soirLocked) ? ' tdb-stat-card--alert' : ''}">
+        <a href="#/registre" class="tdb-stat-card${!pdfGenerated && presentCount > 0 ? ' tdb-stat-card--alert' : ''}">
           <div class="tdb-stat-icon">\uD83D\uDCC4</div>
-          <div class="tdb-stat-value${matinLocked && soirLocked ? ' success' : ' danger'}">PDF</div>
+          <div class="tdb-stat-value${pdfGenerated ? ' success' : ' danger'}">PDF</div>
           <div class="tdb-stat-label">Registre du jour</div>
-          <div class="tdb-stat-badge ${matinLocked && soirLocked ? 'locked' : 'warning'}">${matinLocked && soirLocked ? '\u2705 Pr\u00eat' : '\uD83D\uDD34 En attente'}</div>
+          <div class="tdb-stat-badge ${pdfGenerated ? 'locked' : 'warning'}">${pdfGenerated ? '\u2705 G\u00e9n\u00e9r\u00e9' : '\uD83D\uDD34 \u00c0 g\u00e9n\u00e9rer'}</div>
         </a>
       </div>
     </div>`;
