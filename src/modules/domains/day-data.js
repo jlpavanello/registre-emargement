@@ -1,5 +1,5 @@
 import { getState, setState } from '../state.js';
-import { storage } from '../storage/storage-interface.js';
+import { storage, flushStorage } from '../storage/storage-interface.js';
 import { todayStr } from '../utils/date.js';
 
 export function loadDayData() {
@@ -110,4 +110,6 @@ export function saveDayData() {
     crewDrivers: s.crewDrivers,
     pdfGenerated: s.pdfGenerated,
   });
+  // Ensure IDB write completes before a potential page refresh
+  flushStorage();
 }

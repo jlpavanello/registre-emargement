@@ -6,7 +6,7 @@
 import { getSupabase, isSupabaseEnabled } from './client.js';
 import { getState, setState, beginBatch, endBatch } from '../state.js';
 import { isConfigEditing } from '../ui/config-panel.js';
-import { setSyncPulling } from '../storage/storage-interface.js';
+import { setSyncPulling, getRawStorage } from '../storage/storage-interface.js';
 
 // Domain save functions (same pattern as export-import.js)
 import { saveTeam } from '../domains/team.js';
@@ -81,6 +81,7 @@ function buildStateSnapshot() {
       adresseChantier: document.getElementById('adresseChantier')?.value || '',
     },
     // Données du jour
+    _dayUpdatedAt: getRawStorage().get('reg_day')?.updatedAt || Date.now(),
     dayData: state.dayData,
     presentToday: state.presentToday,
     visaMatin: state.visaMatin,
@@ -144,29 +145,29 @@ function applyRemoteState(data) {
       saveInfoFields();
     }
 
-    // Données du jour — ne jamais écraser des données locales non-vides
-    // par des tableaux vides distants (protège presentToday, dayData, locks)
-    const local = getState();
-    if (data.dayData && (data.dayData.length > 0 || local.dayData.length === 0)) {
-      setState('dayData', data.dayData);
+    // Données du jour — vérifier si le local est plus récent via reg_day.updatedAt
+    const localDayRaw = getRawStorage().get('reg_day');
+    const localUpdatedAt = localDayRaw?.updatedAt || 0;
+    const remoteUpdatedAt = data._dayUpdatedAt || 0;
+    const localDayIsNewer = localUpdatedAt > 0 && localUpdatedAt >= remoteUpdatedAt;
+
+    if (!localDayIsNewer) {
+      if (data.dayData) setState('dayData', data.dayData);
+      if (data.presentToday) setState('presentToday', data.presentToday);
+      if (data.visaMatin !== undefined) setState('visaMatin', data.visaMatin);
+      if (data.visaSoir !== undefined) setState('visaSoir', data.visaSoir);
+      if (data.visaMatinSigner !== undefined) setState('visaMatinSigner', data.visaMatinSigner);
+      if (data.visaSoirSigner !== undefined) setState('visaSoirSigner', data.visaSoirSigner);
+      if (data.lockedMatinPresents) setState('lockedMatinPresents', data.lockedMatinPresents);
+      if (data.lockedSoirPresents) setState('lockedSoirPresents', data.lockedSoirPresents);
+      if (data.crewAssignments) setState('crewAssignments', data.crewAssignments);
+      if (data.crewDrivers) setState('crewDrivers', data.crewDrivers);
+      syncDayData();
+      saveDayData();
+    } else {
+      console.log('⏸️ Données du jour locales plus récentes — day data distant ignoré');
+      syncDayData();
     }
-    if (data.presentToday && (data.presentToday.length > 0 || local.presentToday.length === 0)) {
-      setState('presentToday', data.presentToday);
-    }
-    if (data.visaMatin !== undefined) setState('visaMatin', data.visaMatin);
-    if (data.visaSoir !== undefined) setState('visaSoir', data.visaSoir);
-    if (data.visaMatinSigner !== undefined) setState('visaMatinSigner', data.visaMatinSigner);
-    if (data.visaSoirSigner !== undefined) setState('visaSoirSigner', data.visaSoirSigner);
-    if (data.lockedMatinPresents && (data.lockedMatinPresents.length > 0 || local.lockedMatinPresents.length === 0)) {
-      setState('lockedMatinPresents', data.lockedMatinPresents);
-    }
-    if (data.lockedSoirPresents && (data.lockedSoirPresents.length > 0 || local.lockedSoirPresents.length === 0)) {
-      setState('lockedSoirPresents', data.lockedSoirPresents);
-    }
-    if (data.crewAssignments) setState('crewAssignments', data.crewAssignments);
-    if (data.crewDrivers) setState('crewDrivers', data.crewDrivers);
-    syncDayData();
-    saveDayData();
 
     // Stock & Logistique
     if (data.munitionRefs) { setState('munitionRefs', data.munitionRefs); saveMunitionRefs(); }

@@ -70,6 +70,15 @@ export function getRawStorage() {
 }
 
 /**
+ * Flush pending IDB writes to disk (ensures data survives a refresh)
+ */
+export async function flushStorage() {
+  if (_storage && typeof _storage.flush === 'function') {
+    await _storage.flush();
+  }
+}
+
+/**
  * The storage instance with automatic Supabase sync.
  * Every set() writes locally AND pushes to Supabase.
  * get() reads from local cache (fast, synchronous).

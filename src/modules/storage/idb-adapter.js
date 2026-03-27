@@ -129,8 +129,15 @@ export class IDBAdapter {
    */
   set(key, value) {
     cache.set(key, value);
-    // Fire-and-forget write to IndexedDB
-    this._writeToIDB(key, value);
+    // Write to IndexedDB — store promise for flush
+    this._lastWrite = this._writeToIDB(key, value);
+  }
+
+  /**
+   * Wait for the last IDB write to complete
+   */
+  async flush() {
+    if (this._lastWrite) await this._lastWrite;
   }
 
   /**
