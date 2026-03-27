@@ -108,6 +108,9 @@ function shouldUseRemote(key, localValue, remoteValue) {
       if (localValue.updatedAt && remoteValue.updatedAt) {
         return remoteValue.updatedAt > localValue.updatedAt;
       }
+      // Local has timestamp but remote doesn't → local is newer
+      if (localValue.updatedAt) return false;
+      // Neither has timestamp → remote wins (legacy)
       return true;
     }
     return false;
