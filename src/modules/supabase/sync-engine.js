@@ -363,6 +363,14 @@ export function initSyncEngine() {
     setTimeout(() => fullSync(), 2000); // Wait for app to finish loading
   }
 
+  // Re-sync when app returns to foreground (mobile kills intervals in background)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && navigator.onLine && !_isSyncing) {
+      console.log('📱 App revenue au premier plan — synchronisation');
+      fullSync();
+    }
+  });
+
   // Periodic pull every 30 seconds (to get changes from other devices)
   _pullInterval = setInterval(async () => {
     if (navigator.onLine && !_isSyncing) {

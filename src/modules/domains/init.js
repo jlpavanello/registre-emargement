@@ -230,4 +230,11 @@ function _reloadFromStorage(key) {
   updateCrewBadge();
   if (_callbacks.updateSoirTabState) _callbacks.updateSoirTabState();
   if (_callbacks.updateVisaButtonState) _callbacks.updateVisaButtonState();
+  // Refresh current page (homepage, etc.) — debounced to avoid multiple re-renders
+  if (_refreshTimer) clearTimeout(_refreshTimer);
+  _refreshTimer = setTimeout(() => {
+    if (_callbacks.refreshPage) _callbacks.refreshPage();
+  }, 500);
 }
+
+let _refreshTimer = null;

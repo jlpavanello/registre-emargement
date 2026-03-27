@@ -82,6 +82,7 @@ bindInitCallbacks({
   updateSoirTabState,
   updateVisaButtonState,
   openPresenceSelector,
+  refreshPage: () => refreshCurrentRoute(),
 });
 
 bindRendererCallbacks({
@@ -123,7 +124,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const base = import.meta.env.BASE_URL || '/';
     navigator.serviceWorker
-      .register(base + 'sw.js?v=24')
+      .register(base + 'sw.js?v=25')
       .then((reg) => console.log('SW enregistr\u00e9:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });
