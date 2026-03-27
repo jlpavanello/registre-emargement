@@ -97,6 +97,7 @@ export function saveDayData() {
   const s = getState();
   storage.set('reg_day', {
     date: todayStr(),
+    updatedAt: Date.now(),
     data: s.dayData,
     visaMatin: s.visaMatin,
     visaSoir: s.visaSoir,

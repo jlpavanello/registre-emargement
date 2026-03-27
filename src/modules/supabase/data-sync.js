@@ -100,10 +100,15 @@ export async function syncPullAll(storageAdapter) {
  * For config data: remote always wins (shared config)
  */
 function shouldUseRemote(key, localValue, remoteValue) {
-  // Day data: only overwrite if same date
+  // Day data: only overwrite if same date AND remote is newer
   if (key === 'reg_day') {
     if (localValue?.date && remoteValue?.date) {
-      return localValue.date === remoteValue.date;
+      if (localValue.date !== remoteValue.date) return false;
+      // If both have timestamps, only use remote if it's more recent
+      if (localValue.updatedAt && remoteValue.updatedAt) {
+        return remoteValue.updatedAt > localValue.updatedAt;
+      }
+      return true;
     }
     return false;
   }
