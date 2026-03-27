@@ -192,6 +192,13 @@ export function subscribeToChanges(storageAdapter, onDataChanged) {
           const row = payload.new;
           try {
             const value = JSON.parse(row.value);
+            // For day data: skip if local is more recent (avoid overwriting own changes)
+            if (row.key === 'reg_day') {
+              const localValue = storageAdapter.get(row.key);
+              if (localValue?.updatedAt && (!value.updatedAt || localValue.updatedAt >= value.updatedAt)) {
+                return;
+              }
+            }
             storageAdapter.set(row.key, value);
             console.log(`📥 Données reçues d'un autre appareil: ${row.key}`);
             if (onDataChanged) onDataChanged(row.key, value);
