@@ -36,6 +36,7 @@ import { savePlanningLeaves } from '../domains/planning-leaves.js';
 
 // ── Status callback ────────────────────────────────────────
 let _onStatusChange = null;
+let _onRemoteUpdate = null;
 let _isSyncing = false;
 let _pullInterval = null;
 let _pushTimer = null;
@@ -51,6 +52,14 @@ export function onSyncStatusChange(fn) {
 
 function emitStatus(status, pending = 0) {
   if (_onStatusChange) _onStatusChange(status, pending);
+}
+
+/**
+ * Register a callback for when remote data is applied locally
+ * Used to refresh the UI after a sync pull
+ */
+export function onRemoteUpdate(fn) {
+  _onRemoteUpdate = fn;
 }
 
 // ── Device ID ──────────────────────────────────────────────
@@ -197,6 +206,8 @@ function applyRemoteState(data) {
     requestAnimationFrame(() => {
       endBatch();
       if (app) app.classList.remove('syncing');
+      // Notify UI to refresh after remote data applied
+      if (_onRemoteUpdate) _onRemoteUpdate();
     });
 
     console.log('✅ État distant appliqué localement');

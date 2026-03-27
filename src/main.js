@@ -46,7 +46,7 @@ import { bindResetCallbacks } from './modules/actions/reset.js';
 import { bindExportImportCallbacks } from './modules/actions/export-import.js';
 
 // Sync engine
-import { initSyncEngine, schedulePush } from './modules/supabase/sync-engine.js';
+import { initSyncEngine, schedulePush, onRemoteUpdate } from './modules/supabase/sync-engine.js';
 import { initSyncStatusUI } from './modules/supabase/sync-status.js';
 
 // Auth
@@ -61,7 +61,7 @@ import { initAccessibility } from './modules/a11y/accessibility.js';
 import { isPushSupported, getPushPermission, subscribeToPush } from './modules/push/push-notifications.js';
 
 // Routeur & Pages
-import { initRouter, registerRoute, onAfterRoute } from './modules/router.js';
+import { initRouter, registerRoute, onAfterRoute, refreshCurrentRoute } from './modules/router.js';
 import { homepage } from './modules/pages/homepage.js';
 import { registre } from './modules/pages/registre.js';
 
@@ -123,7 +123,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     const base = import.meta.env.BASE_URL || '/';
     navigator.serviceWorker
-      .register(base + 'sw.js?v=23')
+      .register(base + 'sw.js?v=24')
       .then((reg) => console.log('SW enregistr\u00e9:', reg.scope))
       .catch((err) => console.log('SW erreur:', err));
   });
@@ -316,6 +316,7 @@ async function bootstrap() {
   // Sync engine
   initSyncEngine();
   initSyncStatusUI();
+  onRemoteUpdate(() => refreshCurrentRoute());
 
   // Auto-sync on state change
   const syncKeys = [

@@ -62,6 +62,15 @@ export function onAfterRoute(fn) {
 }
 
 /**
+ * Force le re-mount de la page courante (après sync distante)
+ */
+export function refreshCurrentRoute() {
+  if (!currentRoute || !appContainer) return;
+  currentPath = null; // Reset to allow re-mount
+  handleRoute();
+}
+
+/**
  * Gère le changement de route
  */
 async function handleRoute() {
